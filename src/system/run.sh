@@ -396,7 +396,7 @@ if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
     DATASET="Cifar10_drift"
     DRIFT=1
     echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS)..."
-    uv run ../dataset/generate_Cifar_drift.py noniid - dir "$CLIENT_COUNT" --drift-type label_swap --drift-clients "$DRIFT_CLIENTS"
+    uv run ../dataset/generate_Cifar_drift.py noniid - dir "$CLIENT_COUNT" --drift-type "$DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
 else
     # Busca o script no diretório dataset
     SCRIPT_PATH=$(find ../dataset -maxdepth 1 -iname "generate_${DATASET}.py" -print -quit)
