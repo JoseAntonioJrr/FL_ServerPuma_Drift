@@ -71,7 +71,7 @@ def prune_and_restructure(model, pruning_rate = 0.5, n_in = 1, size_fc = 25, dat
 
             # filtra os pesos da camada
             if first_linear:
-                if data=='Cifar100' or data=='Cifar10':
+                if data=='Cifar100' or data=='Cifar10' or data=='Cifar10_drift':
                     print('oi')
                     indices_not_remove_weight = indices_not_remove_weight.repeat(25)
                 if data=='MNIST':

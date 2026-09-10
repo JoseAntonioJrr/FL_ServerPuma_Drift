@@ -241,8 +241,8 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
 import torchvision.transforms as T
 from PIL import Image
 
-def load_data(dataset, client_idx, device, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None):
-    train_data = read_client_data(dataset, client_idx, is_train)
+def load_data(dataset, client_idx, device, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None, phase=None):
+    train_data = read_client_data(dataset, client_idx, is_train, phase=phase)
     X, y = zip(*train_data)
     X = torch.stack(X)
     
@@ -314,6 +314,44 @@ def load_data(dataset, client_idx, device, is_train=True, batch_size=32, is_clip
     return DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 
+def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None):
+    """Carrega dados interpolando proporcionalmente Phase 1 e Phase 2 (Gradual Drift)."""
+    data_p1 = read_client_data(dataset, client_idx, is_train, phase="phase1")
+    data_p2 = read_client_data(dataset, client_idx, is_train, phase="phase2")
+    n_total = len(data_p1)
+    n2 = int(round(alpha * n_total))
+    n1 = n_total - n2
+
+    idx1 = np.random.choice(len(data_p1), size=n1, replace=(n1 > len(data_p1))) if n1 > 0 else []
+    idx2 = np.random.choice(len(data_p2), size=n2, replace=(n2 > len(data_p2))) if n2 > 0 else []
+
+    subset1 = [data_p1[i] for i in idx1]
+    subset2 = [data_p2[i] for i in idx2]
+    blended = list(subset1) + list(subset2)
+    random.shuffle(blended)
+
+    X, y = zip(*blended)
+    X = torch.stack(X)
+
+    if is_clip:
+        if X.shape[-2:] != (224, 224):
+            resize = T.Resize((224, 224), antialias=True)
+            X = resize(X)
+        if not X.is_floating_point():
+            X = X.float() / 255.0
+        elif X.max() > 1.0:
+            X = X / 255.0
+        if X.min() >= 0.0:
+            normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
+            X = normalize(X)
+
+    X = X.to(device)
+    y = torch.tensor(y, dtype=torch.long).to(device)
+
+    dataset = torch.utils.data.TensorDataset(X, y)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+
 
 def save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, rs_train_acc, idx=0, argalgo=0):
     b = "FedALA" if argalgo == 0 else "FedAVG"
@@ -338,6 +376,12 @@ def save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, 
         hf.create_dataset('rs_local_acc', data=rs_local_acc)
         hf.create_dataset('rs_train_acc', data=rs_train_acc)
         hf.attrs['paca_used'] = paca_val
+        if getattr(args, 'drift', False):
+            hf.attrs['drift_enabled'] = True
+            hf.attrs['drift_type'] = getattr(args, 'drift_type', 'abrupt')
+            hf.attrs['drift_round'] = getattr(args, 'drift_round', 10)
+            hf.attrs['drift_length'] = getattr(args, 'drift_length', 5)
+            hf.attrs['drift_clients'] = getattr(args, 'drift_clients', '0')
 
 def local_initialization(ala, received_global_model, model, mask=None):
     ala.adaptive_local_aggregation(received_global_model, model, mask=mask)
@@ -412,6 +456,13 @@ def parse_args():
     parser.add_argument('--skip-post-eval', action='store_true', help='Pula todas as avaliações pós-treino no cliente (local_test_acc e train_acc) para máxima velocidade, mantendo apenas Global Model Test Acc')
     parser.add_argument('--skip-train-eval', action='store_true', help='Pula apenas a avaliação demorada no conjunto de treino pós-treino')
     
+    # --- Concept Drift Simulation ---
+    parser.add_argument('--drift', action='store_true', help='Ativa simulação de Concept Drift temporal')
+    parser.add_argument('--drift-type', type=str, default='abrupt', choices=['abrupt', 'gradual'], help='Tipo de transição temporal (abrupt ou gradual)')
+    parser.add_argument('--drift-round', type=int, default=10, help='Rodada de comunicação em que o drift ocorre (ou inicia o gradual)')
+    parser.add_argument('--drift-length', type=int, default=5, help='Duração em rodadas da transição gradual')
+    parser.add_argument('--drift-clients', type=str, default='0', help='IDs dos clientes que sofrem drift (ex: "0" ou "0,1")')
+
     return parser.parse_args()
 
 def main():
@@ -469,7 +520,7 @@ def main():
             match args.dataset:
                 case 'MNIST':
                     model = SimpleModel(in_features=1, num_classes=10, dim=1024)
-                case 'Cifar10':
+                case 'Cifar10' | 'Cifar10_drift':
                     model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
                 case 'Cifar100':
                     model = SimpleModel(in_features=args.in_features, num_classes=args.num_classes, dim=args.dim)
@@ -529,9 +580,16 @@ def main():
     try:
         is_clip_flag = (args.model == 'clip')
         is_slm_flag = (args.model == 'slm')
-        train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
-        test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
-        logger.info(f"Data loaded successfully - Train batches: {len(train_loader)}, Test batches: {len(test_loader)}")
+
+        drift_client_set = set(int(x.strip()) for x in args.drift_clients.split(",") if x.strip().isdigit()) if getattr(args, 'drift_clients', None) else {0}
+        is_drifted_client = getattr(args, 'drift', False) and (args.client_idx in drift_client_set)
+        initial_phase = "phase1" if getattr(args, 'drift', False) else None
+
+        train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase)
+        test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase)
+        logger.info(f"Data loaded successfully (Phase: {initial_phase or 'default'}) - Train batches: {len(train_loader)}, Test batches: {len(test_loader)}")
+        if is_drifted_client:
+            logger.info(f"[CONCEPT DRIFT ATIVADO] Cliente {args.client_idx} configurado para drift {args.drift_type.upper()} a partir do Round {args.drift_round}")
     except Exception as e:
         logger.exception("Error loading data")
         sys.exit(1)
@@ -574,7 +632,44 @@ def main():
             send_data(s, args.client_idx)
             logger.info(f"Connected to server {args.host}:{args.port}")
             for round_num in range(args.rounds):
-                logger.info(f"\n--- Round {round_num + 1}/{args.rounds} ---")
+                current_round = round_num + 1
+                logger.info(f"\n--- Round {current_round}/{args.rounds} ---")
+
+                # --- Detecção e Aplicação de Concept Drift ---
+                if is_drifted_client:
+                    if args.drift_type == 'abrupt':
+                        if current_round == args.drift_round:
+                            logger.info("=" * 65)
+                            logger.info(f"[CONCEPT DRIFT: ABRUPTO] Cliente {args.client_idx} trocando para Phase 2 no Round {current_round}")
+                            logger.info("=" * 65)
+                            train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
+                            test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
+                            if args.model == 'clip':
+                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
+                            else:
+                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
+                    elif args.drift_type == 'gradual':
+                        if args.drift_round <= current_round < (args.drift_round + args.drift_length):
+                            alpha_interp = (current_round - args.drift_round + 1) / (args.drift_length + 1)
+                            logger.info("=" * 65)
+                            logger.info(f"[CONCEPT DRIFT: GRADUAL] Cliente {args.client_idx} (Round {current_round}): alpha={alpha_interp:.2f} (Phase 2)")
+                            logger.info("=" * 65)
+                            train_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
+                            test_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
+                            if args.model == 'clip':
+                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
+                            else:
+                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
+                        elif current_round == (args.drift_round + args.drift_length):
+                            logger.info("=" * 65)
+                            logger.info(f"[CONCEPT DRIFT: GRADUAL] Transição concluída no Cliente {args.client_idx}. Operando 100% em Phase 2")
+                            logger.info("=" * 65)
+                            train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
+                            test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
+                            if args.model == 'clip':
+                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
+                            else:
+                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
                 
                 # --- Recebe PaCA e Rank dinâmicos do servidor (CLIP e SLM) ---
                 if args.model in ['clip', 'slm']:

@@ -11,6 +11,9 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
+# Trap para garantir limpeza da sessão tmux caso o usuário cancele com Ctrl+C
+trap 'echo -e "\n[INFO] Cancelamento detectado. Encerrando sessão tmux: $SESSION_NAME..."; tmux kill-session -t "$SESSION_NAME" 2>/dev/null; exit 1' INT TERM
+
 # Hugging Face: modo offline por padrão para evitar chamadas de rede redundantes a cada cliente/servidor
 export HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-0}
 export TRANSFORMERS_OFFLINE=${TRANSFORMERS_OFFLINE:-0}
@@ -102,6 +105,13 @@ SKIP_TRAIN_EVAL=0
 # Delta Coding (LHDQ)
 DELTA_CODING=0
 
+# Concept Drift
+DRIFT=0
+DRIFT_TYPE="abrupt"
+DRIFT_ROUND=10
+DRIFT_LENGTH=5
+DRIFT_CLIENTS="0"
+
 # ---- Função de Ajuda ----
 show_help() {
     cat << 'EOF'
@@ -157,6 +167,13 @@ Opções de PaCA:
   --paca-min <n>              PaCA mínimo para modo aleatório (padrão: 1)
   --paca-max <n>              PaCA máximo para modo aleatório (padrão: 12)
   --paca-list <lista>         Lista de PaCA por cliente (ex: "4,8,12")
+
+Opções de Concept Drift:
+  --drift                     Habilitar simulação de Concept Drift temporal
+  --drift-type <abrupt|gradual> Tipo de transição (padrão: abrupt)
+  --drift-round <n>           Rodada de injeção/início do drift (padrão: 10)
+  --drift-length <n>          Duração em rodadas da transição gradual (padrão: 5)
+  --drift-clients <lista>     IDs dos clientes afetados (padrão: 0)
 
 Opções de Rank Adaptativo:
   --adaptive-rank             Habilitar rank adaptativo no servidor
@@ -268,6 +285,13 @@ while [ $# -gt 0 ]; do
         # Delta Coding (LHDQ)
         --delta-coding) DELTA_CODING=1; shift 1 ;;
 
+        # Concept Drift
+        --drift) DRIFT=1; shift 1 ;;
+        --drift-type) DRIFT_TYPE="$2"; shift 2 ;;
+        --drift-round) DRIFT_ROUND="$2"; shift 2 ;;
+        --drift-length) DRIFT_LENGTH="$2"; shift 2 ;;
+        --drift-clients) DRIFT_CLIENTS="$2"; shift 2 ;;
+
         *) echo "❌ Argumento desconhecido: $1"; exit 1 ;;
     esac
 done
@@ -361,16 +385,26 @@ fi
 if [ -n "$SAVE_MODEL_FLAG" ]; then echo "  Salvar modelo: SIM ($SAVE_MODEL_PATH)"; fi
 if [ -n "$LOAD_MODEL_FLAG" ]; then echo "  Carregar modelo: SIM ($LOAD_MODEL_PATH)"; fi
 if [ "$DELTA_CODING" -eq 1 ]; then echo "  Compressão: LHDQ (Delta Coding ~1.67 bits/param)"; else echo "  Compressão: INT8 padrão (8 bits/param)"; fi
+if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
+    echo "  Concept Drift: ATIVADO (Tipo: $DRIFT_TYPE | Round: $DRIFT_ROUND | Duração: $DRIFT_LENGTH | Clientes: $DRIFT_CLIENTS)"
+fi
 echo "===================================="
 
 # ---- Preparação do Dataset ----
-# Busca o script no diretório dataset
-SCRIPT_PATH=$(find ../dataset -maxdepth 1 -iname "generate_${DATASET}.py" -print -quit)
-if [ -n "$SCRIPT_PATH" ]; then
-    uv run "$SCRIPT_PATH" noniid - dir "$CLIENT_COUNT"
+if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
+    DATASET="Cifar10_drift"
+    DRIFT=1
+    echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS)..."
+    uv run ../dataset/generate_Cifar_drift.py noniid - dir "$CLIENT_COUNT" --drift-type label_swap --drift-clients "$DRIFT_CLIENTS"
 else
-    echo "[ERRO] Dataset não reconhecido ou script de geração não encontrado para: $DATASET"
-    exit 1
+    # Busca o script no diretório dataset
+    SCRIPT_PATH=$(find ../dataset -maxdepth 1 -iname "generate_${DATASET}.py" -print -quit)
+    if [ -n "$SCRIPT_PATH" ]; then
+        uv run "$SCRIPT_PATH" noniid - dir "$CLIENT_COUNT"
+    else
+        echo "[ERRO] Dataset não reconhecido ou script de geração não encontrado para: $DATASET"
+        exit 1
+    fi
 fi
 
 if [ -n "$SAVE_MODEL_FLAG" ]; then
@@ -394,6 +428,10 @@ else
     # Sufixo de compressão LHDQ
     if [ "$DELTA_CODING" -eq 1 ]; then
         EXP_NAME="${EXP_NAME}_deltacoding"
+    fi
+    # Sufixo de Concept Drift
+    if [ "$DRIFT" -eq 1 ]; then
+        EXP_NAME="${EXP_NAME}_drift_${DRIFT_TYPE}_r${DRIFT_ROUND}"
     fi
 fi
 echo "[INFO] Diretório de Resultados: ../results/$EXP_NAME"
@@ -465,6 +503,10 @@ for RUN in $(seq $START_RUN $END_RUN); do
     fi
     SERVER_CMD="$SERVER_CMD 2>&1 | tee $LOG_DIR/server.log"
 
+    # Encerra qualquer sessão anterior com o mesmo nome para evitar conflitos ('duplicate session')
+    tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
+    sleep 1
+
     if [ "$AUTO_NEXT" -eq 1 ]; then
         tmux new-session -d -s "$SESSION_NAME" "$SERVER_CMD"
     else
@@ -490,6 +532,12 @@ for RUN in $(seq $START_RUN $END_RUN); do
             EVAL_FLAGS="$EVAL_FLAGS --skip-train-eval"
         fi
 
+        # Flags de Concept Drift
+        DRIFT_FLAGS=""
+        if [ "$DRIFT" -eq 1 ]; then
+            DRIFT_FLAGS="--drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS"
+        fi
+
         # Distribuição round-robin de GPUs
         if [ "$CUSTOM_DID" -eq 1 ]; then
             CLIENT_DEVICE_ID=$DEVICE_ID
@@ -513,6 +561,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
             --rank $RANK \
             $PACA_FLAGS \
             $EVAL_FLAGS \
+            $DRIFT_FLAGS \
             --config \"$CONFIG_FILE\" \
             --num-classes $NUM_CLASSES \
             --in-features $IN_FEATURES \

@@ -190,7 +190,8 @@ def _load_server_h5(files):
     for f in files:
         with h5py.File(f, 'r') as hf:
             acc.append(np.array(hf['rs_test_acc']))
-            loss.append(np.array(hf['rs_train_loss']))
+            loss_key = 'rs_train_loss' if 'rs_train_loss' in hf else 'rs_test_loss'
+            loss.append(np.array(hf[loss_key]))
             mb.append(np.array(hf['sended_model_Mb']))
             mb_bruto.append(np.array(hf['Sended_without_quant']))
             time_.append(np.array(hf['Round_time']))
@@ -970,14 +971,14 @@ def plot_15_mb_vs_tempo(experiments, output_dir):
 # Experimentos para plotar (Adicione ou remova itens desta lista)
 # ==============================================================================
 EXPERIMENTOS_PARA_PLOTAR = [
-    "1_lora_padrao_clip_lora_prune1_ala1_paca12_20260801_180443",
-    "2_sora_estatico_clip_sora_with_schedule_prune1_ala1_paca12_20260802_011456",
-    "3_pumagt_clip_sora_with_schedule_prune1_ala1_adaptpaca_20260802_095514",
+    "fl_puma_cnn_lora_prune1_ala1_paca12",
+    #"2_sora_estatico_clip_sora_with_schedule_prune1_ala1_paca12_20260802_011456",
+    #"3_pumagt_clip_sora_with_schedule_prune1_ala1_adaptpaca_20260802_095514",
     # "pumagt_adap_rank_clip_sora_with_schedule_prune1_ala1_adaptpaca_20260805_183756"
 ]
 
 def main():
-    exp_names = EXPERIMENTOS_PARA_PLOTAR
+    exp_names = sys.argv[1:] if len(sys.argv) > 1 else EXPERIMENTOS_PARA_PLOTAR
 
     if not exp_names:
         print("❌ Nenhum experimento definido na lista EXPERIMENTOS_PARA_PLOTAR.")

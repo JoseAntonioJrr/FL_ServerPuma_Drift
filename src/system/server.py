@@ -101,7 +101,7 @@ class FederatedLearningServer:
                     case 'MNIST':
                         self.global_model = SimpleModel(in_features=1, num_classes=10, dim=1024)
                         self.input_size = (1, 1, 28, 28)
-                    case 'Cifar10':
+                    case 'Cifar10' | 'Cifar10_drift':
                         self.global_model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
                         self.input_size = (1, 3, 32, 32)
                     case 'Cifar100':
