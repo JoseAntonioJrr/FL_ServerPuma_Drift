@@ -112,6 +112,7 @@ DRIFT_TYPE="abrupt"
 DRIFT_ROUND=10
 DRIFT_LENGTH=5
 DRIFT_CLIENTS="0"
+BALANCE_PARAM="-"
 
 # ---- Função de Ajuda ----
 show_help() {
@@ -174,7 +175,7 @@ Opções de Concept Drift:
   --drift-type <abrupt|gradual> Tipo de transição (padrão: abrupt)
   --drift-round <n>           Rodada de injeção/início do drift (padrão: 10)
   --drift-length <n>          Duração em rodadas da transição gradual (padrão: 5)
-  --drift-clients <lista>     IDs dos clientes afetados (padrão: 0)
+  --drift-clients <lista|all> IDs dos clientes afetados (ex: "0", "0,1" ou "all", padrão: 0)
 
 Opções de Rank Adaptativo:
   --adaptive-rank             Habilitar rank adaptativo no servidor
@@ -286,7 +287,8 @@ while [ $# -gt 0 ]; do
         # Delta Coding (LHDQ)
         --delta-coding) DELTA_CODING=1; shift 1 ;;
 
-        # Concept Drift
+        # Concept Drift & Balance
+        --balance) BALANCE_PARAM="balance"; shift 1 ;;
         --drift) DRIFT=1; shift 1 ;;
         --drift-type) DRIFT_TYPE="$2"; shift 2 ;;
         --drift-round) DRIFT_ROUND="$2"; shift 2 ;;
@@ -392,16 +394,30 @@ fi
 echo "===================================="
 
 # ---- Preparação do Dataset ----
-if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
-    DATASET="Cifar10_drift"
+BALANCE_MODE="${BALANCE_PARAM:--}"
+
+if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cifar100_drift" ]; then
+    if [ "$DATASET" = "Cifar100" ] || [ "$DATASET" = "Cifar100_drift" ]; then
+        DATASET="Cifar100_drift"
+        GENERATOR_SCRIPT="../dataset/generate_Cifar100_drift.py"
+        NUM_CLASSES=100
+    else
+        DATASET="Cifar10_drift"
+        GENERATOR_SCRIPT="../dataset/generate_Cifar10_drift.py"
+        NUM_CLASSES=10
+    fi
     DRIFT=1
-    echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS)..."
-    uv run ../dataset/generate_Cifar_drift.py noniid - dir "$CLIENT_COUNT" --drift-type "$DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
+    DATASET_DRIFT_TYPE="$DRIFT_TYPE"
+    if [ "$DATASET_DRIFT_TYPE" = "abrupt" ] || [ "$DATASET_DRIFT_TYPE" = "gradual" ]; then
+        DATASET_DRIFT_TYPE="label_swap"
+    fi
+    echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS, balance: $BALANCE_MODE)..."
+    uv run "$GENERATOR_SCRIPT" noniid "$BALANCE_MODE" dir "$CLIENT_COUNT" --drift-type "$DATASET_DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
 else
     # Busca o script no diretório dataset
     SCRIPT_PATH=$(find ../dataset -maxdepth 1 -iname "generate_${DATASET}.py" -print -quit)
     if [ -n "$SCRIPT_PATH" ]; then
-        uv run "$SCRIPT_PATH" noniid - dir "$CLIENT_COUNT"
+        uv run "$SCRIPT_PATH" noniid "$BALANCE_MODE" dir "$CLIENT_COUNT"
     else
         echo "[ERRO] Dataset não reconhecido ou script de geração não encontrado para: $DATASET"
         exit 1
@@ -501,6 +517,9 @@ for RUN in $(seq $START_RUN $END_RUN); do
     fi
     if [ "$DELTA_CODING" -eq 1 ]; then
         SERVER_CMD="$SERVER_CMD --delta-coding"
+    fi
+    if [ "$DRIFT" -eq 1 ]; then
+        SERVER_CMD="$SERVER_CMD --drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS"
     fi
     SERVER_CMD="$SERVER_CMD 2>&1 | tee $LOG_DIR/server.log"
 

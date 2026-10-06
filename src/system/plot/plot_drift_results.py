@@ -75,6 +75,7 @@ def load_experiment_data(exp_dir: Path):
     clients_data = {}
     drift_round = None
     drift_type = None
+    drift_clients_str = None
 
     for cf in client_files:
         with h5py.File(cf, 'r') as hf:
@@ -95,6 +96,8 @@ def load_experiment_data(exp_dir: Path):
                 drift_round = int(hf.attrs['drift_round'])
             if 'drift_type' in hf.attrs:
                 drift_type = str(hf.attrs['drift_type'])
+            if 'drift_clients' in hf.attrs:
+                drift_clients_str = str(hf.attrs['drift_clients'])
 
             clients_data[c_idx] = {
                 'local_acc': local_acc,
@@ -108,7 +111,8 @@ def load_experiment_data(exp_dir: Path):
         'global_loss': global_loss,
         'clients_data': clients_data,
         'drift_round': drift_round,
-        'drift_type': drift_type
+        'drift_type': drift_type,
+        'drift_clients': drift_clients_str
     }
 
 
@@ -129,6 +133,18 @@ def plot_drift_analysis(data, manual_drift_round=None, output_dir=None):
     drift_round = manual_drift_round or data['drift_round'] or 10
     drift_type = data['drift_type'] or "Abrupt"
 
+    # Resolver conjunto de clientes afetados a partir dos metadados HDF5
+    drift_clients_str = data.get('drift_clients', None)
+    if drift_clients_str is not None:
+        dc = drift_clients_str.strip().lower()
+        if dc == 'all':
+            drift_client_set = set(clients.keys())
+        else:
+            drift_client_set = set(int(x.strip()) for x in dc.split(',') if x.strip().isdigit())
+    else:
+        # Fallback: assume que apenas o cliente 0 é afetado (retrocompatibilidade)
+        drift_client_set = {0}
+
     num_rounds = len(global_acc)
     rounds = np.arange(1, num_rounds + 1)
 
@@ -145,15 +161,16 @@ def plot_drift_analysis(data, manual_drift_round=None, output_dir=None):
     ax1.set_ylim(0, 105)
 
     # --- SUBPLOT 2: Acurácia Local por Cliente ---
-    colors = ['#d62728', '#2ca02c', '#9467bd', '#ff7f0e']
-    markers = ['s', '^', 'D', 'v']
+    colors = ['#d62728', '#2ca02c', '#9467bd', '#ff7f0e', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#1f77b4']
+    markers = ['s', '^', 'D', 'v', 'o', 'P', 'X', 'h', '*', 'd']
 
     for cid, c_info in sorted(clients.items()):
         acc = c_info['local_acc']
         if acc is not None and len(acc) > 0:
             acc_pct = to_percentage(acc)
             c_rounds = np.arange(1, len(acc_pct) + 1)
-            label = f"Cliente {cid} {'(Afetado)' if cid == 0 else '(Estável)'}"
+            status = '(Afetado)' if cid in drift_client_set else '(Estável)'
+            label = f"Cliente {cid} {status}"
             c_color = colors[cid % len(colors)]
             c_marker = markers[cid % len(markers)]
             ax2.plot(c_rounds, acc_pct, marker=c_marker, color=c_color, lw=2.2, label=label)

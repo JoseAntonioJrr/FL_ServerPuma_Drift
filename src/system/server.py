@@ -51,7 +51,7 @@ if str(parent_dir) not in sys.path:
 # -----------------------------------------------------------------
 
 from model import SimpleModel
-from utils.data_utils import read_client_data
+from utils.data_utils import read_client_data, TransformedDataset
 from prunning import prune_and_restructure
 from size_mode import get_model_size, get_trainable_size_and_params
 from synexp import LayerComplexityCalculator
@@ -112,7 +112,7 @@ class FederatedLearningServer:
                     case 'Cifar10' | 'Cifar10_drift':
                         self.global_model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
                         self.input_size = (1, 3, 32, 32)
-                    case 'Cifar100':
+                    case 'Cifar100' | 'Cifar100_drift':
                         self.global_model = SimpleModel(in_features=args.in_features, num_classes=args.num_classes, dim=args.dim)
                         self.input_size = (1, 3, 32, 32)
                     case _:
@@ -1201,29 +1201,46 @@ class FederatedLearningServer:
         pin_mem = True if hasattr(self.args, 'device') and torch.device(self.args.device).type == 'cuda' else False
         return DataLoader(slm_data, batch_size=batch_size, shuffle=False, collate_fn=self.slm_collator, pin_memory=pin_mem)
 
-    def load_test_data(self, dataset, client_idx=0, batch_size=32):
+    def _get_clip_transform(self):
+        class ClipTransform:
+            def __init__(self):
+                import torchvision.transforms as T
+                self.resize = T.Resize((224, 224), antialias=True)
+                self.normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
+
+            def __call__(self, img_tensor):
+                if img_tensor.shape[-2:] != (224, 224):
+                    img_tensor = self.resize(img_tensor)
+                if not img_tensor.is_floating_point():
+                    img_tensor = img_tensor.float() / 255.0
+                elif img_tensor.max() > 1.0:
+                    img_tensor = img_tensor / 255.0
+                if img_tensor.min() >= 0.0:
+                    img_tensor = self.normalize(img_tensor)
+                return img_tensor
+
+        return ClipTransform()
+
+    def load_test_data(self, dataset, client_idx=0, batch_size=32, phase=None):
         try:
-            test_data = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False)
-            X, y = zip(*test_data)
-            X = torch.stack(X)
-            y = torch.tensor(y)
+            res = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False, phase=phase)
+            if isinstance(res, tuple):
+                X, y = res
+            else:
+                X, y = zip(*res)
+                X = torch.stack(X)
+                y = torch.tensor(y)
             
             if getattr(self.args, 'model', 'cnn') == 'slm':
                 return self._prepare_slm_test_loader(X, y, batch_size)
                 
+            transform = None
             if getattr(self.args, 'model', 'cnn') == 'clip':
-                import torchvision.transforms as T
-                if X.shape[-2:] != (224, 224):
-                    X = T.Resize((224, 224), antialias=True)(X)
-                if not X.is_floating_point():
-                    X = X.float() / 255.0
-                elif X.max() > 1.0:
-                    X = X / 255.0
-                if X.min() >= 0.0:
-                    normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
-                    X = normalize(X)
-            dataset = torch.utils.data.TensorDataset(X, y)
-            return DataLoader(dataset, batch_size=batch_size, shuffle=False)
+                transform = self._get_clip_transform()
+            
+            # Utilizar TransformedDataset para aplicar Resize/Normalize por mini-batch (evita estouro de RAM CPU no servidor)
+            dataset_obj = TransformedDataset(X, y, transform=transform)
+            return DataLoader(dataset_obj, batch_size=batch_size, shuffle=False)
         except Exception as e:
             logger.exception("Error loading test data")
             return None
@@ -1378,6 +1395,10 @@ class FederatedLearningServer:
                         safe_client_weights = list(client_weights)
                     
                     aggregated_state = self.aggregate_models(safe_client_updates, self.global_state, safe_client_weights)
+                    del safe_client_updates, safe_client_weights
+                    import gc; gc.collect()
+                    if hasattr(self.args, 'device') and torch.device(self.args.device).type == 'cuda':
+                        torch.cuda.empty_cache()
                     
                     if self.args.model in ['clip', 'slm'] and 'sora' in self.args.strategy and self.args.prune_freq > 0:
                         # Verifica se a rodada atual é múltipla da frequência desejada
@@ -1424,15 +1445,51 @@ class FederatedLearningServer:
                         self.global_state = aggregated_state
                         self.global_model.load_state_dict(self.global_state, strict=False)
                     
+                    # --- CONCEPT DRIFT: Invalidar cache de test loaders quando o drift ocorre ---
+                    if (getattr(self.args, 'drift', False)
+                            and not getattr(self, '_drift_cache_invalidated', False)
+                            and (round_num + 1) >= getattr(self.args, 'drift_round', 999)):
+                        # Determinar a fase correta para avaliação no servidor
+                        drift_type = getattr(self.args, 'drift_type', 'abrupt')
+                        drift_length = getattr(self.args, 'drift_length', 5)
+                        if drift_type == 'abrupt' or (round_num + 1) >= (self.args.drift_round + drift_length):
+                            # Drift abrupto: troca imediata. Gradual: troca quando a transição concluir.
+                            raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
+                            if raw_dc.strip().lower() == 'all':
+                                drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
+                            else:
+                                drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
+                            logger.info(f"[CONCEPT DRIFT] Invalidando cache de test loaders e recarregando com Phase 2 para clientes afetados: {drift_client_set}")
+                            for cid in list(self.test_loaders_cache.keys()):
+                                if cid in drift_client_set:
+                                    del self.test_loaders_cache[cid]
+                            gc.collect()
+                            if torch.cuda.is_available():
+                                torch.cuda.empty_cache()
+                            self._drift_cache_invalidated = True
+
                     if self.test_loader is not None or self.client_idx:
                         try:
                             total_correct_weight = 0.0
                             total_loss_weight = 0.0
                             total_samples = 0
                             eval_clients = self.client_idx if self.client_idx else ([self.args.test_client_idx] if self.args.test_client_idx is not None else [0])
+
+                            # Determinar a fase de avaliação por cliente
+                            drift_active = getattr(self.args, 'drift', False)
+                            drift_invalidated = getattr(self, '_drift_cache_invalidated', False)
+                            raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
+                            if drift_active and raw_dc.strip().lower() == 'all':
+                                drift_client_set_eval = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
+                            elif drift_active:
+                                drift_client_set_eval = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
+                            else:
+                                drift_client_set_eval = set()
+
                             for i in eval_clients:
                                 if i not in self.test_loaders_cache:
-                                    self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size)
+                                    phase = "phase2" if (drift_invalidated and i in drift_client_set_eval) else None
+                                    self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
                                 client_loader = self.test_loaders_cache[i]
                                 if client_loader is not None:
                                     accuracy, avg_loss = evaluate_model(self.global_model, client_loader)
@@ -1571,6 +1628,14 @@ def parse_args():
     parser.add_argument('--min-rank', type=int, default=2, help='Rank mínimo permitido por módulo SoRA durante poda iterativa')
     parser.add_argument('--sora-prune', action='store_true', help='Ativa poda iterativa de rank do SoRA (independente do --prune CNN)')
     parser.add_argument('--delta-coding', action='store_true', help='Ativa LHDQ (Low Huffman-coded Delta Quantization) em vez de int8')
+
+    # --- Concept Drift (servidor precisa conhecer para avaliação drift-aware) ---
+    parser.add_argument('--drift', action='store_true', help='Indica que o experimento usa Concept Drift')
+    parser.add_argument('--drift-type', type=str, default='abrupt', choices=['abrupt', 'gradual'], help='Tipo de drift temporal')
+    parser.add_argument('--drift-round', type=int, default=10, help='Rodada em que o drift ocorre/inicia')
+    parser.add_argument('--drift-length', type=int, default=5, help='Duração da transição gradual (rodadas)')
+    parser.add_argument('--drift-clients', type=str, default='0', help='IDs dos clientes afetados (ex: "0", "0,1" ou "all")')
+
     return parser.parse_args()
 
 def main():

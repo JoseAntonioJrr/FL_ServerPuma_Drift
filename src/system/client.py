@@ -9,6 +9,8 @@ import sys
 import argparse
 import logging
 import random
+import gc
+import psutil
 from pathlib import Path
 
 # Desativa checagem online redundante do Hugging Face Hub (usa cache local instantaneamente)
@@ -40,7 +42,7 @@ if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 # -----------------------------------------------------------------
 
-from utils.data_utils import read_client_data
+from utils.data_utils import read_client_data, TransformedDataset
 from prunning import prune_and_restructure
 from ALA import ALA
 from ALA_LoRA import ALA_LoRA
@@ -58,6 +60,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 # --------------------------------------------------------
+
+# --- MONITORAMENTO DE RAM (psutil) ---
+def log_memory_usage(round_num, phase="", client_idx=0):
+    """Loga o consumo de memória RAM (RSS) do processo atual.
+    Chamado em pontos-chave do loop de rodadas para rastrear
+    picos de memória durante o Concept Drift gradual."""
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info()
+    rss_mb = mem.rss / (1024 * 1024)
+    vms_mb = mem.vms / (1024 * 1024)
+    logger.info(f"[RAM] Client {client_idx} | Round {round_num} | {phase}: RSS={rss_mb:.1f} MB, VMS={vms_mb:.1f} MB")
+    return rss_mb
+# -------------------------------------
 
 def map_sequential_to_simplemodel(state_dict):
     mapped_dict = {}
@@ -131,19 +146,15 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
     else:
         # --- LÓGICA ANTIGA PARA CNN MANTIDA INTACTA ---
         local_model = resize_model_to_pruned(model, state_dict)
-        state = copy.deepcopy(local_model)
-        
         if alaarg == 0:
-            # Aviso: Este código da CNN continua bugado (round_num == 2)
-            if round_num == 2:
+            state = copy.deepcopy(local_model)
+            if round_num >= 2:
                 logger.info(f"Client {ala.cid}: Applying FedALA (Adaptive Local Aggregation)...")
                 local_initialization(ala, state, model)
-            
-        set_parameters(model, state)
-        
-        if alaarg == 0 and round_num >= 2:
-            personalized_acc, _ = evaluate_model(model, test_loader)
-            logger.info(f"Client {ala.cid}: Post-ALA Test Accuracy: {personalized_acc:.2f}%")
+                set_parameters(model, state)
+                personalized_acc, _ = evaluate_model(model, test_loader)
+                logger.info(f"Client {ala.cid}: Post-ALA Test Accuracy: {personalized_acc:.2f}%")
+            del state
     model.train()
     loss_fn = nn.CrossEntropyLoss()
     device = next(model.parameters()).device
@@ -232,10 +243,34 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
 import torchvision.transforms as T
 from PIL import Image
 
+def get_clip_transform():
+    class ClipTransform:
+        def __init__(self):
+            import torchvision.transforms as T
+            self.resize = T.Resize((224, 224), antialias=True)
+            self.normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
+
+        def __call__(self, img_tensor):
+            if img_tensor.shape[-2:] != (224, 224):
+                img_tensor = self.resize(img_tensor)
+            if not img_tensor.is_floating_point():
+                img_tensor = img_tensor.float() / 255.0
+            elif img_tensor.max() > 1.0:
+                img_tensor = img_tensor / 255.0
+            if img_tensor.min() >= 0.0:
+                img_tensor = self.normalize(img_tensor)
+            return img_tensor
+
+    return ClipTransform()
+
 def load_data(dataset, client_idx, device, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None, phase=None):
-    train_data = read_client_data(dataset, client_idx, is_train, phase=phase)
-    X, y = zip(*train_data)
-    X = torch.stack(X)
+    res = read_client_data(dataset, client_idx, is_train, phase=phase)
+    if isinstance(res, tuple):
+        X, y = res
+    else:
+        X, y = zip(*res)
+        X = torch.stack(X)
+        y = torch.tensor(y, dtype=torch.long)
     
     if is_slm:
         from lora_slm.slm_setup import CustomCollator
@@ -283,68 +318,74 @@ def load_data(dataset, client_idx, device, is_train=True, batch_size=32, is_clip
         pin_mem = True if hasattr(device, 'type') and device.type == 'cuda' else False
         return DataLoader(slm_data, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, pin_memory=pin_mem)
 
-    # Redimensionamento e normalização vitais para o CLIP
-    if is_clip:
-        if X.shape[-2:] != (224, 224):
-            resize = T.Resize((224, 224), antialias=True)
-            X = resize(X)
-        if not X.is_floating_point():
-            X = X.float() / 255.0
-        elif X.max() > 1.0:
-            X = X / 255.0
-        # Se os dados não tiverem normalização do CLIP, aplica a normalização oficial do CLIP
-        if X.min() >= 0.0:
-            normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
-            X = normalize(X)
-        
-    # Garante que o rótulo é inteiro longo e move os dados INTEIROS para a GPU
-    X = X.to(device)
-    y = torch.tensor(y, dtype=torch.long).to(device)
-    
-    dataset = torch.utils.data.TensorDataset(X, y)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    # Transformação sob demanda por mini-batch (evita expansão de 6GB de RAM CPU para CLIP)
+    transform = get_clip_transform() if is_clip else None
+    dataset_obj = TransformedDataset(X, y, transform=transform)
+    loader = DataLoader(dataset_obj, batch_size=batch_size, shuffle=True)
+    gc.collect()
+    return loader
 
 
-def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None):
+def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_size=32, is_clip=False, is_slm=False, slm_config=None, phase1_tensors=None, phase2_tensors=None):
     """Carrega dados interpolando proporcionalmente Phase 1 e Phase 2 (Gradual Drift)."""
-    data_p1 = read_client_data(dataset, client_idx, is_train, phase="phase1")
-    data_p2 = read_client_data(dataset, client_idx, is_train, phase="phase2")
-    n_total = len(data_p1)
+    if phase1_tensors is not None and phase2_tensors is not None:
+        X1, y1 = phase1_tensors
+        X2, y2 = phase2_tensors
+    else:
+        res1 = read_client_data(dataset, client_idx, is_train, phase="phase1")
+        res2 = read_client_data(dataset, client_idx, is_train, phase="phase2")
+
+        if isinstance(res1, tuple):
+            X1, y1 = res1
+        else:
+            X1, y1 = zip(*res1)
+            X1 = torch.stack(X1)
+            y1 = torch.tensor(y1, dtype=torch.long)
+
+        if isinstance(res2, tuple):
+            X2, y2 = res2
+        else:
+            X2, y2 = zip(*res2)
+            X2 = torch.stack(X2)
+            y2 = torch.tensor(y2, dtype=torch.long)
+
+    n_total = len(X1)
     n2 = int(round(alpha * n_total))
     n1 = n_total - n2
 
-    idx1 = np.random.choice(len(data_p1), size=n1, replace=(n1 > len(data_p1))) if n1 > 0 else []
-    idx2 = np.random.choice(len(data_p2), size=n2, replace=(n2 > len(data_p2))) if n2 > 0 else []
+    if n1 > 0:
+        idx1 = torch.randperm(len(X1))[:n1]
+        sub_X1, sub_y1 = X1[idx1], y1[idx1]
+    else:
+        sub_X1, sub_y1 = torch.empty((0, *X1.shape[1:]), dtype=X1.dtype, device=X1.device), torch.empty((0,), dtype=y1.dtype, device=y1.device)
 
-    subset1 = [data_p1[i] for i in idx1]
-    subset2 = [data_p2[i] for i in idx2]
-    blended = list(subset1) + list(subset2)
-    random.shuffle(blended)
+    if n2 > 0:
+        idx2 = torch.randperm(len(X2))[:n2]
+        sub_X2, sub_y2 = X2[idx2], y2[idx2]
+    else:
+        sub_X2, sub_y2 = torch.empty((0, *X2.shape[1:]), dtype=X2.dtype, device=X2.device), torch.empty((0,), dtype=y2.dtype, device=y2.device)
 
-    X, y = zip(*blended)
-    X = torch.stack(X)
+    X = torch.cat([sub_X1, sub_X2], dim=0)
+    y = torch.cat([sub_y1, sub_y2], dim=0)
 
-    if is_clip:
-        if X.shape[-2:] != (224, 224):
-            resize = T.Resize((224, 224), antialias=True)
-            X = resize(X)
-        if not X.is_floating_point():
-            X = X.float() / 255.0
-        elif X.max() > 1.0:
-            X = X / 255.0
-        if X.min() >= 0.0:
-            normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
-            X = normalize(X)
+    perm = torch.randperm(len(X))
+    X, y = X[perm], y[perm]
 
-    X = X.to(device)
-    y = torch.tensor(y, dtype=torch.long).to(device)
+    del sub_X1, sub_y1, sub_X2, sub_y2
+    if phase1_tensors is None:
+        del X1, y1, X2, y2
+    gc.collect()
 
-    dataset = torch.utils.data.TensorDataset(X, y)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    transform = get_clip_transform() if is_clip else None
+    dataset_obj = TransformedDataset(X, y, transform=transform)
+    loader = DataLoader(dataset_obj, batch_size=batch_size, shuffle=True)
+    gc.collect()
+    return loader
 
 
 
-def save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, rs_train_acc, idx=0, argalgo=0, rs_post_p2p_acc=None, rs_post_p2p_encounter_ids=None, rs_p2p_data_sent_mb=None, rs_p2p_data_sent_enc_ids=None):
+
+def save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, rs_train_acc, idx=0, argalgo=0, rs_post_p2p_acc=None, rs_post_p2p_encounter_ids=None, rs_p2p_data_sent_mb=None, rs_p2p_data_sent_enc_ids=None, rs_ram_rss=None):
     b = "FedALA" if argalgo == 0 else "FedAVG"
     
     paca_val = args.paca if (isinstance(args.paca, (int, float)) and not isinstance(args.paca, bool) and args.paca > 0) else 0
@@ -375,6 +416,8 @@ def save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, 
         if rs_p2p_data_sent_enc_ids is not None and len(rs_p2p_data_sent_enc_ids) > 0:
             hf.create_dataset('rs_p2p_data_sent_enc_ids', data=rs_p2p_data_sent_enc_ids)
         hf.attrs['paca_used'] = paca_val
+        if rs_ram_rss is not None and len(rs_ram_rss) > 0:
+            hf.create_dataset('rs_ram_rss_mb', data=rs_ram_rss)
         if getattr(args, 'drift', False):
             hf.attrs['drift_enabled'] = True
             hf.attrs['drift_type'] = getattr(args, 'drift_type', 'abrupt')
@@ -521,7 +564,7 @@ def main():
                     model = SimpleModel(in_features=1, num_classes=10, dim=1024)
                 case 'Cifar10' | 'Cifar10_drift':
                     model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
-                case 'Cifar100':
+                case 'Cifar100' | 'Cifar100_drift':
                     model = SimpleModel(in_features=args.in_features, num_classes=args.num_classes, dim=args.dim)
                 case _:
                     logger.error(f"Dataset inválido: {args.dataset}")
@@ -584,8 +627,12 @@ def main():
         is_clip_flag = (args.model == 'clip')
         is_slm_flag = (args.model == 'slm')
 
-        drift_client_set = set(int(x.strip()) for x in args.drift_clients.split(",") if x.strip().isdigit()) if getattr(args, 'drift_clients', None) else {0}
-        is_drifted_client = getattr(args, 'drift', False) and (args.client_idx in drift_client_set)
+        raw_drift_clients = getattr(args, 'drift_clients', '0') or '0'
+        if raw_drift_clients.strip().lower() == 'all':
+            is_drifted_client = getattr(args, 'drift', False)
+        else:
+            drift_client_set = set(int(x.strip()) for x in raw_drift_clients.split(",") if x.strip().isdigit())
+            is_drifted_client = getattr(args, 'drift', False) and (args.client_idx in drift_client_set)
         initial_phase = "phase1" if getattr(args, 'drift', False) else None
 
         train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase)
@@ -593,6 +640,11 @@ def main():
         logger.info(f"Data loaded successfully (Phase: {initial_phase or 'default'}) - Train batches: {len(train_loader)}, Test batches: {len(test_loader)}")
         if is_drifted_client:
             logger.info(f"[CONCEPT DRIFT ATIVADO] Cliente {args.client_idx} configurado para drift {args.drift_type.upper()} a partir do Round {args.drift_round}")
+
+        # Otimização de Memória: pré-carregamento permanente removido. Os tensores da Phase 1 e Phase 2 
+        # serão lidos sob demanda (lazy) durante a janela de transição do drift gradual.
+        pass
+
     except Exception as e:
         logger.exception("Error loading data")
         sys.exit(1)
@@ -624,11 +676,17 @@ def main():
                 s.settimeout(120)
             previous_recv_state = {}
             previous_sent_state = {}
+            phase1_train_cache = None
+            phase2_train_cache = None
+            phase1_test_cache = None
+            phase2_test_cache = None
             send_data(s, args.client_idx)
             logger.info(f"Connected to server {args.host}:{args.port}")
+            rs_ram_rss = []  # Lista para armazenar medições de RAM (RSS em MB) por round
             for round_num in range(args.rounds):
                 current_round = round_num + 1
                 logger.info(f"\n--- Round {current_round}/{args.rounds} ---")
+                rss_start = log_memory_usage(current_round, "INÍCIO_ROUND", args.client_idx)
 
                 # --- Detecção e Aplicação de Concept Drift ---
                 if is_drifted_client:
@@ -637,34 +695,48 @@ def main():
                             logger.info("=" * 65)
                             logger.info(f"[CONCEPT DRIFT: ABRUPTO] Cliente {args.client_idx} trocando para Phase 2 no Round {current_round}")
                             logger.info("=" * 65)
+                            del train_loader, test_loader
+                            gc.collect()
+                            if device.type == 'cuda':
+                                torch.cuda.empty_cache()
                             train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
                             test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            if args.model == 'clip':
-                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
-                            else:
-                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
+                            ala.update_train_data(train_loader)
+                            log_memory_usage(current_round, "PÓS_DRIFT_ABRUPTO", args.client_idx)
                     elif args.drift_type == 'gradual':
                         if args.drift_round <= current_round < (args.drift_round + args.drift_length):
                             alpha_interp = (current_round - args.drift_round + 1) / (args.drift_length + 1)
                             logger.info("=" * 65)
                             logger.info(f"[CONCEPT DRIFT: GRADUAL] Cliente {args.client_idx} (Round {current_round}): alpha={alpha_interp:.2f} (Phase 2)")
                             logger.info("=" * 65)
-                            train_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
-                            test_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None)
-                            if args.model == 'clip':
-                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
-                            else:
-                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
+                            del train_loader, test_loader
+                            gc.collect()
+                            if device.type == 'cuda':
+                                torch.cuda.empty_cache()
+                            if phase1_train_cache is None:
+                                phase1_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase1")
+                                phase2_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase2")
+                                phase1_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase1")
+                                phase2_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase2")
+                            train_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_train_cache, phase2_tensors=phase2_train_cache)
+                            test_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_test_cache, phase2_tensors=phase2_test_cache)
+                            ala.update_train_data(train_loader)
+                            log_memory_usage(current_round, f"PÓS_DRIFT_GRADUAL_α={alpha_interp:.2f}", args.client_idx)
                         elif current_round == (args.drift_round + args.drift_length):
                             logger.info("=" * 65)
                             logger.info(f"[CONCEPT DRIFT: GRADUAL] Transição concluída no Cliente {args.client_idx}. Operando 100% em Phase 2")
                             logger.info("=" * 65)
+                            del train_loader, test_loader
+                            if phase1_train_cache is not None:
+                                del phase1_train_cache, phase2_train_cache, phase1_test_cache, phase2_test_cache
+                                phase1_train_cache = phase2_train_cache = phase1_test_cache = phase2_test_cache = None
+                            gc.collect()
+                            if device.type == 'cuda':
+                                torch.cuda.empty_cache()
                             train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
                             test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            if args.model == 'clip':
-                                ala = ALA_LoRA(args.client_idx, loss, train_loader, 32, 80, 1.0, device)
-                            else:
-                                ala = ALA(args.client_idx, loss, train_loader, 32, 80, 2, 1.0, device)
+                            ala.update_train_data(train_loader)
+                            log_memory_usage(current_round, "PÓS_DRIFT_GRADUAL_FINAL", args.client_idx)
                 if args.model in ['clip', 'slm']:
                     server_paca, _ = recv_data(s)
                     if server_paca is None or server_paca == "end":
@@ -785,9 +857,14 @@ def main():
                     else:
                         s.recv(3)
                     logger.info("Ready for next round...")
+                    gc.collect()
+                    if device.type == 'cuda':
+                        torch.cuda.empty_cache()
+                    rss_end = log_memory_usage(current_round, "FIM_ROUND_PÓS_GC", args.client_idx)
+                    rs_ram_rss.append(rss_end)
                 except (OSError, BrokenPipeError, ConnectionResetError, socket.timeout) as e:
                     break
-        save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, rs_train_acc, idx=args.client_idx, argalgo=args.ala)
+        save_results(args, rs_global_acc, rs_global_loss, rs_ala_acc, rs_local_acc, rs_train_acc, idx=args.client_idx, argalgo=args.ala, rs_ram_rss=rs_ram_rss)
         logger.info("\nTraining completed!")
 
     elif args.mode == 'decentralized':

@@ -18,6 +18,28 @@
 import numpy as np
 import os
 import torch
+from torch.utils.data import Dataset
+
+
+class TransformedDataset(Dataset):
+    """
+    Dataset wrapper que armazena tensores brutos na RAM (ex: 32x32)
+    e aplica transformações (Resize 224x224, Normalização) sob demanda (on-the-fly)
+    durante o __getitem__, evitando a expansão de RAM no sistema.
+    """
+    def __init__(self, X, y, transform=None):
+        self.X = X
+        self.y = y
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        x_i = self.X[idx]
+        if self.transform is not None:
+            x_i = self.transform(x_i)
+        return x_i, self.y[idx]
 
 
 def read_data(dataset, idx, is_train=True, phase=None):
@@ -33,7 +55,7 @@ def read_data(dataset, idx, is_train=True, phase=None):
             train_file = os.path.join(train_data_dir, f"{idx}.npz")
 
         with open(train_file, 'rb') as f:
-            train_data = np.load(f, allow_pickle=True)['data'].tolist()
+            train_data = np.load(f, allow_pickle=True)['data'].item()
 
         return train_data
 
@@ -49,7 +71,7 @@ def read_data(dataset, idx, is_train=True, phase=None):
             test_file = os.path.join(test_data_dir, f"{idx}.npz")
 
         with open(test_file, 'rb') as f:
-            test_data = np.load(f, allow_pickle=True)['data'].tolist()
+            test_data = np.load(f, allow_pickle=True)['data'].item()
 
         return test_data
 
@@ -60,19 +82,11 @@ def read_client_data(dataset, idx, is_train=True, phase=None):
     elif "Shakespeare" in dataset:
         return read_client_data_Shakespeare(dataset, idx)
 
-    if is_train:
-        train_data = read_data(dataset, idx, is_train, phase=phase)
-        X_train = torch.Tensor(train_data['x']).type(torch.float32)
-        y_train = torch.Tensor(train_data['y']).type(torch.int64)
-
-        train_data = [(x, y) for x, y in zip(X_train, y_train)]
-        return train_data
-    else:
-        test_data = read_data(dataset, idx, is_train, phase=phase)
-        X_test = torch.Tensor(test_data['x']).type(torch.float32)
-        y_test = torch.Tensor(test_data['y']).type(torch.int64)
-        test_data = [(x, y) for x, y in zip(X_test, y_test)]
-        return test_data
+    data = read_data(dataset, idx, is_train, phase=phase)
+    X = torch.as_tensor(data['x'], dtype=torch.float32)
+    y = torch.as_tensor(data['y'], dtype=torch.int64)
+    del data
+    return X, y
 
 
 def read_client_data_text(dataset, idx, is_train=True):

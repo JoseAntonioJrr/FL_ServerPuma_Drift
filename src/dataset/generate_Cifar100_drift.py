@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-generate_Cifar_drift.py — Gerador de Datasets Temporais para Federated Concept Drift (CIFAR-10)
+generate_Cifar100_drift.py — Gerador de Datasets Temporais para Federated Concept Drift (CIFAR-100)
 
 Gera partições estáticas pré e pós-drift:
 - Phase 1 (Pre-Drift):  train/{idx}_phase1.npz, test/{idx}_phase1.npz
@@ -37,28 +37,22 @@ from dataset.utils.dataset_utils import separate_data, split_data
 
 def apply_pairwise_label_swap(y_array):
     """
-    Swap semântico de pares em CIFAR-10:
-    0 (airplane) <-> 2 (bird)
-    1 (automobile) <-> 9 (truck)
-    3 (cat) <-> 5 (dog)
-    4 (deer) <-> 7 (horse)
-    6 (frog) <-> 8 (ship)
+    Swap semântico de 50 pares de classes em CIFAR-100:
+    i <-> (i + 50) % 100 para i in [0, 49]
     """
-    mapping = {
-        0: 2, 2: 0,
-        1: 9, 9: 1,
-        3: 5, 5: 3,
-        4: 7, 7: 4,
-        6: 8, 8: 6
-    }
     y_drift = np.copy(y_array)
-    for old_val, new_val in mapping.items():
-        y_drift[y_array == old_val] = new_val
+    for i in range(50):
+        pair_a = i
+        pair_b = i + 50
+        mask_a = (y_array == pair_a)
+        mask_b = (y_array == pair_b)
+        y_drift[mask_a] = pair_b
+        y_drift[mask_b] = pair_a
     return y_drift
 
 
-def apply_cyclic_shift(y_array, shift=1, num_classes=10):
-    """Deslocamento circular dos rótulos: y' = (y + shift) % num_classes"""
+def apply_cyclic_shift(y_array, shift=1, num_classes=100):
+    """Deslocamento circular dos rótulos em 100 classes: y' = (y + shift) % 100"""
     return (np.copy(y_array) + shift) % num_classes
 
 
@@ -76,7 +70,7 @@ def save_temporal_files(config_path: Path, train_path: Path, test_path: Path,
     train_path.mkdir(parents=True, exist_ok=True)
     test_path.mkdir(parents=True, exist_ok=True)
 
-    print("\n--- Salvando arquivos temporais em disco ---")
+    print("\n--- Salvando arquivos temporais em disco (CIFAR-100) ---")
     for idx in range(num_clients):
         # Phase 1
         with open(train_path / f"{idx}_phase1.npz", 'wb') as f:
@@ -99,7 +93,7 @@ def save_temporal_files(config_path: Path, train_path: Path, test_path: Path,
         print(f"Cliente {idx}: salvos phase1 e phase2 ({'COM DRIFT' if idx in drift_clients else 'ESTÁVEL'})")
 
     config = {
-        'dataset': 'Cifar10_drift',
+        'dataset': 'Cifar100_drift',
         'num_clients': num_clients,
         'num_classes': num_classes,
         'non_iid': niid,
@@ -126,19 +120,19 @@ def generate_drift_dataset(dir_path: Path, num_clients=2, niid=True, balance=Fal
     train_path = dir_path / "train"
     test_path = dir_path / "test"
 
-    raw_data_dir = current_dir / "Cifar10" / "rawdata"
+    raw_data_dir = current_dir / "Cifar100" / "rawdata"
     raw_data_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Baixando/Carregando CIFAR-10 original...")
+    print("Baixando/Carregando CIFAR-100 original...")
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
-    trainset = torchvision.datasets.CIFAR10(
+    trainset = torchvision.datasets.CIFAR100(
         root=str(raw_data_dir), train=True, download=True, transform=transform
     )
-    testset = torchvision.datasets.CIFAR10(
+    testset = torchvision.datasets.CIFAR100(
         root=str(raw_data_dir), train=False, download=True, transform=transform
     )
 
@@ -169,7 +163,7 @@ def generate_drift_dataset(dir_path: Path, num_clients=2, niid=True, balance=Fal
     print("\n[Phase 1] Separando dados originais...")
     X_p1, y_p1, stat_p1 = separate_data(
         (dataset_image, dataset_label), num_clients, num_classes,
-        niid, balance, partition, class_per_client=2
+        niid, balance, partition, class_per_client=10
     )
     train_p1, test_p1 = split_data(X_p1, y_p1)
 
@@ -185,7 +179,7 @@ def generate_drift_dataset(dir_path: Path, num_clients=2, niid=True, balance=Fal
         random.seed(42)
         X_p2, y_p2, stat_p2 = separate_data(
             (dataset_image, dataset_label), num_clients, num_classes,
-            niid, balance, partition, class_per_client=2
+            niid, balance, partition, class_per_client=10
         )
         train_p2_fresh, test_p2_fresh = split_data(X_p2, y_p2)
         for c in range(num_clients):
@@ -200,8 +194,8 @@ def generate_drift_dataset(dir_path: Path, num_clients=2, niid=True, balance=Fal
                     train_p2[c]['y'] = apply_pairwise_label_swap(train_p2[c]['y'])
                     test_p2[c]['y'] = apply_pairwise_label_swap(test_p2[c]['y'])
                 elif drift_type == "cyclic_shift":
-                    train_p2[c]['y'] = apply_cyclic_shift(train_p2[c]['y'])
-                    test_p2[c]['y'] = apply_cyclic_shift(test_p2[c]['y'])
+                    train_p2[c]['y'] = apply_cyclic_shift(train_p2[c]['y'], num_classes=100)
+                    test_p2[c]['y'] = apply_cyclic_shift(test_p2[c]['y'], num_classes=100)
                 elif drift_type == "gaussian_noise":
                     train_p2[c]['x'] = apply_gaussian_noise(train_p2[c]['x'])
                     test_p2[c]['x'] = apply_gaussian_noise(test_p2[c]['x'])
@@ -222,11 +216,9 @@ def generate_drift_dataset(dir_path: Path, num_clients=2, niid=True, balance=Fal
 
 
 if __name__ == "__main__":
-    # Suporta parâmetros posicionais padrão (ex: run.sh noniid - dir 2)
-    # ou argumentos adicionais via flags
     import argparse
 
-    parser = argparse.ArgumentParser(description="Gerador de CIFAR-10 com Concept Drift")
+    parser = argparse.ArgumentParser(description="Gerador de CIFAR-100 com Concept Drift")
     parser.add_argument("niid", nargs="?", default="noniid", help="'noniid' ou 'iid'")
     parser.add_argument("balance", nargs="?", default="-", help="'balance' ou '-'")
     parser.add_argument("partition", nargs="?", default="dir", help="'dir', 'pat' ou '-'")
@@ -237,7 +229,7 @@ if __name__ == "__main__":
                         help="Tipo de drift a injetar")
     parser.add_argument("--drift-clients", type=str, default="0",
                         help="IDs dos clientes que sofrem drift (ex: '0' ou '0,1')")
-    parser.add_argument("--output-dir", type=str, default="Cifar10_drift",
+    parser.add_argument("--output-dir", type=str, default="Cifar100_drift",
                         help="Nome da pasta de saída dentro de src/dataset/")
 
     args, unknown = parser.parse_known_args()
@@ -247,9 +239,12 @@ if __name__ == "__main__":
     partition_mode = args.partition if args.partition != "-" else None
     num_c = args.clients
 
-    drift_c_set = set(int(x.strip()) for x in args.drift_clients.split(",") if x.strip().isdigit())
-    if not drift_c_set:
-        drift_c_set = {0}
+    if args.drift_clients.strip().lower() == "all":
+        drift_c_set = set(range(num_c))
+    else:
+        drift_c_set = set(int(x.strip()) for x in args.drift_clients.split(",") if x.strip().isdigit())
+        if not drift_c_set:
+            drift_c_set = {0}
 
     target_dir = current_dir / args.output_dir
 

@@ -44,6 +44,15 @@ class ALA_LoRA:
         self.weights = None # Learnable local aggregation weights
         self.start_phase = True
 
+    def update_train_data(self, train_data: DataLoader) -> None:
+        """Atualiza o DataLoader de treino e limpa os pesos de agregação retidos."""
+        self.train_data = train_data
+        if self.weights is not None:
+            del self.weights
+            self.weights = None
+        self.start_phase = True
+
+
     def adaptive_local_aggregation(self, 
                                    global_model: nn.Module,
                                    local_model: nn.Module,

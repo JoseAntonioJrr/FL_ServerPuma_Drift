@@ -71,7 +71,7 @@ def prune_and_restructure(model, pruning_rate = 0.5, n_in = 1, size_fc = 25, dat
 
             # filtra os pesos da camada
             if first_linear:
-                if data=='Cifar100' or data=='Cifar10' or data=='Cifar10_drift':
+                if data in ('Cifar100', 'Cifar10', 'Cifar10_drift', 'Cifar100_drift'):
                     print('oi')
                     indices_not_remove_weight = indices_not_remove_weight.repeat(25)
                 if data=='MNIST':
@@ -85,7 +85,7 @@ def prune_and_restructure(model, pruning_rate = 0.5, n_in = 1, size_fc = 25, dat
             # remove os pesos que não serão utilizados
             weight_prunned = module.weight[:, indices_not_remove_weight]
             # aplica o filtragem nos neuronios com valores 0
-            if data=='Cifar100':
+            if data in ('Cifar100', 'Cifar100_drift'):
                 ind=100
             else:
                 ind=10

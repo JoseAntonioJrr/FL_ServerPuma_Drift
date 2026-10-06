@@ -68,6 +68,15 @@ class ALA:
         self.weights = None # Learnable local aggregation weights.
         self.start_phase = True
 
+    def update_train_data(self, train_data) -> None:
+        """Atualiza a referência do dataset de treino e limpa os pesos antigos da GPU."""
+        self.train_data = train_data
+        if self.weights is not None:
+            del self.weights
+            self.weights = None
+        self.start_phase = True
+
+
 
     def adaptive_local_aggregation(self, 
                             global_model: nn.Module,
