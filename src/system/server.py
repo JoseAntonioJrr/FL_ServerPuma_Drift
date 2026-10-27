@@ -10,6 +10,7 @@ import os
 import logging
 import math
 from pathlib import Path
+import random
 
 # Desativa checagem online redundante do Hugging Face Hub (usa cache local instantaneamente)
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
@@ -1128,7 +1129,7 @@ class FederatedLearningServer:
 
         return ClipTransform()
 
-    def load_test_data(self, dataset, client_idx=0, batch_size=32, phase=None):
+    def load_test_data(self, dataset, client_idx=0, batch_size=16, phase=None):
         try:
             res = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False, phase=phase)
             if isinstance(res, tuple):
@@ -1150,6 +1151,52 @@ class FederatedLearningServer:
             return DataLoader(dataset_obj, batch_size=batch_size, shuffle=False)
         except Exception as e:
             logger.exception("Error loading test data")
+            return None
+
+    def load_blended_test_data(self, dataset, client_idx=0, alpha=0.0, batch_size=16):
+        try:
+            res1 = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False, phase="phase1")
+            res2 = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False, phase="phase2")
+
+            if isinstance(res1, tuple):
+                X1, y1 = res1
+            else:
+                X1, y1 = zip(*res1)
+                X1 = torch.stack(X1)
+                y1 = torch.tensor(y1, dtype=torch.long)
+
+            if isinstance(res2, tuple):
+                X2, y2 = res2
+            else:
+                X2, y2 = zip(*res2)
+                X2 = torch.stack(X2)
+                y2 = torch.tensor(y2, dtype=torch.long)
+
+            n_total = len(X1)
+            n2 = int(round(alpha * n_total))
+            n1 = n_total - n2
+
+            if n1 > 0:
+                sub_X1, sub_y1 = X1[:n1], y1[:n1]
+            else:
+                sub_X1, sub_y1 = torch.empty((0, *X1.shape[1:]), dtype=X1.dtype), torch.empty((0,), dtype=y1.dtype)
+
+            if n2 > 0:
+                sub_X2, sub_y2 = X2[:n2], y2[:n2]
+            else:
+                sub_X2, sub_y2 = torch.empty((0, *X2.shape[1:]), dtype=X2.dtype), torch.empty((0,), dtype=y2.dtype)
+
+            X = torch.cat([sub_X1, sub_X2], dim=0)
+            y = torch.cat([sub_y1, sub_y2], dim=0)
+
+            transform = None
+            if getattr(self.args, 'model', 'cnn') == 'clip':
+                transform = self._get_clip_transform()
+
+            dataset_obj = TransformedDataset(X, y, transform=transform)
+            return DataLoader(dataset_obj, batch_size=batch_size, shuffle=False)
+        except Exception as e:
+            logger.exception("Error loading blended test data")
             return None
     
     def set_amount_prune(self):
@@ -1187,27 +1234,44 @@ class FederatedLearningServer:
         file_path = result_path / f"server_{algo}.h5"
         
         with h5py.File(file_path, 'w') as hf:
-            hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
-            hf.create_dataset('rs_test_loss', data=self.rs_test_loss)
-            hf.create_dataset('rs_aux_simple_avg_acc', data=self.rs_aux_simple_avg_acc)
-            hf.create_dataset('sended_model_Mb', data=self.sended_ammount)
-            hf.create_dataset('Sended_without_quant', data=self.sended_withouquant)
-            hf.create_dataset('Aggregated_clients', data=self.aggregated_clients)
-            hf.create_dataset('Round_time', data=self.round_time)
-            hf.create_dataset('Model_size_per_round_Mb', data=self.model_size_per_round)
-            hf.create_dataset('Trainable_params', data=self.trainable_params_per_round)
-            hf.create_dataset('rs_client_paca', data=self.rs_client_paca)
+            def safe_create_dset(key, data, dtype=None):
+                try:
+                    if data is None or len(data) == 0:
+                        return
+                    arr = np.array(data)
+                    if arr.dtype == object or dtype is not None:
+                        cleaned = []
+                        for row in data:
+                            if isinstance(row, (list, tuple, np.ndarray)):
+                                cleaned.append([float(x) if x is not None and not (isinstance(x, float) and np.isnan(x)) else 0.0 for x in row])
+                            else:
+                                cleaned.append(float(row) if row is not None and not (isinstance(row, float) and np.isnan(row)) else 0.0)
+                        arr = np.array(cleaned, dtype=dtype if dtype is not None else np.float32)
+                    hf.create_dataset(key, data=arr)
+                except Exception as e:
+                    logger.error(f"Erro ao salvar dataset '{key}' no HDF5: {e}")
+
+            safe_create_dset('rs_test_acc', self.rs_test_acc)
+            safe_create_dset('rs_test_loss', self.rs_test_loss)
+            safe_create_dset('rs_aux_simple_avg_acc', self.rs_aux_simple_avg_acc)
+            safe_create_dset('sended_model_Mb', self.sended_ammount)
+            safe_create_dset('Sended_without_quant', self.sended_withouquant)
+            safe_create_dset('Aggregated_clients', self.aggregated_clients)
+            safe_create_dset('Round_time', self.round_time)
+            safe_create_dset('Model_size_per_round_Mb', self.model_size_per_round)
+            safe_create_dset('Trainable_params', self.trainable_params_per_round)
+            safe_create_dset('rs_client_paca', self.rs_client_paca)
             if hasattr(self, 'rs_client_rank') and self.rs_client_rank:
-                hf.create_dataset('rs_client_rank', data=self.rs_client_rank)
-            hf.create_dataset('rs_client_training_time', data=self.rs_client_training_time)
-            hf.create_dataset('rs_client_comm_time', data=self.rs_client_comm_time)
-            hf.create_dataset('rs_client_eval_time', data=self.rs_client_eval_time)
-            hf.create_dataset('rs_server_processing_time', data=self.rs_server_processing_time)
-            hf.create_dataset('server_pruning_time', data=self.server_pruning_time)
-            hf.create_dataset('received_from_clients_Mb', data=self.received_ammount)
-            hf.create_dataset('total_transmitted_per_round_Mb', data=self.total_transmitted_per_round)
+                safe_create_dset('rs_client_rank', self.rs_client_rank)
+            safe_create_dset('rs_client_training_time', self.rs_client_training_time)
+            safe_create_dset('rs_client_comm_time', self.rs_client_comm_time)
+            safe_create_dset('rs_client_eval_time', self.rs_client_eval_time)
+            safe_create_dset('rs_server_processing_time', self.rs_server_processing_time)
+            safe_create_dset('server_pruning_time', self.server_pruning_time)
+            safe_create_dset('received_from_clients_Mb', self.received_ammount)
+            safe_create_dset('total_transmitted_per_round_Mb', self.total_transmitted_per_round)
             if self.rs_client_gamma:
-                hf.create_dataset('rs_client_gamma', data=self.rs_client_gamma)
+                safe_create_dset('rs_client_gamma', self.rs_client_gamma)
             
     def run_server(self, times):
         logger.info("=== Federated Learning Server ===")
@@ -1229,13 +1293,14 @@ class FederatedLearningServer:
             s.bind((self.args.host, self.args.port))
             s.listen(self.args.max_clients)
             
+            total_clients_to_wait = max(self.args.clients_per_round, getattr(self.args, 'max_clients', self.args.clients_per_round))
             logger.info(f"Server listening on {self.args.host}:{self.args.port}")
-            logger.info(f"Waiting for {self.args.clients_per_round} clients to connect...")
+            logger.info(f"Waiting for {total_clients_to_wait} clients to connect (sampling {self.args.clients_per_round} per round)...")
             
             clientsid = []
-            self.client_data = {index: None for index in range(1, self.args.clients_per_round + 1)}
+            self.client_data = {index: None for index in range(1, total_clients_to_wait + 1)}
             
-            while len(self.client_connections) < self.args.clients_per_round:
+            while len(self.client_connections) < total_clients_to_wait:
                 conn, addr = s.accept()
                 idx, rate = recv_data(conn)
                 logger.info(f"Client idx: {idx}") 
@@ -1266,7 +1331,7 @@ class FederatedLearningServer:
                 self.client_connections.append(conn)
                 self.client_addresses.append(addr)
             
-            logger.info(f"All {self.args.clients_per_round} clients connected. Starting training...")
+            logger.info(f"All {total_clients_to_wait} clients connected. Starting training...")
             
             for round_num in range(self.args.rounds):
                 time.sleep(5)
@@ -1292,7 +1357,30 @@ class FederatedLearningServer:
                         self.current_round_state = self.global_state.copy()
                 self.size_before_cache = {}
                 
-                for i, conn in enumerate(self.client_connections):
+                # Sorteio determinístico de clientes para a rodada atual
+                total_connected = len(self.client_connections)
+                if self.args.clients_per_round < total_connected:
+                    round_seed = (getattr(self.args, 'seed', 42) or 42) + round_num
+                    rng = random.Random(round_seed)
+                    selected_indices = set(rng.sample(range(total_connected), self.args.clients_per_round))
+                else:
+                    selected_indices = set(range(total_connected))
+
+                selected_cids = [clientsid[i] for i in selected_indices]
+                logger.info(f"Round {round_num + 1}: Clientes selecionados ({len(selected_indices)}/{total_connected}): {sorted(selected_cids)}")
+
+                # Notifica os clientes não selecionados (idle) para pularem o treino nesta rodada
+                for i in range(total_connected):
+                    if i not in selected_indices:
+                        conn = self.client_connections[i]
+                        try:
+                            send_data(conn, "skip")
+                        except Exception as e:
+                            logger.warning(f"Erro ao notificar cliente {clientsid[i]} em repouso: {e}")
+
+                # Dispara threads de treinamento exclusivamente para os clientes selecionados
+                for i in sorted(selected_indices):
+                    conn = self.client_connections[i]
                     t = threading.Thread(
                         target=self.handle_client, 
                         daemon=True, 
@@ -1377,27 +1465,39 @@ class FederatedLearningServer:
                         self.global_model.load_state_dict(self.global_state, strict=False)
                     
                     # --- CONCEPT DRIFT: Invalidar cache de test loaders quando o drift ocorre ---
-                    if (getattr(self.args, 'drift', False)
-                            and not getattr(self, '_drift_cache_invalidated', False)
-                            and (round_num + 1) >= getattr(self.args, 'drift_round', 999)):
-                        # Determinar a fase correta para avaliação no servidor
-                        drift_type = getattr(self.args, 'drift_type', 'abrupt')
-                        drift_length = getattr(self.args, 'drift_length', 5)
-                        if drift_type == 'abrupt' or (round_num + 1) >= (self.args.drift_round + drift_length):
-                            # Drift abrupto: troca imediata. Gradual: troca quando a transição concluir.
-                            raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
-                            if raw_dc.strip().lower() == 'all':
-                                drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
-                            else:
-                                drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
-                            logger.info(f"[CONCEPT DRIFT] Invalidando cache de test loaders e recarregando com Phase 2 para clientes afetados: {drift_client_set}")
-                            for cid in list(self.test_loaders_cache.keys()):
-                                if cid in drift_client_set:
-                                    del self.test_loaders_cache[cid]
-                            gc.collect()
-                            if torch.cuda.is_available():
-                                torch.cuda.empty_cache()
-                            self._drift_cache_invalidated = True
+                    drift_freq = getattr(self.args, 'drift_freq', 0)
+                    drift_type = getattr(self.args, 'drift_type', 'abrupt')
+                    if getattr(self.args, 'drift', False):
+                        if drift_freq > 0:
+                            if drift_type == 'gradual' or (round_num + 1) % drift_freq == 0:
+                                raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
+                                if raw_dc.strip().lower() == 'all':
+                                    drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
+                                else:
+                                    drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
+                                logger.info(f"[CONCEPT DRIFT PERIÓDICO] Round {round_num + 1}: Invalidando cache de test loaders ({drift_type.upper()})")
+                                for cid in list(self.test_loaders_cache.keys()):
+                                    if cid in drift_client_set:
+                                        del self.test_loaders_cache[cid]
+                                gc.collect()
+                                if torch.cuda.is_available():
+                                    torch.cuda.empty_cache()
+                        elif not getattr(self, '_drift_cache_invalidated', False) and (round_num + 1) >= getattr(self.args, 'drift_round', 999):
+                            drift_length = getattr(self.args, 'drift_length', 5)
+                            if drift_type == 'abrupt' or (round_num + 1) >= (self.args.drift_round + drift_length):
+                                raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
+                                if raw_dc.strip().lower() == 'all':
+                                    drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
+                                else:
+                                    drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
+                                logger.info(f"[CONCEPT DRIFT] Invalidando cache de test loaders e recarregando com Phase 2 para clientes afetados: {drift_client_set}")
+                                for cid in list(self.test_loaders_cache.keys()):
+                                    if cid in drift_client_set:
+                                        del self.test_loaders_cache[cid]
+                                gc.collect()
+                                if torch.cuda.is_available():
+                                    torch.cuda.empty_cache()
+                                self._drift_cache_invalidated = True
 
                     if self.test_loader is not None or self.client_idx:
                         try:
@@ -1419,8 +1519,21 @@ class FederatedLearningServer:
 
                             for i in eval_clients:
                                 if i not in self.test_loaders_cache:
-                                    phase = "phase2" if (drift_invalidated and i in drift_client_set_eval) else None
-                                    self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
+                                    if drift_freq > 0 and i in drift_client_set_eval:
+                                        curr_r = round_num + 1
+                                        if drift_type == 'gradual':
+                                            L = drift_freq
+                                            p = (curr_r - 1) // L
+                                            cycle_step = (curr_r - 1) % L
+                                            r = cycle_step / (L - 1) if L > 1 else 0.0
+                                            alpha_eval = r if (p % 2 == 0) else (1.0 - r)
+                                            self.test_loaders_cache[i] = self.load_blended_test_data(self.args.dataset, i, alpha=alpha_eval, batch_size=self.args.batch_size)
+                                        else:
+                                            phase = "phase2" if ((curr_r // drift_freq) % 2 == 1) else "phase1"
+                                            self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
+                                    else:
+                                        phase = "phase2" if (drift_invalidated and i in drift_client_set_eval) else None
+                                        self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
                                 client_loader = self.test_loaders_cache[i]
                                 if client_loader is not None:
                                     accuracy, avg_loss = evaluate_model(self.global_model, client_loader)
@@ -1466,52 +1579,52 @@ class FederatedLearningServer:
                     recv_this_round = self.received_ammount[-1] - (self.received_ammount[-len(client_updates)-1] if len(self.received_ammount) > len(client_updates) else 0)
                     self.total_transmitted_per_round.append(sent_this_round + recv_this_round)
                     
-                    paca_list = [self.clients_info[cid].get('current_paca', self.args.paca) for cid in sorted(self.clients_info.keys())]
+                    paca_list = [int(self.clients_info[cid].get('current_paca') or self.args.paca) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_paca.append(paca_list)
                     if getattr(self.args, 'adaptive_paca', False) and paca_list:
                         paca_counts = {p: paca_list.count(p) for p in sorted(set(paca_list))}
                         logger.info(f"Round {round_num + 1}: PaCA distribution: {paca_counts} (min={min(paca_list)}, max={max(paca_list)}, avg={sum(paca_list)/len(paca_list):.1f})")
                     
-                    rank_list = [self.clients_info[cid].get('current_rank', self.args.rank) for cid in sorted(self.clients_info.keys())]
+                    rank_list = [int(self.clients_info[cid].get('current_rank') or self.args.rank) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_rank.append(rank_list)
                     if getattr(self.args, 'adaptive_rank', False) and rank_list:
                         rank_counts = {r: rank_list.count(r) for r in sorted(set(rank_list))}
                         logger.info(f"Round {round_num + 1}: Rank distribution: {rank_counts} (min={min(rank_list)}, max={max(rank_list)}, avg={sum(rank_list)/len(rank_list):.1f})")
                     
                     # Índice de Capacidade γ^c por cliente
-                    gamma_list = [self.clients_info[cid].get('capacity_index', 1.0) for cid in sorted(self.clients_info.keys())]
+                    gamma_list = [float(self.clients_info[cid].get('capacity_index') or 1.0) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_gamma.append(gamma_list)
                     if gamma_list:
                         logger.info(f"Round {round_num + 1}: γ distribution: min={min(gamma_list):.3f}, max={max(gamma_list):.3f}, avg={sum(gamma_list)/len(gamma_list):.3f}")
                     
-                    training_time_list = [self.clients_info[cid].get('training_time', 0.0) for cid in sorted(self.clients_info.keys())]
+                    training_time_list = [float(self.clients_info[cid].get('training_time') or 0.0) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_training_time.append(training_time_list)
                     
-                    comm_time_list = [self.clients_info[cid].get('comm_time', 0.0) for cid in sorted(self.clients_info.keys())]
+                    comm_time_list = [float(self.clients_info[cid].get('comm_time') or 0.0) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_comm_time.append(comm_time_list)
                     
-                    eval_time_list = [self.clients_info[cid].get('client_eval_time', 0.0) for cid in sorted(self.clients_info.keys())]
+                    eval_time_list = [float(self.clients_info[cid].get('client_eval_time') or 0.0) for cid in sorted(self.clients_info.keys())]
                     self.rs_client_eval_time.append(eval_time_list)
                     
-                    server_proc_list = [self.clients_info[cid].get('server_processing_time', 0.0) for cid in sorted(self.clients_info.keys())]
+                    server_proc_list = [float(self.clients_info[cid].get('server_processing_time') or 0.0) for cid in sorted(self.clients_info.keys())]
                     self.rs_server_processing_time.append(server_proc_list)
                     
                     self.server_pruning_time.append(round_pruning_time)
                     
-                    successful_notifications = 0
-                    for conn in self.client_connections:
-                        try:
-                            if self.args.model == 'slm':
-                                send_data(conn, "end")
-                            else:
-                                conn.send('end'.encode('utf-8'))
-                            successful_notifications += 1
-                        except (OSError, BrokenPipeError, ConnectionResetError) as e:
-                            logger.error(f"Error notifying client: {e}")
-                    
-                    logger.info(f"Round {round_num + 1}: Notified {successful_notifications} clients.")
                 else:
                     logger.warning(f"Round {round_num + 1}: No client updates received (timeout or client failure).")
+                
+                successful_notifications = 0
+                for conn in self.client_connections:
+                    try:
+                        if self.args.model == 'slm':
+                            send_data(conn, "end")
+                        else:
+                            conn.send('end'.encode('utf-8'))
+                        successful_notifications += 1
+                    except (OSError, BrokenPipeError, ConnectionResetError) as e:
+                        logger.error(f"Error notifying client: {e}")
+                logger.info(f"Round {round_num + 1}: Notified {successful_notifications} clients.")
             
             logger.info(f"\nTraining completed after {self.args.rounds} rounds!")
             
@@ -1552,7 +1665,7 @@ def parse_args():
     parser.add_argument('--in-features', type=int, default=3)
     parser.add_argument('--num-classes', type=int, default=100)
     parser.add_argument('--dim', type=int, default=1600)
-    parser.add_argument('--batch-size', type=int, default=32)
+    parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--max-clients', type=int, default=10)
     parser.add_argument('--prune', type=int, default=0)
     parser.add_argument("--device", type=str, default="cuda", choices=["cpu", "cuda", "mps"])
@@ -1587,10 +1700,12 @@ def parse_args():
     parser.add_argument('--drift-round', type=int, default=10, help='Rodada em que o drift ocorre/inicia')
     parser.add_argument('--drift-length', type=int, default=5, help='Duração da transição gradual (rodadas)')
     parser.add_argument('--drift-clients', type=str, default='0', help='IDs dos clientes afetados (ex: "0", "0,1" ou "all")')
+    parser.add_argument('--drift-freq', type=int, default=0, help='Frequência (em rodadas) de ocorrência de drift periódico (ex: 5 para drift a cada 5 rounds)')
 
     parser.add_argument('--adaptive-paca-cooldown', type=int, default=3, help='Número de rodadas de cooldown entre reduções consecutivas de capacidade (default: 3)')
     parser.add_argument('--allow-rank-upscale', action='store_true', default=True, help='Permite subida de rank quando condições melhoram ou para reversão de pânico (default: True)')
     parser.add_argument('--gamma-delta', type=float, default=0.5, help='Expoente de sensibilidade da acurácia no índice de capacidade γ (default: 0.5)')
+    parser.add_argument('--seed', type=int, default=42, help='Seed para amostragem pseudo-aleatória determinística de clientes por round')
     return parser.parse_args()
 
 def main():

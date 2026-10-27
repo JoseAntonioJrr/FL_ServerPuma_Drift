@@ -623,9 +623,9 @@ def build_scheduler(optimizer, config):
     )
 
 
-def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0.0):
+def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0.0, accumulation_steps=1):
     """
-    Loop de Treino por Época.
+    Loop de Treino por Época com suporte a Gradient Accumulation.
     Calcula a perda CE (Cross-Entropy Loss) e a penalidade de esparsidade, executando o backpropagation 
     em ambos os otimizadores (se aplicável).
     """
@@ -663,39 +663,35 @@ def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0
     if is_adalora and not hasattr(model, "adalora_global_step"):
         model.adalora_global_step = 0
 
-    for pixel_values, labels in tqdm(loader, desc="train", leave=False, disable=True):
+    optimizer.zero_grad(set_to_none=True)
+    if sparse_optimizer is not None:
+        sparse_optimizer.zero_grad(set_to_none=True)
+
+    for step, (pixel_values, labels) in enumerate(tqdm(loader, desc="train", leave=False, disable=True)):
         pixel_values = pixel_values.to(device, dtype=model_dtype)
         labels = labels.to(device)
-        
-        # set_to_none=True: mais rápido que zerar tensores (evita alocação de zeros na GPU)
-        optimizer.zero_grad(set_to_none=True)
-        # GateSparsifier.zero_grad() é no-op (gates estão no otimizador unificado).
-        # Mantido para compatibilidade com SparseAdamW no trainer standalone (main.py).
-        if sparse_optimizer is not None:
-            sparse_optimizer.zero_grad(set_to_none=True)
 
         outputs = model(pixel_values=pixel_values, labels=labels)
         ce_loss = outputs["loss"]
-        loss = ce_loss
+        loss = ce_loss / accumulation_steps
 
         loss.backward()
-        optimizer.step()
 
-        if is_adalora:
-            model.vision_model.base_model.update_and_allocate(model.adalora_global_step)
-            model.adalora_global_step += 1
-        # GateSparsifier.step(): aplica APENAS softshrink (proximal step)
-        # SparseAdamW.step(): AdamW completo + softshrink (trainer standalone)
-        if sparse_optimizer is not None:
-            sparse_optimizer.step()
-            
-        # # Poda dinâmica do AdaLoRA (PEFT)
-        # if is_adalora:
-        #     model.base_model.update_and_allocate(model.adalora_global_step)
-        #     model.adalora_global_step += 1
+        if (step + 1) % accumulation_steps == 0 or (step + 1) == len(loader):
+            optimizer.step()
+
+            if is_adalora:
+                model.vision_model.base_model.update_and_allocate(model.adalora_global_step)
+                model.adalora_global_step += 1
+            if sparse_optimizer is not None:
+                sparse_optimizer.step()
+
+            optimizer.zero_grad(set_to_none=True)
+            if sparse_optimizer is not None:
+                sparse_optimizer.zero_grad(set_to_none=True)
 
         total_ce_loss += ce_loss.item()
-        total_loss += loss.item()
+        total_loss += ce_loss.item()
 
     # Calcula a esparsidade APENAS 1 vez no final da época (Remove o gargalo de I/O da GPU)
     sparse_loss_val = 0.0

@@ -46,12 +46,14 @@ SESSION_NAME="fl_puma"
 CLIENT_COUNT=2
 ROUNDS=5
 DATASET="MNIST"
-BATCH_SIZE=32
+BATCH_SIZE=8
+GRAD_ACCUM=4
 MAX_CLIENTS=25
 SIMULATIONS=1
 START_RUN=1
 EXP_NAME_OVERRIDE=""
 AUTO_NEXT=0
+SEED=42
 
 # Modelo
 MODEL="cnn"
@@ -116,6 +118,7 @@ DRIFT_TYPE="abrupt"
 DRIFT_ROUND=10
 DRIFT_LENGTH=5
 DRIFT_CLIENTS="0"
+DRIFT_FREQ=0
 BALANCE_PARAM="-"
 
 # ---- Função de Ajuda ----
@@ -140,6 +143,7 @@ Opções de Treinamento:
   --simulations <n>           Número de simulações (padrão: 1)
   --start-run <n>             Índice da primeira simulação (padrão: 1)
   --exp-name <nome>           Nome customizado do experimento
+  --seed <n>                  Seed para amostragem determinística de clientes por round (padrão: 42)
 
 Opções de Modelo:
   -m, --model <tipo>          Modelo: cnn ou clip (padrão: cnn)
@@ -221,10 +225,12 @@ while [ $# -gt 0 ]; do
         -r|--rounds) ROUNDS="$2"; shift 2 ;;
         -d|--dataset) DATASET="$2"; shift 2 ;;
         --batch-size) BATCH_SIZE="$2"; shift 2 ;;
+        --grad-accum) GRAD_ACCUM="$2"; shift 2 ;;
         --max-clients) MAX_CLIENTS="$2"; shift 2 ;;
         --simulations) SIMULATIONS="$2"; shift 2 ;;
         --start-run) START_RUN="$2"; shift 2 ;;
         --exp-name) EXP_NAME_OVERRIDE="$2"; shift 2 ;;
+        --seed) SEED="$2"; shift 2 ;;
 
         # Modelo
         -m|--model) MODEL="$2"; shift 2 ;;
@@ -300,6 +306,7 @@ while [ $# -gt 0 ]; do
         --drift-round) DRIFT_ROUND="$2"; shift 2 ;;
         --drift-length) DRIFT_LENGTH="$2"; shift 2 ;;
         --drift-clients) DRIFT_CLIENTS="$2"; shift 2 ;;
+        --drift-freq) DRIFT_FREQ="$2"; shift 2 ;;
 
         *) echo "❌ Argumento desconhecido: $1"; exit 1 ;;
     esac
@@ -434,12 +441,12 @@ if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cif
         DATASET_DRIFT_TYPE="label_swap"
     fi
     echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS, balance: $BALANCE_MODE)..."
-    uv run "$GENERATOR_SCRIPT" noniid "$BALANCE_MODE" dir "$CLIENT_COUNT" --drift-type "$DATASET_DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
+    uv run "$GENERATOR_SCRIPT" noniid "$BALANCE_MODE" dir "$MAX_CLIENTS" --drift-type "$DATASET_DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
 else
     # Busca o script no diretório dataset
     SCRIPT_PATH=$(find ../dataset -maxdepth 1 -iname "generate_${DATASET}.py" -print -quit)
     if [ -n "$SCRIPT_PATH" ]; then
-        uv run "$SCRIPT_PATH" noniid "$BALANCE_MODE" dir "$CLIENT_COUNT"
+        uv run "$SCRIPT_PATH" noniid "$BALANCE_MODE" dir "$MAX_CLIENTS"
     else
         echo "[ERRO] Dataset não reconhecido ou script de geração não encontrado para: $DATASET"
         exit 1
@@ -486,6 +493,12 @@ for RUN in $(seq $START_RUN $END_RUN); do
     echo "[INFO] INICIANDO SIMULAÇÃO $RUN DE $SIMULATIONS"
     echo "========================================================="
 
+    # Limpeza de segurança de processos e portas de simulações anteriores
+    fuser -k 9500/tcp 2>/dev/null || true
+    pkill -9 -f "server.py" 2>/dev/null || true
+    pkill -9 -f "client.py" 2>/dev/null || true
+    sleep 3
+
     # PaCA do servidor: se heterogêneo, usar o máximo
     if [ "$RANDOM_PACA" -eq 1 ]; then
         SERVER_PACA=$PACA_MAX
@@ -499,8 +512,11 @@ for RUN in $(seq $START_RUN $END_RUN); do
     LOG_DIR="../results/$EXP_NAME/logs/sim_$RUN"
     mkdir -p "$LOG_DIR"
 
+    # Seed determinística por simulação para amostragem reprodutível de clientes
+    RUN_SEED=$((SEED + (RUN - 1) * 1000))
+
     # Comando do servidor
-    SERVER_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false CUDA_VISIBLE_DEVICES=$DEVICE_ID uv run server.py \
+    SERVER_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$DEVICE_ID uv run server.py \
         --host $HOST \
         --port $PORT \
         --clients-per-round $CLIENT_COUNT \
@@ -512,6 +528,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
         --dim $DIM \
         --batch-size $BATCH_SIZE \
         --max-clients $MAX_CLIENTS \
+        --seed $RUN_SEED \
         --prune $PRUNE \
         --device $DEVICE \
         -did $DEVICE_ID \
@@ -551,7 +568,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
         SERVER_CMD="$SERVER_CMD --delta-coding"
     fi
     if [ "$DRIFT" -eq 1 ]; then
-        SERVER_CMD="$SERVER_CMD --drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS"
+        SERVER_CMD="$SERVER_CMD --drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS --drift-freq $DRIFT_FREQ"
     fi
     SERVER_CMD="$SERVER_CMD 2>&1 | tee $LOG_DIR/server.log"
 
@@ -567,7 +584,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
     sleep 2
 
     # Lançar clientes
-    for i in $(seq 0 $((CLIENT_COUNT-1))); do
+    for i in $(seq 0 $((MAX_CLIENTS-1))); do
         # Flags de PaCA para o cliente
         PACA_FLAGS="--paca $PACA"
         if [ "$RANDOM_PACA" -eq 1 ]; then
@@ -588,7 +605,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
         # Flags de Concept Drift
         DRIFT_FLAGS=""
         if [ "$DRIFT" -eq 1 ]; then
-            DRIFT_FLAGS="--drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS"
+            DRIFT_FLAGS="--drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS --drift-freq $DRIFT_FREQ"
         fi
 
         # Distribuição round-robin de GPUs
@@ -600,12 +617,14 @@ for RUN in $(seq $START_RUN $END_RUN); do
             CLIENT_DEVICE_ID="0"
         fi
 
-        CLIENT_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false CUDA_VISIBLE_DEVICES=$CLIENT_DEVICE_ID uv run client.py \
+        CLIENT_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$CLIENT_DEVICE_ID uv run client.py \
             --client-idx $i \
             --host $HOST \
             --port $PORT \
             --dataset $DATASET \
             --rounds $ROUNDS \
+            --batch-size $BATCH_SIZE \
+            --grad-accum $GRAD_ACCUM \
             --ala $ALA \
             --device $DEVICE \
             --device_id $CLIENT_DEVICE_ID \
