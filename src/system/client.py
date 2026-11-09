@@ -51,6 +51,7 @@ from utils.network_utils import send_data, recv_data
 from utils.fl_math import quantization, dequantization, evaluate_model, set_parameters
 from utils.fl_math import resize_model_to_pruned
 from utils.lhdq import lhdq_encode, lhdq_decode, is_lhdq_encoded
+from astra import astra_loss
 
 # --- CONFIGURAÇÃO DE OBSERVABILIDADE (LOGGING ENXUTO) ---
 logging.basicConfig(
@@ -116,10 +117,14 @@ def map_sequential_to_simplemodel(state_dict):
 #             quantized_state_dict[k] = v
 #     return quantized_state_dict
 
-def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None):
+def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None, astra_config=None):
     # Verifica se os pesos precisam ser desquantizados (se não forem tensores)
     if state_dict and not isinstance(next(iter(state_dict.values())), torch.Tensor):
         state_dict = dequantization(state_dict)
+
+    astra_enabled = bool(astra_config and astra_config.get('enabled'))
+    if astra_enabled and model_type != 'cnn':
+        raise ValueError('ASTRA local training currently supports CNN only')
     
     personalized_acc = None  # Inicializa a variável que guardará a acurácia pós-ALA
     
@@ -146,7 +151,7 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
     else:
         # --- LÓGICA ANTIGA PARA CNN MANTIDA INTACTA ---
         local_model = resize_model_to_pruned(model, state_dict)
-        if alaarg == 0:
+        if alaarg == 0 and not astra_enabled:
             state = copy.deepcopy(local_model)
             if round_num >= 2:
                 logger.info(f"Client {ala.cid}: Applying FedALA (Adaptive Local Aggregation)...")
@@ -158,6 +163,18 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
     model.train()
     loss_fn = nn.CrossEntropyLoss()
     device = next(model.parameters()).device
+
+    # ASTRA starts the student from the received global state. FedALA's
+    # personalized initialization would change the reference in Eq. 2.
+    reference_params = None
+    teacher = None
+    if astra_enabled:
+        reference_params = {name: p.detach().clone() for name, p in model.named_parameters()
+                            if p.requires_grad}
+        if astra_config['alpha'] > 0:
+            teacher = copy.deepcopy(model).eval()
+            for p in teacher.parameters():
+                p.requires_grad_(False)
     
     # --- 1. SELEÇÃO DE OTIMIZADOR ---
     if model_type in ['clip', 'slm']:
@@ -204,27 +221,36 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
 
         model_dtype = next(model.parameters()).dtype
         
-        for x, y in train_loader:
-            if x.is_floating_point():
-                x = x.to(device, dtype=model_dtype)
-            else:
-                x = x.to(device)
-            y = y.to(device)
-            
-            optimizer.zero_grad()
-            if sparse_optimizer is not None:
-                sparse_optimizer.zero_grad()
-                
-            output = model(x)
-            if isinstance(output, dict):
+        epochs = astra_config['local_epochs'] if astra_enabled else 1
+        for _ in range(epochs):
+            for x, y in train_loader:
+                if x.is_floating_point():
+                    x = x.to(device, dtype=model_dtype)
+                else:
+                    x = x.to(device)
+                y = y.to(device)
+
+                optimizer.zero_grad()
+                output = model(x)
+                if isinstance(output, dict):
                     output = output["logits"]
-                    
-            loss = loss_fn(output, y)
-            loss.backward()
-            optimizer.step()
-            
-            if sparse_optimizer is not None:
-                sparse_optimizer.step()
+
+                if astra_enabled:
+                    teacher_logits = None
+                    if teacher is not None:
+                        with torch.no_grad():
+                            teacher_logits = teacher(x)
+                            if isinstance(teacher_logits, dict):
+                                teacher_logits = teacher_logits['logits']
+                    loss = astra_loss(output, y, model, reference_params,
+                                      astra_config['mu'], astra_config['alpha'],
+                                      astra_config['temperature'], teacher_logits)
+                else:
+                    loss = loss_fn(output, y)
+                loss.backward()
+                optimizer.step()
+
+    del teacher, reference_params
     
     # --- 2. SELEÇÃO DOS PESOS QUE SERÃO ENVIADOS PARA O SERVIDOR ---
     if model_type in ['clip', 'slm']:
@@ -851,6 +877,9 @@ def main():
                 client_dequant_time = time.time() - client_dequant_start
                 if round_num + 1 >= 2 and prune == 1 and args.model == 'cnn':
                     ammount, _ = recv_data(s)
+                astra_config, _ = recv_data(s)
+                if not isinstance(astra_config, dict):
+                    raise ValueError('Missing ASTRA curriculum message from PUMA server')
                 eval_start = time.time()
                 if round_num + 1 >= 2:
                     if args.model in ['clip', 'slm']:
@@ -881,7 +910,8 @@ def main():
                     ala=ala,
                     model_type=args.model, 
                     run_config=run_config if args.model in ['clip', 'slm'] else None,
-                    grad_accum=getattr(args, 'grad_accum', 4)
+                    grad_accum=getattr(args, 'grad_accum', 4),
+                    astra_config=astra_config,
                 )
                 client_training_time = time.time() - train_start
                 if personalized_acc is not None:
@@ -922,7 +952,7 @@ def main():
                 logger.info(f"Client {args.client_idx}: Tempos - treino={client_training_time:.2f}s, eval={client_eval_time:.2f}s, quant={client_quant_time:.2f}s, dequant={client_dequant_time:.2f}s")
                 try:
                     send_data(s, updated_state)
-                    send_data(s, len(train_loader))
+                    send_data(s, len(train_loader.dataset) if astra_config.get('enabled') else len(train_loader))
                     send_data(s, args.ala)
                     send_data(s, client_training_time)
                     send_data(s, test_accuracy)

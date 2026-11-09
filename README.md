@@ -433,3 +433,27 @@ After the simulation completes, performance metrics (Accuracy, Loss, Model Size 
 | First Docker build is very slow | Downloading all Python dependencies | Subsequent builds are cached; only rebuilds if `pyproject.toml` or `uv.lock` change |
 | Port conflict on `9000` | Another service using the port | Change `--port` in server args or stop the conflicting service |
 | Build context is huge (several GB) | `.dockerignore` not filtering `.venv`/data | Ensure `.dockerignore` excludes `.venv/`, `src/dataset/*/data/`, and other large directories |
+# ASTRA on PUMA (CNN, opt-in)
+
+Run `src/system/server.py` with `--astra --model cnn` and the matching
+`src/system/client.py` from this checkout. For example, add `--astra` to the
+server invocation in your existing launcher; no client flag is needed. The
+server sends a zero-based curriculum instruction with each selected client's
+model. The client trains with cross-entropy, the proximal penalty against the
+received model, and (only on active rounds) a frozen teacher and temperature-
+scaled KL divergence. Non-active rounds do not instantiate a teacher. The
+server retains PUMA's normal dataset-size-weighted model aggregation (with
+PUMA's existing per-key alignment when client models have been pruned).
+
+Server options (paper defaults): `--astra-mu 0.01`, `--astra-alpha 0.2`,
+`--astra-temperature 3`, `--astra-boot-rounds 10`, `--astra-interval 2`,
+`--astra-local-epochs 5`. With 50 rounds, the teacher is active at indices
+0–10 and every even index thereafter. ASTRA skips FedALA personalization
+when enabled so the student starts at the received global weights; it still
+supports PUMA's CNN pruning and quantized transport. CLIP/SLM and decentralized
+training are **not** ASTRA-enabled. Use matching server/client versions because
+the socket protocol now includes a curriculum message after the model metadata.
+For a paper-style run, choose `--model cnn --rounds 50 --clients-per-round 5`
+on the server and 50 rounds on each client; dataset partitioning and client
+selection remain PUMA configuration choices. Run schedule tests with
+`python -m unittest discover -s tests` (objective tests require PyTorch).

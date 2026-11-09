@@ -62,6 +62,7 @@ from prunning_snip import snip_pruning, apply_mask
 from utils.network_utils import send_data, recv_data
 from utils.fl_math import quantization, dequantization, evaluate_model, set_parameters
 from utils.lhdq import lhdq_encode, lhdq_decode, is_lhdq_encoded
+from astra import astra_round_config
 
 # --- CONFIGURAÇÃO DE OBSERVABILIDADE (LOGGING) ---
 logging.basicConfig(
@@ -944,6 +945,15 @@ class FederatedLearningServer:
                     self.sended_ammount.append(self.sended_ammount[-1] + size_after)
 
             size_saved = size_before - size_after
+            # Protocol: after model/prune/(optional CNN pruning amount), send the
+            # curriculum for this round. Never send private data or teacher logits.
+            astra_config = (astra_round_config(
+                round_num - 1, self.args.rounds, self.args.astra_boot_rounds,
+                self.args.astra_interval, self.args.astra_mu,
+                self.args.astra_alpha, self.args.astra_temperature,
+                self.args.astra_local_epochs,
+            ) if self.args.astra else {"enabled": False})
+            send_data(conn, astra_config)
             logger.debug(f"Tamanho antes: {size_before:.2f} MB | Tamanho depois: {size_after:.2f} MB | Economia: {size_saved:.2f} MB")
             logger.info(f"Round {round_num}: Sent global model to client {client_id}")
             
@@ -1706,10 +1716,23 @@ def parse_args():
     parser.add_argument('--allow-rank-upscale', action='store_true', default=True, help='Permite subida de rank quando condições melhoram ou para reversão de pânico (default: True)')
     parser.add_argument('--gamma-delta', type=float, default=0.5, help='Expoente de sensibilidade da acurácia no índice de capacidade γ (default: 0.5)')
     parser.add_argument('--seed', type=int, default=42, help='Seed para amostragem pseudo-aleatória determinística de clientes por round')
+    parser.add_argument('--astra', action='store_true', help='Ativa ASTRA (treino local CNN + curriculum no servidor)')
+    parser.add_argument('--astra-mu', type=float, default=0.01)
+    parser.add_argument('--astra-alpha', type=float, default=0.2)
+    parser.add_argument('--astra-temperature', type=float, default=3.0)
+    parser.add_argument('--astra-boot-rounds', type=int, default=10, help='Último índice de round zero-based com teacher sempre ativo')
+    parser.add_argument('--astra-interval', type=int, default=2)
+    parser.add_argument('--astra-local-epochs', type=int, default=5)
     return parser.parse_args()
 
 def main():
     args = parse_args()
+    if args.astra:
+        if args.model != 'cnn':
+            raise ValueError('ASTRA is currently supported only for --model cnn (not CLIP/SLM)')
+        astra_round_config(0, args.rounds, args.astra_boot_rounds,
+                           args.astra_interval, args.astra_mu, args.astra_alpha,
+                           args.astra_temperature, args.astra_local_epochs)
     
     # Configuração inteligente de device: MPS > CUDA > CPU
     if args.device == "mps":
