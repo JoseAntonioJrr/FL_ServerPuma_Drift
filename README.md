@@ -457,3 +457,21 @@ For a paper-style run, choose `--model cnn --rounds 50 --clients-per-round 5`
 on the server and 50 rounds on each client; dataset partitioning and client
 selection remain PUMA configuration choices. Run schedule tests with
 `python -m unittest discover -s tests` (objective tests require PyTorch).
+
+## ASTRA-FL CIFAR-10 Partitioning + PUMA Concept Drift
+
+To pair ASTRA-FL's static Dirichlet partitioning (50k official train split,
+`seed=42`, 1-based `"1".."20"` mapped via `puma_idx = astra_id - 1`, no
+balancing/minimum-size resampling, separate official 10k test set) with PUMA's
+`phase1`/`phase2` drift simulation (`abrupt`, `gradual`, `periodic`), use:
+
+- Generator: `src/dataset/generate_Cifar10_astra_drift.py` (with `--dirichlet-alpha 0.1`,
+  `--partition-seed 42`, `--drift-transform {none,label_swap,cyclic_shift,class_shift,gaussian_noise}`,
+  `--drift-clients <base-0 list|range|all>`). Writes `strict_phase: true`,
+  `partitions.json`, SHA-256 manifest, and `test/global_phase{1,2}.npz`.
+- Paper-style baseline (no drift, `G-orig` global eval, CNN + ASTRA):
+  `cd src/system && ./run_astra_paper.sh` -> results under `src/results/astra_paper_*`.
+- ASTRA + drift (`G-orig`, `G-drift`, and `C-mix` saved separately):
+  `cd src/system && ./run_astra_drift.sh` -> results under `src/results/astra_drift_*`.
+- Legacy CLIP benchmark launcher (formerly `run_abrupt_astra.sh`, does **not** run ASTRA-FL):
+  `src/system/run_clip_abrupt_drift.sh`.

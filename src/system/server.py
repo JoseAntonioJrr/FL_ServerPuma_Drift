@@ -53,7 +53,8 @@ if str(parent_dir) not in sys.path:
 # -----------------------------------------------------------------
 
 from model import SimpleModel
-from utils.data_utils import read_client_data, TransformedDataset
+from utils.data_utils import read_client_data, TransformedDataset, has_global_test, read_global_test
+from utils.drift_schedule import DriftPhase, phase_for_round, resolve_drift_clients
 from prunning import prune_and_restructure
 from size_mode import get_model_size, get_trainable_size_and_params
 from synexp import LayerComplexityCalculator
@@ -112,10 +113,10 @@ class FederatedLearningServer:
                     case 'MNIST':
                         self.global_model = SimpleModel(in_features=1, num_classes=10, dim=1024)
                         self.input_size = (1, 1, 28, 28)
-                    case 'Cifar10' | 'Cifar10_drift':
+                    case ds if ds in ('Cifar10', 'Cifar10_drift') or ds.startswith('Cifar10_astra'):
                         self.global_model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
                         self.input_size = (1, 3, 32, 32)
-                    case 'Cifar100' | 'Cifar100_drift':
+                    case ds if ds in ('Cifar100', 'Cifar100_drift') or ds.startswith('Cifar100_astra'):
                         self.global_model = SimpleModel(in_features=args.in_features, num_classes=args.num_classes, dim=args.dim)
                         self.input_size = (1, 3, 32, 32)
                     case _:
@@ -207,6 +208,15 @@ class FederatedLearningServer:
         self.global_model = self.global_model.to(args.device)
         self.rs_test_acc = []
         self.rs_test_loss = []
+        self.rs_test_acc_orig = []
+        self.rs_test_loss_orig = []
+        self.rs_test_acc_drift = []
+        self.rs_test_loss_drift = []
+        self.rs_test_acc_clients = []
+        self.rs_test_loss_clients = []
+        self._cached_eval_state = {}
+        self.global_test_loader_p1 = None
+        self.global_test_loader_p2 = None
         self.rs_aux_simple_avg_acc = []  # Média simples das acurácias reportadas pelos clientes (usada pelo PaCA/Rank adaptativo)
         self.global_state = self.global_model.state_dict()
         self.lock = threading.Lock()
@@ -273,11 +283,25 @@ class FederatedLearningServer:
         # Dicionário para armazenar máscaras por cliente
         self.client_masks = {}
         
-        self.test_loader = self.load_test_data(args.dataset, args.test_client_idx, args.batch_size)
+        initial_phase = "phase1" if getattr(args, 'drift', False) else None
+        self.test_loader = self.load_test_data(args.dataset, args.test_client_idx, args.batch_size, phase=initial_phase)
         if self.test_loader is not None:
-            self.test_loaders_cache[args.test_client_idx if args.test_client_idx is not None else 0] = self.test_loader
+            cid0 = args.test_client_idx if args.test_client_idx is not None else 0
+            self.test_loaders_cache[cid0] = self.test_loader
+            self._cached_eval_state[cid0] = DriftPhase(initial_phase, 0.0)
         else:
             logger.warning("Could not load test data. Evaluation will be skipped.")
+
+        global_eval_mode = getattr(args, 'global_eval', 'clients')
+        if global_eval_mode in ('official', 'both'):
+            if not has_global_test(args.dataset):
+                raise FileNotFoundError(
+                    f"--global-eval {global_eval_mode} requer test/global_phase1.npz em {args.dataset}"
+                )
+            self.global_test_loader_p1 = self._build_global_test_loader(args.dataset, "phase1", args.batch_size)
+            if getattr(args, 'drift', False):
+                self.global_test_loader_p2 = self._build_global_test_loader(args.dataset, "phase2", args.batch_size)
+            logger.info(f"Global official test loader carregado (mode={global_eval_mode}, drift={getattr(args, 'drift', False)})")
 
     def aggregate_models(self, model_list, global_model, client_weights=None):
         agg_state = global_model.copy()
@@ -867,11 +891,13 @@ class FederatedLearningServer:
                 if self.args.pm == 'OPALA':
                     g_model_pruned, mask = prune_and_restructure(model=g_model_pruned, pruning_rate=max_amount, size_fc=self.size_fc, data=self.args.dataset)
                 elif self.args.pm == 'NISP':
-                    trainloader = self.load_test_data("Cifar10", client_id, 32)
+                    ds_prune = self.args.dataset if str(self.args.dataset).startswith('Cifar10_astra') else "Cifar10"
+                    trainloader = self.load_test_data(ds_prune, client_id, 32)
                     g_model_pruned, _ = prune_fc1(model=g_model_pruned, dataloader=trainloader, pruning_ratio=max_amount, device=self.args.device)
                     g_model_pruned, mask = prune_and_restructure(model=g_model_pruned, pruning_rate=0.0, size_fc=self.size_fc, data=self.args.dataset)
                 elif self.args.pm == 'SNIP':
-                    trainloader = self.load_test_data("Cifar10", client_id, 32)
+                    ds_prune = self.args.dataset if str(self.args.dataset).startswith('Cifar10_astra') else "Cifar10"
+                    trainloader = self.load_test_data(ds_prune, client_id, 32)
                     self.mask = snip_pruning(model=g_model_pruned, dataloader=trainloader, criterion=nn.CrossEntropyLoss(), pruning_ratio=max_amount, device=self.args.device)
                     g_model_pruned = apply_mask(g_model_pruned, self.mask)
                     g_model_pruned, mask = prune_and_restructure(model=g_model_pruned, pruning_rate=0.0, size_fc=self.size_fc, data=self.args.dataset)
@@ -903,7 +929,7 @@ class FederatedLearningServer:
                 else:
                     if getattr(self.args, 'delta_coding', False):
                         self.previous_sent_state[client_id] = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in g_model_pruned.items()}
-                    if not getattr(self.args, 'delta_coding', False):
+                    elif not getattr(self.args, 'no_quant', False):
                         g_model_pruned = quantization(g_model_pruned)
                 server_quant_time = time.time() - server_quant_start
                 
@@ -933,7 +959,7 @@ class FederatedLearningServer:
                 else:
                     if getattr(self.args, 'delta_coding', False):
                         self.previous_sent_state[client_id] = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in current_global_state.items()}
-                    if not getattr(self.args, 'delta_coding', False):
+                    elif not getattr(self.args, 'no_quant', False):
                         current_global_state = quantization(current_global_state)
                 server_quant_time = time.time() - server_quant_start
                 
@@ -975,7 +1001,7 @@ class FederatedLearningServer:
                 prev_recv = self.previous_recv_state.get(client_id, {})
                 updated_state = lhdq_decode(updated_state, prev_recv)
             else:
-                if not getattr(self.args, 'delta_coding', False):
+                if not getattr(self.args, 'delta_coding', False) and not getattr(self.args, 'no_quant', False):
                     updated_state = dequantization(updated_state)
             server_dequant_time = time.time() - server_dequant_start
             
@@ -1139,6 +1165,17 @@ class FederatedLearningServer:
 
         return ClipTransform()
 
+    def _build_test_loader_from_tensors(self, X, y, batch_size):
+        if getattr(self.args, 'model', 'cnn') == 'slm':
+            return self._prepare_slm_test_loader(X, y, batch_size)
+        transform = self._get_clip_transform() if getattr(self.args, 'model', 'cnn') == 'clip' else None
+        dataset_obj = TransformedDataset(X, y, transform=transform)
+        return DataLoader(dataset_obj, batch_size=batch_size, shuffle=False)
+
+    def _build_global_test_loader(self, dataset, phase, batch_size=16):
+        X, y = read_global_test(dataset, phase=phase)
+        return self._build_test_loader_from_tensors(X, y, batch_size)
+
     def load_test_data(self, dataset, client_idx=0, batch_size=16, phase=None):
         try:
             res = read_client_data(dataset, client_idx if client_idx is not None else 0, is_train=False, phase=phase)
@@ -1148,17 +1185,7 @@ class FederatedLearningServer:
                 X, y = zip(*res)
                 X = torch.stack(X)
                 y = torch.tensor(y)
-            
-            if getattr(self.args, 'model', 'cnn') == 'slm':
-                return self._prepare_slm_test_loader(X, y, batch_size)
-                
-            transform = None
-            if getattr(self.args, 'model', 'cnn') == 'clip':
-                transform = self._get_clip_transform()
-            
-            # Utilizar TransformedDataset para aplicar Resize/Normalize por mini-batch (evita estouro de RAM CPU no servidor)
-            dataset_obj = TransformedDataset(X, y, transform=transform)
-            return DataLoader(dataset_obj, batch_size=batch_size, shuffle=False)
+            return self._build_test_loader_from_tensors(X, y, batch_size)
         except Exception as e:
             logger.exception("Error loading test data")
             return None
@@ -1263,6 +1290,12 @@ class FederatedLearningServer:
 
             safe_create_dset('rs_test_acc', self.rs_test_acc)
             safe_create_dset('rs_test_loss', self.rs_test_loss)
+            safe_create_dset('rs_test_acc_orig', self.rs_test_acc_orig)
+            safe_create_dset('rs_test_loss_orig', self.rs_test_loss_orig)
+            safe_create_dset('rs_test_acc_drift', self.rs_test_acc_drift)
+            safe_create_dset('rs_test_loss_drift', self.rs_test_loss_drift)
+            safe_create_dset('rs_test_acc_clients', self.rs_test_acc_clients)
+            safe_create_dset('rs_test_loss_clients', self.rs_test_loss_clients)
             safe_create_dset('rs_aux_simple_avg_acc', self.rs_aux_simple_avg_acc)
             safe_create_dset('sended_model_Mb', self.sended_ammount)
             safe_create_dset('Sended_without_quant', self.sended_withouquant)
@@ -1282,6 +1315,62 @@ class FederatedLearningServer:
             safe_create_dset('total_transmitted_per_round_Mb', self.total_transmitted_per_round)
             if self.rs_client_gamma:
                 safe_create_dset('rs_client_gamma', self.rs_client_gamma)
+
+            hf.attrs['global_eval'] = getattr(self.args, 'global_eval', 'clients')
+            hf.attrs['astra'] = bool(getattr(self.args, 'astra', False))
+            hf.attrs['deterministic_selection'] = bool(getattr(self.args, 'deterministic_selection', False))
+            hf.attrs['blend_gradual_eval'] = bool(getattr(self.args, 'blend_gradual_eval', False))
+            hf.attrs['no_quant'] = bool(getattr(self.args, 'no_quant', False))
+            if getattr(self.args, 'drift', False):
+                hf.attrs['drift_enabled'] = True
+                hf.attrs['drift_type'] = getattr(self.args, 'drift_type', 'abrupt')
+                hf.attrs['drift_round'] = getattr(self.args, 'drift_round', 10)
+                hf.attrs['drift_length'] = getattr(self.args, 'drift_length', 5)
+                hf.attrs['drift_clients'] = getattr(self.args, 'drift_clients', '0')
+                hf.attrs['drift_freq'] = getattr(self.args, 'drift_freq', 0)
+
+    def _evaluate_client_mix(self, round_num):
+        eval_clients = (sorted(self.client_idx) if getattr(self.args, 'deterministic_selection', False) else self.client_idx) if self.client_idx else (
+            [self.args.test_client_idx] if self.args.test_client_idx is not None else [0]
+        )
+        drift_active = getattr(self.args, 'drift', False)
+        raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
+        drift_client_set_eval = resolve_drift_clients(raw_dc, eval_clients) if drift_active else set()
+        legacy_hold = not getattr(self.args, 'blend_gradual_eval', False)
+
+        total_correct_weight = 0.0
+        total_loss_weight = 0.0
+        total_samples = 0
+
+        for cid in eval_clients:
+            desired_state = phase_for_round(
+                round_num + 1, self.args,
+                is_drifted_client=(cid in drift_client_set_eval),
+                legacy_gradual_server_hold=legacy_hold,
+            )
+            if cid not in self.test_loaders_cache or self._cached_eval_state.get(cid) != desired_state:
+                if desired_state.phase == 'blend':
+                    loader = self.load_blended_test_data(
+                        self.args.dataset, cid, alpha=desired_state.alpha, batch_size=self.args.batch_size
+                    )
+                else:
+                    loader = self.load_test_data(
+                        self.args.dataset, cid, self.args.batch_size, phase=desired_state.phase
+                    )
+                self.test_loaders_cache[cid] = loader
+                self._cached_eval_state[cid] = desired_state
+
+            client_loader = self.test_loaders_cache[cid]
+            if client_loader is not None:
+                accuracy, avg_loss = evaluate_model(self.global_model, client_loader)
+                n_samples = len(client_loader.dataset)
+                total_correct_weight += accuracy * n_samples
+                total_loss_weight += avg_loss * n_samples
+                total_samples += n_samples
+
+        final_acc = total_correct_weight / total_samples if total_samples > 0 else 0.0
+        final_loss = total_loss_weight / total_samples if total_samples > 0 else 0.0
+        return final_acc, final_loss
             
     def run_server(self, times):
         logger.info("=== Federated Learning Server ===")
@@ -1372,7 +1461,11 @@ class FederatedLearningServer:
                 if self.args.clients_per_round < total_connected:
                     round_seed = (getattr(self.args, 'seed', 42) or 42) + round_num
                     rng = random.Random(round_seed)
-                    selected_indices = set(rng.sample(range(total_connected), self.args.clients_per_round))
+                    if getattr(self.args, 'deterministic_selection', False):
+                        ordered_positions = sorted(range(total_connected), key=lambda pos: clientsid[pos])
+                        selected_indices = set(rng.sample(ordered_positions, self.args.clients_per_round))
+                    else:
+                        selected_indices = set(rng.sample(range(total_connected), self.args.clients_per_round))
                 else:
                     selected_indices = set(range(total_connected))
 
@@ -1473,103 +1566,64 @@ class FederatedLearningServer:
                     with self.lock:
                         self.global_state = aggregated_state
                         self.global_model.load_state_dict(self.global_state, strict=False)
-                    
-                    # --- CONCEPT DRIFT: Invalidar cache de test loaders quando o drift ocorre ---
-                    drift_freq = getattr(self.args, 'drift_freq', 0)
-                    drift_type = getattr(self.args, 'drift_type', 'abrupt')
-                    if getattr(self.args, 'drift', False):
-                        if drift_freq > 0:
-                            if drift_type == 'gradual' or (round_num + 1) % drift_freq == 0:
-                                raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
-                                if raw_dc.strip().lower() == 'all':
-                                    drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
-                                else:
-                                    drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
-                                logger.info(f"[CONCEPT DRIFT PERIÓDICO] Round {round_num + 1}: Invalidando cache de test loaders ({drift_type.upper()})")
-                                for cid in list(self.test_loaders_cache.keys()):
-                                    if cid in drift_client_set:
-                                        del self.test_loaders_cache[cid]
-                                gc.collect()
-                                if torch.cuda.is_available():
-                                    torch.cuda.empty_cache()
-                        elif not getattr(self, '_drift_cache_invalidated', False) and (round_num + 1) >= getattr(self.args, 'drift_round', 999):
-                            drift_length = getattr(self.args, 'drift_length', 5)
-                            if drift_type == 'abrupt' or (round_num + 1) >= (self.args.drift_round + drift_length):
-                                raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
-                                if raw_dc.strip().lower() == 'all':
-                                    drift_client_set = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
-                                else:
-                                    drift_client_set = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
-                                logger.info(f"[CONCEPT DRIFT] Invalidando cache de test loaders e recarregando com Phase 2 para clientes afetados: {drift_client_set}")
-                                for cid in list(self.test_loaders_cache.keys()):
-                                    if cid in drift_client_set:
-                                        del self.test_loaders_cache[cid]
-                                gc.collect()
-                                if torch.cuda.is_available():
-                                    torch.cuda.empty_cache()
-                                self._drift_cache_invalidated = True
 
-                    if self.test_loader is not None or self.client_idx:
+                    # --- Avaliação Global / Concept Drift ---
+                    global_eval_mode = getattr(self.args, 'global_eval', 'clients')
+                    want_clients = global_eval_mode in ('clients', 'both')
+                    want_official = global_eval_mode in ('official', 'both')
+
+                    c_mix_acc = c_mix_loss = None
+                    g_orig_acc = g_orig_loss = None
+                    g_drift_acc = g_drift_loss = None
+
+                    if want_clients and (self.test_loader is not None or self.client_idx):
                         try:
-                            total_correct_weight = 0.0
-                            total_loss_weight = 0.0
-                            total_samples = 0
-                            eval_clients = self.client_idx if self.client_idx else ([self.args.test_client_idx] if self.args.test_client_idx is not None else [0])
-
-                            # Determinar a fase de avaliação por cliente
-                            drift_active = getattr(self.args, 'drift', False)
-                            drift_invalidated = getattr(self, '_drift_cache_invalidated', False)
-                            raw_dc = getattr(self.args, 'drift_clients', '0') or '0'
-                            if drift_active and raw_dc.strip().lower() == 'all':
-                                drift_client_set_eval = set(self.client_idx) if self.client_idx else set(range(self.args.clients_per_round))
-                            elif drift_active:
-                                drift_client_set_eval = set(int(x.strip()) for x in raw_dc.split(',') if x.strip().isdigit())
-                            else:
-                                drift_client_set_eval = set()
-
-                            for i in eval_clients:
-                                if i not in self.test_loaders_cache:
-                                    if drift_freq > 0 and i in drift_client_set_eval:
-                                        curr_r = round_num + 1
-                                        if drift_type == 'gradual':
-                                            L = drift_freq
-                                            p = (curr_r - 1) // L
-                                            cycle_step = (curr_r - 1) % L
-                                            r = cycle_step / (L - 1) if L > 1 else 0.0
-                                            alpha_eval = r if (p % 2 == 0) else (1.0 - r)
-                                            self.test_loaders_cache[i] = self.load_blended_test_data(self.args.dataset, i, alpha=alpha_eval, batch_size=self.args.batch_size)
-                                        else:
-                                            phase = "phase2" if ((curr_r // drift_freq) % 2 == 1) else "phase1"
-                                            self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
-                                    else:
-                                        phase = "phase2" if (drift_invalidated and i in drift_client_set_eval) else None
-                                        self.test_loaders_cache[i] = self.load_test_data(self.args.dataset, i, self.args.batch_size, phase=phase)
-                                client_loader = self.test_loaders_cache[i]
-                                if client_loader is not None:
-                                    accuracy, avg_loss = evaluate_model(self.global_model, client_loader)
-                                    n_samples = len(client_loader.dataset)
-                                    total_correct_weight += accuracy * n_samples
-                                    total_loss_weight += avg_loss * n_samples
-                                    total_samples += n_samples
-                            
-                            final_accuracy = total_correct_weight / total_samples if total_samples > 0 else 0.0
-                            final_loss = total_loss_weight / total_samples if total_samples > 0 else 0.0
-                            self.rs_test_acc.append(final_accuracy)
-                            self.rs_test_loss.append(final_loss)
-                            logger.info(f"Round {round_num + 1}: Test Acc: {final_accuracy:.2f}% | Loss: {final_loss:.4f}")
+                            c_mix_acc, c_mix_loss = self._evaluate_client_mix(round_num)
                         except Exception as e:
                             logger.exception(f"Round {round_num + 1}: Erro durante avaliação global no servidor: {e}")
                             if client_accuracies:
-                                fallback_acc = sum(client_accuracies) / len(client_accuracies)
-                                fallback_loss = sum(client_losses) / len(client_losses) if client_losses else 0.0
-                                self.rs_test_acc.append(fallback_acc)
-                                self.rs_test_loss.append(fallback_loss)
-                                logger.warning(f"Round {round_num + 1}: Usando fallback de acurácia reportada pelos clientes: {fallback_acc:.2f}%")
+                                c_mix_acc = sum(client_accuracies) / len(client_accuracies)
+                                c_mix_loss = sum(client_losses) / len(client_losses) if client_losses else 0.0
+                                logger.warning(f"Round {round_num + 1}: Usando fallback de acurácia reportada pelos clientes: {c_mix_acc:.2f}%")
                             else:
-                                self.rs_test_acc.append(0.0)
-                                self.rs_test_loss.append(0.0)
+                                c_mix_acc, c_mix_loss = 0.0, 0.0
+
+                    if want_official and self.global_test_loader_p1 is not None:
+                        g_orig_acc, g_orig_loss = evaluate_model(self.global_model, self.global_test_loader_p1)
+                        self.rs_test_acc_orig.append(g_orig_acc)
+                        self.rs_test_loss_orig.append(g_orig_loss)
+                        if self.global_test_loader_p2 is not None:
+                            g_drift_acc, g_drift_loss = evaluate_model(self.global_model, self.global_test_loader_p2)
+                        else:
+                            g_drift_acc, g_drift_loss = g_orig_acc, g_orig_loss
+                        self.rs_test_acc_drift.append(g_drift_acc)
+                        self.rs_test_loss_drift.append(g_drift_loss)
+
+                    if global_eval_mode == 'clients':
+                        if c_mix_acc is not None:
+                            self.rs_test_acc.append(c_mix_acc)
+                            self.rs_test_loss.append(c_mix_loss)
+                            logger.info(f"Round {round_num + 1}: Test Acc: {c_mix_acc:.2f}% | Loss: {c_mix_loss:.4f}")
+                        else:
+                            logger.info(f"Round {round_num + 1}: Model aggregated (no test data)")
+                    elif global_eval_mode == 'official':
+                        self.rs_test_acc.append(g_orig_acc)
+                        self.rs_test_loss.append(g_orig_loss)
+                        if self.global_test_loader_p2 is not None:
+                            logger.info(f"Round {round_num + 1}: G-orig: {g_orig_acc:.2f}% (loss={g_orig_loss:.4f}) | G-drift: {g_drift_acc:.2f}% (loss={g_drift_loss:.4f})")
+                        else:
+                            logger.info(f"Round {round_num + 1}: G-orig: {g_orig_acc:.2f}% | Loss: {g_orig_loss:.4f}")
                     else:
-                        logger.info(f"Round {round_num + 1}: Model aggregated (no test data)")
+                        if c_mix_acc is not None:
+                            self.rs_test_acc_clients.append(c_mix_acc)
+                            self.rs_test_loss_clients.append(c_mix_loss)
+                        self.rs_test_acc.append(g_orig_acc)
+                        self.rs_test_loss.append(g_orig_loss)
+                        c_str = f"{c_mix_acc:.2f}% (loss={c_mix_loss:.4f})" if c_mix_acc is not None else "N/A"
+                        logger.info(
+                            f"Round {round_num + 1}: G-orig: {g_orig_acc:.2f}% (loss={g_orig_loss:.4f}) | "
+                            f"G-drift: {g_drift_acc:.2f}% (loss={g_drift_loss:.4f}) | C-mix: {c_str}"
+                        )
                     
                     # Acurácia auxiliar (média simples dos clientes) — usada pelo PaCA/Rank adaptativo
                     if client_accuracies:
@@ -1723,6 +1777,14 @@ def parse_args():
     parser.add_argument('--astra-boot-rounds', type=int, default=10, help='Último índice de round zero-based com teacher sempre ativo')
     parser.add_argument('--astra-interval', type=int, default=2)
     parser.add_argument('--astra-local-epochs', type=int, default=5)
+    parser.add_argument('--global-eval', type=str, default='clients', choices=['clients', 'official', 'both'],
+                        help='Modo de avaliação global: clients (C-mix legado), official (G-orig/G-drift), both (todos)')
+    parser.add_argument('--deterministic-selection', action='store_true',
+                        help='Ordena IDs conectados antes do sorteio de clientes por rodada')
+    parser.add_argument('--blend-gradual-eval', action='store_true',
+                        help='Avalia C-mix com mistura phase1/phase2 durante janela gradual não-periódica')
+    parser.add_argument('--no-quant', action='store_true',
+                        help='Desativa quantização int8 no servidor')
     return parser.parse_args()
 
 def main():
