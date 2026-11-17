@@ -37,4 +37,3 @@ EXP_NAME="${EXP_NAME:-astra_paper_cifar10_a${ALPHA}_s${P_SEED}}"
     --exp-name "$EXP_NAME" \
     --auto-next \
     "$@"
-

@@ -102,4 +102,3 @@ def phase_for_round(round_num, args, is_drifted_client=True, legacy_gradual_serv
         return DriftPhase("phase2", 1.0)
 
     raise ValueError(f"drift_type desconhecido: {drift_type}")
-

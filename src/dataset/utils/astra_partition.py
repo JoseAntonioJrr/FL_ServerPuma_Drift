@@ -62,4 +62,3 @@ def puma_to_astra_id(puma_idx):
 
 def astra_to_puma_id(astra_id):
     return int(str(astra_id).split('_')[-1]) - 1
-

@@ -55,4 +55,3 @@ EXP_NAME="${EXP_NAME:-astra_drift_cifar10_a${ALPHA}_${DRIFT_TRANSFORM}_${DRIFT_T
     --exp-name "$EXP_NAME" \
     --auto-next \
     "$@"
-

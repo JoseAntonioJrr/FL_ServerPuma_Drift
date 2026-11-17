@@ -40,4 +40,3 @@ def apply_gaussian_noise(x_array, std=0.25, rng=None):
         noise = rng.normal(0, std, size=x_array.shape).astype(np.float32)
     x_noisy = np.clip(x_array + noise, -1.0, 1.0)
     return x_noisy
-
