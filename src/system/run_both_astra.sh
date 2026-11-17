@@ -1,4 +1,6 @@
 #!/bin/bash
+# LEGADO (Benchmark SBRC 2026 com LoRA-CLIP e partição PUMA — NÃO executa ASTRA-FL).
+# Para o algoritmo ASTRA-FL use `run_astra_paper.sh` ou `run_astra_drift.sh`.
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 cd "$SCRIPT_DIR"

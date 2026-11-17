@@ -121,6 +121,31 @@ DRIFT_CLIENTS="0"
 DRIFT_FREQ=0
 BALANCE_PARAM="-"
 
+# Particionamento ASTRA / ASTRA Training / Reprodutibilidade
+PARTITION_SOURCE="puma"
+DIRICHLET_ALPHA="0.1"
+PARTITION_SEED="42"
+DRIFT_TRANSFORM=""
+DRIFT_SEED="1234"
+NOISE_STD="0.25"
+REGENERATE_DATA=0
+LEARNING_RATE=""
+
+ASTRA=0
+ASTRA_MU="0.01"
+ASTRA_ALPHA="0.2"
+ASTRA_TEMPERATURE="3.0"
+ASTRA_BOOT_ROUNDS="10"
+ASTRA_INTERVAL="2"
+ASTRA_LOCAL_EPOCHS="5"
+
+GLOBAL_EVAL="clients"
+DETERMINISTIC_SELECTION=0
+BLEND_GRADUAL_EVAL=0
+TRAIN_AUGMENT="none"
+NO_QUANT=0
+CLIENT_SEED=0
+
 # ---- Função de Ajuda ----
 show_help() {
     cat << 'EOF'
@@ -184,6 +209,30 @@ Opções de Concept Drift:
   --drift-round <n>           Rodada de injeção/início do drift (padrão: 10)
   --drift-length <n>          Duração em rodadas da transição gradual (padrão: 5)
   --drift-clients <lista|all> IDs dos clientes afetados (ex: "0", "0,1" ou "all", padrão: 0)
+  --drift-freq <n>            Frequência (em rodadas) do drift periódico (padrão: 0)
+  --drift-transform <tipo>    Transformação phase2: none, label_swap, cyclic_shift, class_shift, gaussian_noise
+
+Opções ASTRA & Reprodutibilidade:
+  --partition-source <puma|astra> Gerador de partição CIFAR-10 (padrão: puma)
+  --dirichlet-alpha <val>     Alpha de Dirichlet para partição ASTRA (padrão: 0.1)
+  --partition-seed <n>        Seed fixa da partição ASTRA (padrão: 42)
+  --drift-seed <n>            Seed independente de ruído/testes/class_shift (padrão: 1234)
+  --noise-std <val>           Desvio padrão do gaussian_noise (padrão: 0.25)
+  --regenerate-data           Força regeneração mesmo se o manifesto bater
+  --learning-rate <val>       Taxa de aprendizado local do cliente
+  --astra                     Ativa treino ASTRA no servidor (CNN)
+  --astra-mu <val>            Peso proximal mu (padrão: 0.01)
+  --astra-alpha <val>         Alpha inicial de KD (padrão: 0.2)
+  --astra-temperature <val>   Temperatura de KD (padrão: 3.0)
+  --astra-boot-rounds <n>     Último índice 0-based da fase de fundação (padrão: 10)
+  --astra-interval <n>        Intervalo de mentoria pós-fundação (padrão: 2)
+  --astra-local-epochs <n>    Épocas locais no ASTRA (padrão: 5)
+  --global-eval <modo>        Avaliação global: clients, official, both (padrão: clients)
+  --deterministic-selection   Ordena clientes conectados por ID antes do sorteio
+  --blend-gradual-eval        Avalia C-mix com mistura na janela gradual não-periódica
+  --train-augment <none|astra> Augmentation de treino no cliente (padrão: none)
+  --no-quant                  Desativa quantização int8 no transporte
+  --client-seed               Ativa seed determinística por cliente (automático em --partition-source astra)
 
 Opções de Rank Adaptativo:
   --adaptive-rank             Habilitar rank adaptativo no servidor
@@ -307,6 +356,29 @@ while [ $# -gt 0 ]; do
         --drift-length) DRIFT_LENGTH="$2"; shift 2 ;;
         --drift-clients) DRIFT_CLIENTS="$2"; shift 2 ;;
         --drift-freq) DRIFT_FREQ="$2"; shift 2 ;;
+        --drift-transform) DRIFT_TRANSFORM="$2"; shift 2 ;;
+
+        # ASTRA & Reprodutibilidade
+        --partition-source) PARTITION_SOURCE="$2"; shift 2 ;;
+        --dirichlet-alpha) DIRICHLET_ALPHA="$2"; shift 2 ;;
+        --partition-seed) PARTITION_SEED="$2"; shift 2 ;;
+        --drift-seed) DRIFT_SEED="$2"; shift 2 ;;
+        --noise-std) NOISE_STD="$2"; shift 2 ;;
+        --regenerate-data) REGENERATE_DATA=1; shift 1 ;;
+        --learning-rate) LEARNING_RATE="$2"; shift 2 ;;
+        --astra) ASTRA=1; shift 1 ;;
+        --astra-mu) ASTRA_MU="$2"; shift 2 ;;
+        --astra-alpha) ASTRA_ALPHA="$2"; shift 2 ;;
+        --astra-temperature) ASTRA_TEMPERATURE="$2"; shift 2 ;;
+        --astra-boot-rounds) ASTRA_BOOT_ROUNDS="$2"; shift 2 ;;
+        --astra-interval) ASTRA_INTERVAL="$2"; shift 2 ;;
+        --astra-local-epochs) ASTRA_LOCAL_EPOCHS="$2"; shift 2 ;;
+        --global-eval) GLOBAL_EVAL="$2"; shift 2 ;;
+        --deterministic-selection) DETERMINISTIC_SELECTION=1; shift 1 ;;
+        --blend-gradual-eval) BLEND_GRADUAL_EVAL=1; shift 1 ;;
+        --train-augment) TRAIN_AUGMENT="$2"; shift 2 ;;
+        --no-quant) NO_QUANT=1; shift 1 ;;
+        --client-seed) CLIENT_SEED=1; shift 1 ;;
 
         *) echo "❌ Argumento desconhecido: $1"; exit 1 ;;
     esac
@@ -319,8 +391,8 @@ if [ "$CUSTOM_NUM_CLASSES" -eq 0 ]; then
         DTD)          NUM_CLASSES=47 ;;
         FGVCAircraft) NUM_CLASSES=100 ;;
         Flowers102)   NUM_CLASSES=102 ;;
-        Cifar100)     NUM_CLASSES=100 ;;
-        Cifar10|MNIST) NUM_CLASSES=10 ;;
+        Cifar100|Cifar100_drift|Cifar100_astra*) NUM_CLASSES=100 ;;
+        Cifar10|Cifar10_drift|Cifar10_astra*|MNIST) NUM_CLASSES=10 ;;
     esac
 fi
 
@@ -416,7 +488,16 @@ fi
 
 if [ -n "$SAVE_MODEL_FLAG" ]; then echo "  Salvar modelo: SIM ($SAVE_MODEL_PATH)"; fi
 if [ -n "$LOAD_MODEL_FLAG" ]; then echo "  Carregar modelo: SIM ($LOAD_MODEL_PATH)"; fi
-if [ "$DELTA_CODING" -eq 1 ]; then echo "  Compressão: LHDQ (Delta Coding ~1.67 bits/param)"; else echo "  Compressão: INT8 padrão (8 bits/param)"; fi
+if [ "$DELTA_CODING" -eq 1 ]; then
+    echo "  Compressão: LHDQ (Delta Coding ~1.67 bits/param)"
+elif [ "$NO_QUANT" -eq 1 ]; then
+    echo "  Compressão: DESATIVADA (float32 sem quantização)"
+else
+    echo "  Compressão: INT8 padrão (8 bits/param)"
+fi
+if [ "$ASTRA" -eq 1 ] || [ "$PARTITION_SOURCE" = "astra" ]; then
+    echo "  ASTRA: enabled=$ASTRA | partição=$PARTITION_SOURCE (α=$DIRICHLET_ALPHA, seed=$PARTITION_SEED) | global-eval=$GLOBAL_EVAL | augment=$TRAIN_AUGMENT"
+fi
 if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
     echo "  Concept Drift: ATIVADO (Tipo: $DRIFT_TYPE | Round: $DRIFT_ROUND | Duração: $DRIFT_LENGTH | Clientes: $DRIFT_CLIENTS)"
 fi
@@ -425,7 +506,60 @@ echo "===================================="
 # ---- Preparação do Dataset ----
 BALANCE_MODE="${BALANCE_PARAM:--}"
 
-if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cifar100_drift" ]; then
+if [ "$PARTITION_SOURCE" = "astra" ]; then
+    case "$DATASET" in
+        Cifar10|Cifar10_drift|Cifar10_astra*) ;;
+        *)
+            echo "[ERRO] --partition-source astra suporta apenas CIFAR-10 (recebido: $DATASET)"
+            exit 1
+            ;;
+    esac
+
+    if [ -n "$DRIFT_TRANSFORM" ]; then
+        EFF_DRIFT_TRANSFORM="$DRIFT_TRANSFORM"
+    elif [ "$DRIFT" -eq 1 ]; then
+        EFF_DRIFT_TRANSFORM="label_swap"
+    else
+        EFF_DRIFT_TRANSFORM="none"
+    fi
+
+    if [ "$DRIFT" -eq 0 ] && [ "$EFF_DRIFT_TRANSFORM" != "none" ]; then
+        echo "[AVISO] --drift-transform $EFF_DRIFT_TRANSFORM informado sem --drift; treino permanecerá em phase1."
+    fi
+
+    if [ "$EFF_DRIFT_TRANSFORM" = "none" ]; then
+        EFF_DRIFT_CLIENTS="none"
+    else
+        EFF_DRIFT_CLIENTS="$DRIFT_CLIENTS"
+    fi
+
+    ASTRA_GEN_ARGS=(
+        --num-clients "$MAX_CLIENTS"
+        --dirichlet-alpha "$DIRICHLET_ALPHA"
+        --partition-seed "$PARTITION_SEED"
+        --drift-transform "$EFF_DRIFT_TRANSFORM"
+        --drift-clients "$EFF_DRIFT_CLIENTS"
+        --drift-seed "$DRIFT_SEED"
+        --noise-std "$NOISE_STD"
+    )
+    if [[ "$DATASET" == Cifar10_astra* ]]; then
+        ASTRA_GEN_ARGS+=(--output-dir "$DATASET")
+    else
+        DATASET=$(uv run ../dataset/generate_Cifar10_astra_drift.py "${ASTRA_GEN_ARGS[@]}" --print-name)
+    fi
+
+    NUM_CLASSES=10
+    IN_FEATURES=3
+    DIM=1600
+    export PUMA_STRICT_PHASE=1
+
+    SKIP_ARG=""
+    if [ "$REGENERATE_DATA" -eq 0 ]; then
+        SKIP_ARG="--skip-if-exists"
+    fi
+    echo "[INFO] Partição ASTRA-FL: dataset=$DATASET | alpha=$DIRICHLET_ALPHA | p_seed=$PARTITION_SEED | transform=$EFF_DRIFT_TRANSFORM | clients=$EFF_DRIFT_CLIENTS"
+    uv run ../dataset/generate_Cifar10_astra_drift.py "${ASTRA_GEN_ARGS[@]}" $SKIP_ARG
+elif [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cifar100_drift" ]; then
     if [ "$DATASET" = "Cifar100" ] || [ "$DATASET" = "Cifar100_drift" ]; then
         DATASET="Cifar100_drift"
         GENERATOR_SCRIPT="../dataset/generate_Cifar100_drift.py"
@@ -436,11 +570,15 @@ if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cif
         NUM_CLASSES=10
     fi
     DRIFT=1
-    DATASET_DRIFT_TYPE="$DRIFT_TYPE"
-    if [ "$DATASET_DRIFT_TYPE" = "abrupt" ] || [ "$DATASET_DRIFT_TYPE" = "gradual" ]; then
-        DATASET_DRIFT_TYPE="label_swap"
+    if [ -n "$DRIFT_TRANSFORM" ]; then
+        DATASET_DRIFT_TYPE="$DRIFT_TRANSFORM"
+    else
+        DATASET_DRIFT_TYPE="$DRIFT_TYPE"
+        if [ "$DATASET_DRIFT_TYPE" = "abrupt" ] || [ "$DATASET_DRIFT_TYPE" = "gradual" ]; then
+            DATASET_DRIFT_TYPE="label_swap"
+        fi
     fi
-    echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS, balance: $BALANCE_MODE)..."
+    echo "[INFO] Dataset de Concept Drift ativado: $DATASET ($DRIFT_TYPE, transform: $DATASET_DRIFT_TYPE, clientes afetados: $DRIFT_CLIENTS, balance: $BALANCE_MODE)..."
     uv run "$GENERATOR_SCRIPT" noniid "$BALANCE_MODE" dir "$MAX_CLIENTS" --drift-type "$DATASET_DRIFT_TYPE" --drift-clients "$DRIFT_CLIENTS"
 else
     # Busca o script no diretório dataset
@@ -475,6 +613,10 @@ else
     else
         EXP_NAME="${SESSION_NAME}_${DATASET}_${MODEL}_${STRATEGY}_prune${PRUNE}_ala${ALA}_paca${PACA}"
     fi
+    # Sufixo ASTRA
+    if [ "$ASTRA" -eq 1 ]; then
+        EXP_NAME="${EXP_NAME}_astra"
+    fi
     # Sufixo de compressão LHDQ
     if [ "$DELTA_CODING" -eq 1 ]; then
         EXP_NAME="${EXP_NAME}_deltacoding"
@@ -494,9 +636,9 @@ for RUN in $(seq $START_RUN $END_RUN); do
     echo "========================================================="
 
     # Limpeza de segurança de processos e portas de simulações anteriores
-    fuser -k 9500/tcp 2>/dev/null || true
-    pkill -9 -f "server.py" 2>/dev/null || true
-    pkill -9 -f "client.py" 2>/dev/null || true
+    fuser -k "${PORT}/tcp" 2>/dev/null || true
+    pkill -9 -f "(python|uv).*[s]erver.py" 2>/dev/null || true
+    pkill -9 -f "(python|uv).*[c]lient.py" 2>/dev/null || true
     sleep 3
 
     # PaCA do servidor: se heterogêneo, usar o máximo
@@ -515,8 +657,13 @@ for RUN in $(seq $START_RUN $END_RUN); do
     # Seed determinística por simulação para amostragem reprodutível de clientes
     RUN_SEED=$((SEED + (RUN - 1) * 1000))
 
+    STRICT_ENV=""
+    if [ "$PARTITION_SOURCE" = "astra" ]; then
+        STRICT_ENV="PUMA_STRICT_PHASE=1 "
+    fi
+
     # Comando do servidor
-    SERVER_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$DEVICE_ID uv run server.py \
+    SERVER_CMD="${STRICT_ENV}OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$DEVICE_ID uv run server.py \
         --host $HOST \
         --port $PORT \
         --clients-per-round $CLIENT_COUNT \
@@ -570,6 +717,19 @@ for RUN in $(seq $START_RUN $END_RUN); do
     if [ "$DRIFT" -eq 1 ]; then
         SERVER_CMD="$SERVER_CMD --drift --drift-type $DRIFT_TYPE --drift-round $DRIFT_ROUND --drift-length $DRIFT_LENGTH --drift-clients $DRIFT_CLIENTS --drift-freq $DRIFT_FREQ"
     fi
+    if [ "$ASTRA" -eq 1 ]; then
+        SERVER_CMD="$SERVER_CMD --astra --astra-mu $ASTRA_MU --astra-alpha $ASTRA_ALPHA --astra-temperature $ASTRA_TEMPERATURE --astra-boot-rounds $ASTRA_BOOT_ROUNDS --astra-interval $ASTRA_INTERVAL --astra-local-epochs $ASTRA_LOCAL_EPOCHS"
+    fi
+    SERVER_CMD="$SERVER_CMD --global-eval $GLOBAL_EVAL"
+    if [ "$DETERMINISTIC_SELECTION" -eq 1 ]; then
+        SERVER_CMD="$SERVER_CMD --deterministic-selection"
+    fi
+    if [ "$BLEND_GRADUAL_EVAL" -eq 1 ]; then
+        SERVER_CMD="$SERVER_CMD --blend-gradual-eval"
+    fi
+    if [ "$NO_QUANT" -eq 1 ]; then
+        SERVER_CMD="$SERVER_CMD --no-quant"
+    fi
     SERVER_CMD="$SERVER_CMD 2>&1 | tee $LOG_DIR/server.log"
 
     # Encerra qualquer sessão anterior com o mesmo nome para evitar conflitos ('duplicate session')
@@ -617,7 +777,7 @@ for RUN in $(seq $START_RUN $END_RUN); do
             CLIENT_DEVICE_ID="0"
         fi
 
-        CLIENT_CMD="OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$CLIENT_DEVICE_ID uv run client.py \
+        CLIENT_CMD="${STRICT_ENV}OMP_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=$CLIENT_DEVICE_ID uv run client.py \
             --client-idx $i \
             --host $HOST \
             --port $PORT \
@@ -642,6 +802,18 @@ for RUN in $(seq $START_RUN $END_RUN); do
             --timestamp $TIMESTAMP"
         if [ "$DELTA_CODING" -eq 1 ]; then
             CLIENT_CMD="$CLIENT_CMD --delta-coding"
+        fi
+        if [ "$NO_QUANT" -eq 1 ]; then
+            CLIENT_CMD="$CLIENT_CMD --no-quant"
+        fi
+        if [ "$TRAIN_AUGMENT" != "none" ]; then
+            CLIENT_CMD="$CLIENT_CMD --train-augment $TRAIN_AUGMENT"
+        fi
+        if [ -n "$LEARNING_RATE" ]; then
+            CLIENT_CMD="$CLIENT_CMD --learning-rate $LEARNING_RATE"
+        fi
+        if [ "$CLIENT_SEED" -eq 1 ] || [ "$PARTITION_SOURCE" = "astra" ]; then
+            CLIENT_CMD="$CLIENT_CMD --seed $RUN_SEED"
         fi
         CLIENT_CMD="$CLIENT_CMD 2>&1 | tee $LOG_DIR/client_$i.log"
         if [ "$AUTO_NEXT" -eq 0 ]; then

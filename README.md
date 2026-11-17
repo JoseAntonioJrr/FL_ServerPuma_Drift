@@ -433,3 +433,45 @@ After the simulation completes, performance metrics (Accuracy, Loss, Model Size 
 | First Docker build is very slow | Downloading all Python dependencies | Subsequent builds are cached; only rebuilds if `pyproject.toml` or `uv.lock` change |
 | Port conflict on `9000` | Another service using the port | Change `--port` in server args or stop the conflicting service |
 | Build context is huge (several GB) | `.dockerignore` not filtering `.venv`/data | Ensure `.dockerignore` excludes `.venv/`, `src/dataset/*/data/`, and other large directories |
+# ASTRA on PUMA (CNN, opt-in)
+
+Run `src/system/server.py` with `--astra --model cnn` and the matching
+`src/system/client.py` from this checkout. For example, add `--astra` to the
+server invocation in your existing launcher; no client flag is needed. The
+server sends a zero-based curriculum instruction with each selected client's
+model. The client trains with cross-entropy, the proximal penalty against the
+received model, and (only on active rounds) a frozen teacher and temperature-
+scaled KL divergence. Non-active rounds do not instantiate a teacher. The
+server retains PUMA's normal dataset-size-weighted model aggregation (with
+PUMA's existing per-key alignment when client models have been pruned).
+
+Server options (paper defaults): `--astra-mu 0.01`, `--astra-alpha 0.2`,
+`--astra-temperature 3`, `--astra-boot-rounds 10`, `--astra-interval 2`,
+`--astra-local-epochs 5`. With 50 rounds, the teacher is active at indices
+0–10 and every even index thereafter. ASTRA skips FedALA personalization
+when enabled so the student starts at the received global weights; it still
+supports PUMA's CNN pruning and quantized transport. CLIP/SLM and decentralized
+training are **not** ASTRA-enabled. Use matching server/client versions because
+the socket protocol now includes a curriculum message after the model metadata.
+For a paper-style run, choose `--model cnn --rounds 50 --clients-per-round 5`
+on the server and 50 rounds on each client; dataset partitioning and client
+selection remain PUMA configuration choices. Run schedule tests with
+`python -m unittest discover -s tests` (objective tests require PyTorch).
+
+## ASTRA-FL CIFAR-10 Partitioning + PUMA Concept Drift
+
+To pair ASTRA-FL's static Dirichlet partitioning (50k official train split,
+`seed=42`, 1-based `"1".."20"` mapped via `puma_idx = astra_id - 1`, no
+balancing/minimum-size resampling, separate official 10k test set) with PUMA's
+`phase1`/`phase2` drift simulation (`abrupt`, `gradual`, `periodic`), use:
+
+- Generator: `src/dataset/generate_Cifar10_astra_drift.py` (with `--dirichlet-alpha 0.1`,
+  `--partition-seed 42`, `--drift-transform {none,label_swap,cyclic_shift,class_shift,gaussian_noise}`,
+  `--drift-clients <base-0 list|range|all>`). Writes `strict_phase: true`,
+  `partitions.json`, SHA-256 manifest, and `test/global_phase{1,2}.npz`.
+- Paper-style baseline (no drift, `G-orig` global eval, CNN + ASTRA):
+  `cd src/system && ./run_astra_paper.sh` -> results under `src/results/astra_paper_*`.
+- ASTRA + drift (`G-orig`, `G-drift`, and `C-mix` saved separately):
+  `cd src/system && ./run_astra_drift.sh` -> results under `src/results/astra_drift_*`.
+- Legacy CLIP benchmark launcher (formerly `run_abrupt_astra.sh`, does **not** run ASTRA-FL):
+  `src/system/run_clip_abrupt_drift.sh`.

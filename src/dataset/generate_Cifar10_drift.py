@@ -35,38 +35,13 @@ if str(current_dir) not in sys.path:
 from dataset.utils.dataset_utils import separate_data, split_data
 
 
-def apply_pairwise_label_swap(y_array):
-    """
-    Swap semântico de pares em CIFAR-10:
-    0 (airplane) <-> 2 (bird)
-    1 (automobile) <-> 9 (truck)
-    3 (cat) <-> 5 (dog)
-    4 (deer) <-> 7 (horse)
-    6 (frog) <-> 8 (ship)
-    """
-    mapping = {
-        0: 2, 2: 0,
-        1: 9, 9: 1,
-        3: 5, 5: 3,
-        4: 7, 7: 4,
-        6: 8, 8: 6
-    }
-    y_drift = np.copy(y_array)
-    for old_val, new_val in mapping.items():
-        y_drift[y_array == old_val] = new_val
-    return y_drift
-
-
-def apply_cyclic_shift(y_array, shift=1, num_classes=10):
-    """Deslocamento circular dos rótulos: y' = (y + shift) % num_classes"""
-    return (np.copy(y_array) + shift) % num_classes
-
-
-def apply_gaussian_noise(x_array, std=0.25):
-    """Adiciona ruído Gaussiano nas imagens normalizadas em [-1, 1]"""
-    noise = np.random.normal(0, std, size=x_array.shape).astype(np.float32)
-    x_noisy = np.clip(x_array + noise, -1.0, 1.0)
-    return x_noisy
+# Transformações movidas para dataset/utils/drift_transforms.py (sem mudança de comportamento);
+# reexportadas aqui para manter compatibilidade com imports existentes.
+from dataset.utils.drift_transforms import (  # noqa: E402,F401
+    apply_pairwise_label_swap,
+    apply_cyclic_shift,
+    apply_gaussian_noise,
+)
 
 
 def save_temporal_files(config_path: Path, train_path: Path, test_path: Path,
