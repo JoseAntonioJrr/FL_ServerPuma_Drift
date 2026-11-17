@@ -6,6 +6,10 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# Notas locais de comunicação (README do projeto permanece versionado)
+/*.md
+!/README.md
+
 # =========================
 # Datasets e Dados Brutos
 # =========================
