@@ -79,11 +79,11 @@ def format_drift_clients(clients, num_clients):
     return "_".join(parts)
 
 
-def default_output_name(alpha, partition_seed, drift_transform, drift_clients, num_clients):
+def default_output_name(alpha, partition_seed, drift_transform, drift_clients, num_clients, prefix="Cifar10"):
     a = f"{alpha:g}"
     if drift_transform == "none":
-        return f"Cifar10_astra_a{a}_s{partition_seed}"
-    return (f"Cifar10_astra_a{a}_s{partition_seed}_{drift_transform}"
+        return f"{prefix}_astra_a{a}_s{partition_seed}"
+    return (f"{prefix}_astra_a{a}_s{partition_seed}_{drift_transform}"
             f"_dc{format_drift_clients(drift_clients, num_clients)}")
 
 
@@ -200,8 +200,8 @@ def build_astra_drift_dataset(X_train, y_train, X_test, y_test, num_clients=20, 
         for c in sorted(drift_clients):
             tr, te = clients[c]["train_p1"], clients[c]["test_p1"]
             if drift_transform == "label_swap":
-                tr2 = {"x": tr["x"], "y": apply_pairwise_label_swap(tr["y"])}
-                te2 = {"x": te["x"], "y": apply_pairwise_label_swap(te["y"])}
+                tr2 = {"x": tr["x"], "y": apply_pairwise_label_swap(tr["y"], num_classes=num_classes)}
+                te2 = {"x": te["x"], "y": apply_pairwise_label_swap(te["y"], num_classes=num_classes)}
             elif drift_transform == "cyclic_shift":
                 tr2 = {"x": tr["x"], "y": apply_cyclic_shift(tr["y"], 1, num_classes)}
                 te2 = {"x": te["x"], "y": apply_cyclic_shift(te["y"], 1, num_classes)}
@@ -226,7 +226,7 @@ def build_astra_drift_dataset(X_train, y_train, X_test, y_test, num_clients=20, 
     global_p1 = {"x": X_test, "y": y_test}
     global_identical = True
     if drift_clients and drift_transform == "label_swap":
-        global_p2, global_identical = {"x": X_test, "y": apply_pairwise_label_swap(y_test)}, False
+        global_p2, global_identical = {"x": X_test, "y": apply_pairwise_label_swap(y_test, num_classes=num_classes)}, False
     elif drift_clients and drift_transform == "cyclic_shift":
         global_p2, global_identical = {"x": X_test, "y": apply_cyclic_shift(y_test, 1, num_classes)}, False
     elif drift_clients and drift_transform == "gaussian_noise":
@@ -279,7 +279,10 @@ def params_signature(params):
     return hashlib.sha256(json.dumps(params, sort_keys=True).encode()).hexdigest()
 
 
-def save_dataset(out_dir, result, params, hardlink=True, log=print):
+def save_dataset(out_dir, result, params, hardlink=True, log=print,
+                 generator_name="generate_Cifar10_astra_drift.py",
+                 train_source="cifar10_official_train",
+                 test_source="cifar10_official_test"):
     out_dir = Path(out_dir)
     train_dir, test_dir = out_dir / "train", out_dir / "test"
     train_dir.mkdir(parents=True, exist_ok=True)
@@ -324,7 +327,7 @@ def save_dataset(out_dir, result, params, hardlink=True, log=print):
     cl = result["clients"]
     config = {
         "dataset": out_dir.name,
-        "generator": "generate_Cifar10_astra_drift.py",
+        "generator": generator_name,
         "generator_version": GENERATOR_VERSION,
         "params": params,
         "params_signature": params_signature(params),
@@ -353,8 +356,8 @@ def save_dataset(out_dir, result, params, hardlink=True, log=print):
             "train_phase2": {str(c): cl[c]["train_idx_p2"].tolist() for c in range(num_clients)},
             "test_phase1": {str(c): cl[c]["test_idx_p1"].tolist() for c in range(num_clients)},
             "test_phase2": {str(c): cl[c]["test_idx_p2"].tolist() for c in range(num_clients)},
-            "train_source": "cifar10_official_train",
-            "test_source": "cifar10_official_test",
+            "train_source": train_source,
+            "test_source": test_source,
         },
         "versions": versions,
         "manifest_sha256": manifest,
