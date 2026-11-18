@@ -19,12 +19,21 @@ PAIRWISE_SWAP = {
 }
 
 
-def apply_pairwise_label_swap(y_array):
-    """Swap semântico de pares em CIFAR-10 (ver ``PAIRWISE_SWAP``)."""
-    y_drift = np.copy(y_array)
-    for old_val, new_val in PAIRWISE_SWAP.items():
-        y_drift[y_array == old_val] = new_val
-    return y_drift
+def apply_pairwise_label_swap(y_array, num_classes=10):
+    """Swap semântico de pares:
+    - CIFAR-10 (num_classes=10): pares semânticos definidos em ``PAIRWISE_SWAP``.
+    - CIFAR-100 (num_classes=100) ou outro número par de classes: i <-> (i + K//2) % K.
+    """
+    y_array = np.asarray(y_array)
+    if num_classes == 10:
+        y_drift = np.copy(y_array)
+        for old_val, new_val in PAIRWISE_SWAP.items():
+            y_drift[y_array == old_val] = new_val
+        return y_drift
+    if num_classes % 2 != 0:
+        raise ValueError(f"apply_pairwise_label_swap requer num_classes par; recebido {num_classes}")
+    half = num_classes // 2
+    return (np.copy(y_array) + half) % num_classes
 
 
 def apply_cyclic_shift(y_array, shift=1, num_classes=10):

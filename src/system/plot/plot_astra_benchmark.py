@@ -11,11 +11,17 @@ e produz 6 gráficos em PNG de alta resolução (300 DPI):
 import os
 import sys
 import glob
+import types
 from pathlib import Path
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+
+_SRC_DIR = Path(__file__).resolve().parent.parent.parent
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+from utils.drift_schedule import phase_for_round
 
 # Configuração de estilo visual acadêmico e moderno
 plt.style.use('seaborn-v0_8-paper' if 'seaborn-v0_8-paper' in plt.style.available else 'default')
@@ -33,6 +39,41 @@ plt.rcParams.update({
     'grid.linestyle': '--'
 })
 
+def extract_active_global_acc(hf):
+    """Extrai a acurácia global do servidor no conceito vigente de cada rodada.
+
+    Quando o servidor gravou `rs_test_acc_orig` e `rs_test_acc_drift` sob drift
+    (`--global-eval official|both`), `rs_test_acc` guarda apenas `G-orig` (Phase 1 fixa).
+    Aqui reconstruímos exatamente `G-active(r) = (1 - alpha(r))*G-orig + alpha(r)*G-drift`
+    usando o mesmo `phase_for_round` do servidor/cliente.
+    Para arquivos legados, retorna `rs_test_acc` inalterado.
+    """
+    if 'rs_test_acc_orig' in hf and 'rs_test_acc_drift' in hf and bool(hf.attrs.get('drift_enabled', False)):
+        g_orig = np.array(hf['rs_test_acc_orig'], dtype=float)
+        g_drift = np.array(hf['rs_test_acc_drift'], dtype=float)
+        n = min(len(g_orig), len(g_drift))
+        args = types.SimpleNamespace(
+            drift=True,
+            drift_type=str(hf.attrs.get('drift_type', 'abrupt')),
+            drift_round=int(hf.attrs.get('drift_round', 10)),
+            drift_length=int(hf.attrs.get('drift_length', 5)),
+            drift_freq=int(hf.attrs.get('drift_freq', 0)),
+        )
+        g_active = np.empty(n, dtype=float)
+        for r in range(1, n + 1):
+            st = phase_for_round(r, args, is_drifted_client=True, legacy_gradual_server_hold=False)
+            if st.phase == 'phase1':
+                g_active[r - 1] = g_orig[r - 1]
+            elif st.phase == 'phase2':
+                g_active[r - 1] = g_drift[r - 1]
+            else:
+                g_active[r - 1] = (1.0 - st.alpha) * g_orig[r - 1] + st.alpha * g_drift[r - 1]
+        return g_active, True
+    if 'rs_test_acc' in hf:
+        return np.array(hf['rs_test_acc'], dtype=float), False
+    return None, False
+
+
 def find_exp_h5_files(results_dir: Path, exp_name: str):
     """Localiza todos os arquivos server_*.h5 ou client_0_*.h5 do experimento."""
     target_dir = results_dir / exp_name
@@ -41,7 +82,7 @@ def find_exp_h5_files(results_dir: Path, exp_name: str):
         return {}
 
     runs_data = {}
-    server_files = list(target_dir.glob("server_*.h5"))
+    server_files = sorted(target_dir.glob("server_*.h5"))
     
     if server_files:
         for sf in server_files:
@@ -53,12 +94,14 @@ def find_exp_h5_files(results_dir: Path, exp_name: str):
                 run_id = len(runs_data) + 1
             
             with h5py.File(sf, 'r') as hf:
-                if 'rs_test_acc' in hf:
-                    acc = np.array(hf['rs_test_acc'])
+                acc, is_official_active = extract_active_global_acc(hf)
+                if acc is not None:
                     runs_data[run_id] = acc
+                    if is_official_active:
+                        print(f"[INFO] Run #{run_id}: usando G-active (teste oficial 10k no conceito vigente)")
     else:
         # Fallback: tenta buscar dos clientes 0
-        client_files = list(target_dir.glob("client_0_*.h5"))
+        client_files = sorted(target_dir.glob("client_0_*.h5"))
         for cf in client_files:
             name = cf.name
             try:

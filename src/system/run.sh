@@ -130,6 +130,7 @@ DRIFT_SEED="1234"
 NOISE_STD="0.25"
 REGENERATE_DATA=0
 LEARNING_RATE=""
+LOCAL_EPOCHS=""
 
 ASTRA=0
 ASTRA_MU="0.01"
@@ -213,13 +214,14 @@ Opções de Concept Drift:
   --drift-transform <tipo>    Transformação phase2: none, label_swap, cyclic_shift, class_shift, gaussian_noise
 
 Opções ASTRA & Reprodutibilidade:
-  --partition-source <puma|astra> Gerador de partição CIFAR-10 (padrão: puma)
+  --partition-source <puma|astra> Gerador de partição CIFAR-10/100 (padrão: puma)
   --dirichlet-alpha <val>     Alpha de Dirichlet para partição ASTRA (padrão: 0.1)
   --partition-seed <n>        Seed fixa da partição ASTRA (padrão: 42)
   --drift-seed <n>            Seed independente de ruído/testes/class_shift (padrão: 1234)
   --noise-std <val>           Desvio padrão do gaussian_noise (padrão: 0.25)
   --regenerate-data           Força regeneração mesmo se o manifesto bater
   --learning-rate <val>       Taxa de aprendizado local do cliente
+  --local-epochs <n>          Sobrescreve épocas locais por rodada no cliente (CLIP/SLM/CNN)
   --astra                     Ativa treino ASTRA no servidor (CNN)
   --astra-mu <val>            Peso proximal mu (padrão: 0.01)
   --astra-alpha <val>         Alpha inicial de KD (padrão: 0.2)
@@ -366,6 +368,7 @@ while [ $# -gt 0 ]; do
         --noise-std) NOISE_STD="$2"; shift 2 ;;
         --regenerate-data) REGENERATE_DATA=1; shift 1 ;;
         --learning-rate) LEARNING_RATE="$2"; shift 2 ;;
+        --local-epochs) LOCAL_EPOCHS="$2"; shift 2 ;;
         --astra) ASTRA=1; shift 1 ;;
         --astra-mu) ASTRA_MU="$2"; shift 2 ;;
         --astra-alpha) ASTRA_ALPHA="$2"; shift 2 ;;
@@ -501,6 +504,9 @@ fi
 if [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ]; then
     echo "  Concept Drift: ATIVADO (Tipo: $DRIFT_TYPE | Round: $DRIFT_ROUND | Duração: $DRIFT_LENGTH | Clientes: $DRIFT_CLIENTS)"
 fi
+if [ -n "$LOCAL_EPOCHS" ]; then
+    echo "  Épocas Locais (override): $LOCAL_EPOCHS"
+fi
 echo "===================================="
 
 # ---- Preparação do Dataset ----
@@ -508,9 +514,16 @@ BALANCE_MODE="${BALANCE_PARAM:--}"
 
 if [ "$PARTITION_SOURCE" = "astra" ]; then
     case "$DATASET" in
-        Cifar10|Cifar10_drift|Cifar10_astra*) ;;
+        Cifar10|Cifar10_drift|Cifar10_astra*)
+            ASTRA_GEN_SCRIPT="../dataset/generate_Cifar10_astra_drift.py"
+            NUM_CLASSES=10
+            ;;
+        Cifar100|Cifar100_drift|Cifar100_astra*)
+            ASTRA_GEN_SCRIPT="../dataset/generate_Cifar100_astra_drift.py"
+            NUM_CLASSES=100
+            ;;
         *)
-            echo "[ERRO] --partition-source astra suporta apenas CIFAR-10 (recebido: $DATASET)"
+            echo "[ERRO] --partition-source astra suporta apenas CIFAR-10 ou CIFAR-100 (recebido: $DATASET)"
             exit 1
             ;;
     esac
@@ -542,13 +555,12 @@ if [ "$PARTITION_SOURCE" = "astra" ]; then
         --drift-seed "$DRIFT_SEED"
         --noise-std "$NOISE_STD"
     )
-    if [[ "$DATASET" == Cifar10_astra* ]]; then
+    if [[ "$DATASET" == Cifar10_astra* ]] || [[ "$DATASET" == Cifar100_astra* ]]; then
         ASTRA_GEN_ARGS+=(--output-dir "$DATASET")
     else
-        DATASET=$(uv run ../dataset/generate_Cifar10_astra_drift.py "${ASTRA_GEN_ARGS[@]}" --print-name)
+        DATASET=$(uv run "$ASTRA_GEN_SCRIPT" "${ASTRA_GEN_ARGS[@]}" --print-name)
     fi
 
-    NUM_CLASSES=10
     IN_FEATURES=3
     DIM=1600
     export PUMA_STRICT_PHASE=1
@@ -557,8 +569,8 @@ if [ "$PARTITION_SOURCE" = "astra" ]; then
     if [ "$REGENERATE_DATA" -eq 0 ]; then
         SKIP_ARG="--skip-if-exists"
     fi
-    echo "[INFO] Partição ASTRA-FL: dataset=$DATASET | alpha=$DIRICHLET_ALPHA | p_seed=$PARTITION_SEED | transform=$EFF_DRIFT_TRANSFORM | clients=$EFF_DRIFT_CLIENTS"
-    uv run ../dataset/generate_Cifar10_astra_drift.py "${ASTRA_GEN_ARGS[@]}" $SKIP_ARG
+    echo "[INFO] Partição ASTRA-FL: dataset=$DATASET | classes=$NUM_CLASSES | alpha=$DIRICHLET_ALPHA | p_seed=$PARTITION_SEED | transform=$EFF_DRIFT_TRANSFORM | clients=$EFF_DRIFT_CLIENTS"
+    uv run "$ASTRA_GEN_SCRIPT" "${ASTRA_GEN_ARGS[@]}" $SKIP_ARG
 elif [ "$DRIFT" -eq 1 ] || [ "$DATASET" = "Cifar10_drift" ] || [ "$DATASET" = "Cifar100_drift" ]; then
     if [ "$DATASET" = "Cifar100" ] || [ "$DATASET" = "Cifar100_drift" ]; then
         DATASET="Cifar100_drift"
@@ -811,6 +823,9 @@ for RUN in $(seq $START_RUN $END_RUN); do
         fi
         if [ -n "$LEARNING_RATE" ]; then
             CLIENT_CMD="$CLIENT_CMD --learning-rate $LEARNING_RATE"
+        fi
+        if [ -n "$LOCAL_EPOCHS" ]; then
+            CLIENT_CMD="$CLIENT_CMD --local-epochs $LOCAL_EPOCHS"
         fi
         if [ "$CLIENT_SEED" -eq 1 ] || [ "$PARTITION_SOURCE" = "astra" ]; then
             CLIENT_CMD="$CLIENT_CMD --seed $RUN_SEED"

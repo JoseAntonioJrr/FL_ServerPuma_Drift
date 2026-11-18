@@ -118,7 +118,7 @@ def map_sequential_to_simplemodel(state_dict):
 #             quantized_state_dict[k] = v
 #     return quantized_state_dict
 
-def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None, astra_config=None):
+def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None, astra_config=None, local_epochs=None):
     # Verifica se os pesos precisam ser desquantizados (se não forem tensores)
     if state_dict and not isinstance(next(iter(state_dict.values())), torch.Tensor):
         state_dict = dequantization(state_dict)
@@ -205,19 +205,23 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
         is_sora = run_config["model"]["lora"]["mode"] in ["with_sora_no_schedule", "with_sora_schedule"]
         sparse_lambda = run_config["model"].get("sora", {}).get("sparse_lambda", 0.0) if is_sora else 0.0
         
-        if astra_enabled and astra_config is not None:
-            local_epochs = astra_config.get('local_epochs', run_config.get("training", {}).get("epochs", 1)) if run_config else astra_config.get('local_epochs', 1)
+        # Prioridade: --local-epochs (CLI) > curriculum ASTRA > config do modelo.
+        if local_epochs is not None:
+            eff_local_epochs = local_epochs
+        elif astra_enabled and astra_config is not None:
+            eff_local_epochs = astra_config.get('local_epochs',
+                                                run_config.get("training", {}).get("epochs", 1) if run_config else 1)
         else:
-            local_epochs = run_config.get("training", {}).get("epochs", 1) if run_config else 1
+            eff_local_epochs = run_config.get("training", {}).get("epochs", 1) if run_config else 1
         accumulation_steps = grad_accum if grad_accum is not None else (run_config.get("training", {}).get("gradient_accumulation_steps", 4) if run_config else 4)
-        for ep in range(local_epochs):
+        for ep in range(eff_local_epochs):
             metrics = train_epoch(model, train_loader, optimizer, sparse_optimizer, sparse_lambda, accumulation_steps=accumulation_steps,
                                  astra_reference=reference_params if astra_enabled else None,
                                  astra_teacher=teacher if astra_enabled else None,
                                  astra_mu=astra_config.get('mu', 0.0) if astra_enabled and astra_config else 0.0,
                                  astra_alpha=astra_config.get('alpha', 0.0) if astra_enabled and astra_config else 0.0,
                                  astra_temperature=astra_config.get('temperature', 3.0) if astra_enabled and astra_config else 3.0)
-            logger.info(f"Local Epoch {ep+1}/{local_epochs} - CE Loss: {metrics['ce_loss']:.4f} | Sparse Loss: {metrics['sparse_loss']:.4f}")
+            logger.info(f"Local Epoch {ep+1}/{eff_local_epochs} - CE Loss: {metrics['ce_loss']:.4f} | Sparse Loss: {metrics['sparse_loss']:.4f}")
     else:
         # --- DIAGNÓSTICO: Contagem de parâmetros treináveis ---
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -230,7 +234,7 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
 
         model_dtype = next(model.parameters()).dtype
         
-        epochs = astra_config['local_epochs'] if astra_enabled else 1
+        epochs = astra_config['local_epochs'] if astra_enabled else (local_epochs if local_epochs is not None else 1)
         for _ in range(epochs):
             for x, y in train_loader:
                 if x.is_floating_point():
@@ -570,6 +574,7 @@ def parse_args():
     parser.add_argument('--train-augment', type=str, default='none', choices=['none', 'astra'], help='Data augmentation de treino (astra = RandomCrop32+HorizontalFlip)')
     parser.add_argument('--seed', type=int, default=None, help='Seed determinística opcional do cliente')
     parser.add_argument('--no-quant', action='store_true', help='Desativa quantização int8 no envio ao servidor')
+    parser.add_argument('--local-epochs', type=int, default=None, help='Sobrescreve o número de épocas locais por rodada (ex: 1 para LoRA-CLIP/CNN)')
 
     return parser.parse_args()
 
@@ -692,6 +697,9 @@ def main():
                     run_config["training"] = {}
                 if hasattr(args, "grad_accum") and args.grad_accum is not None:
                     run_config["training"]["gradient_accumulation_steps"] = args.grad_accum
+                if getattr(args, "local_epochs", None) is not None:
+                    run_config["training"]["epochs"] = args.local_epochs
+                    logger.info(f"Local epochs sobrescrito via CLI: {args.local_epochs}")
             
     model = model.to(device)
     loss = nn.CrossEntropyLoss()
@@ -926,6 +934,7 @@ def main():
                     run_config=run_config if args.model in ['clip', 'slm'] else None,
                     grad_accum=getattr(args, 'grad_accum', 4),
                     astra_config=astra_config,
+                    local_epochs=getattr(args, 'local_epochs', None),
                 )
                 client_training_time = time.time() - train_start
                 if personalized_acc is not None:
