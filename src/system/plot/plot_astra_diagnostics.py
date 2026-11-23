@@ -125,6 +125,100 @@ def abrupt_phase(n_rounds, L=L):
     return np.array(ph)
 
 
+def _parse_exp_metadata(*names):
+    combined = " ".join(str(n).lower() for n in names if n)
+    dataset = "CIFAR-100" if "cifar100" in combined else "CIFAR-10"
+    alpha = "0.1" if "a0.1" in combined else ("0.5" if "a0.5" in combined else "0.5")
+    epochs = "1" if ("_e1_" in combined or combined.endswith("_e1")) else ("5" if ("_e5_" in combined or combined.endswith("_e5")) else "5" if "a0.5" in combined else "")
+    epochs_str = f", {epochs} Local Epoch{'s' if epochs != '1' else ''}" if epochs else ""
+    return dataset, alpha, epochs_str
+
+
+def _plot_decomposed_abrupt_only(A, A_meta, out_dir: Path, exp_name: str):
+    n = A.shape[1]
+    rounds = np.arange(1, n + 1)
+    am = A.mean(0)
+    dataset, alpha_val, epochs_str = _parse_exp_metadata(exp_name)
+    ph = abrupt_phase(n, L=L)
+
+    fig, (ax_main, ax_aux) = plt.subplots(2, 1, figsize=(12, 8.5), sharex=True)
+
+    # Shading for Phase 2 active
+    for t in range(n):
+        if ph[t] == 1:
+            ax_main.axvspan(t + 0.5, t + 1.5, color='#ff7f0e', alpha=0.07, lw=0)
+            ax_aux.axvspan(t + 0.5, t + 1.5, color='#ff7f0e', alpha=0.07, lw=0)
+
+    # ax_main: G-orig, G-drift, G-active, C-mix
+    if A_meta.get('orig') is not None and A_meta.get('drift') is not None:
+        ax_main.plot(rounds, A_meta['orig'].mean(0)[:n], color='#1f77b4', lw=1.5, ls='--', alpha=0.7,
+                     label='G-orig (Official 10k — Phase 1 fixed)')
+        ax_main.plot(rounds, A_meta['drift'].mean(0)[:n], color='#ff7f0e', lw=1.5, ls='--', alpha=0.7,
+                     label='G-drift (Official 10k — Phase 2 fixed)')
+
+    ax_main.plot(rounds, am, color='#2ca02c', lw=2.8, marker='o', ms=3.5,
+                 label=f'G-active (Official 10k active concept, mean={am.mean():.2f}%)')
+
+    if A_meta.get('clients') is not None:
+        cm_a = A_meta['clients'].mean(0)[:n]
+        ax_main.plot(rounds, cm_a, color='#111111', lw=1.3, ls=':', marker='x', ms=4.0, alpha=0.85,
+                     label=f'C-mix (20-client test mix, mean={cm_a.mean():.2f}%)')
+
+    for dr in range(L, n + 1, L):
+        ax_main.axvline(dr, color='gray', ls=':', lw=0.9)
+        ax_aux.axvline(dr, color='gray', ls=':', lw=0.9)
+
+    ax_main.plot([], [], color='#ff7f0e', alpha=0.25, lw=8, label='Phase 2 active (abrupt)')
+    ax_main.set_ylabel('Global Test Accuracy (%)')
+    ax_main.set_ylim(0, 105)
+    ax_main.yaxis.set_major_locator(ticker.MultipleLocator(20))
+    ax_main.grid(True)
+    ax_main.legend(loc='upper center', bbox_to_anchor=(0.5, -0.07), fontsize=9.5, ncol=3, framealpha=0.95)
+    ax_main.set_title(f'A) Global Test Accuracy Decomposition ({dataset}, α={alpha_val}{epochs_str}, L={L})', fontweight='bold')
+
+    # ax_aux: Pre-training shock vs post-aggregation recovery & Leakage gap
+    if A_meta.get('aux') is not None:
+        aux_a = A_meta['aux'].mean(0)[:n]
+        ax_aux.plot(rounds, aux_a, color='#d62728', lw=1.8, ls='-', marker='s', ms=3.5, alpha=0.85,
+                    label='Pre-train Client Eval (instantaneous shock before local SGD)')
+        ax_aux.plot(rounds, am, color='#2ca02c', lw=1.5, ls='--', alpha=0.6,
+                    label=f'Post-aggregation G-active (recovery after 1 local epoch)')
+    if A_meta.get('clients') is not None:
+        gap = np.abs(am - A_meta['clients'].mean(0)[:n])
+        ax_aux.plot(rounds, gap, color='#7f7f7f', lw=1.2, ls=':',
+                    label=f'|G-active - C-mix| gap (mean={gap.mean():.2f}%, max={gap.max():.2f}%)')
+
+    ax_aux.set_xlabel('Communication Round')
+    ax_aux.set_ylabel('Accuracy / Gap (%)')
+    ax_aux.set_ylim(-2, 105)
+    ax_aux.set_xlim(1, n)
+    ax_aux.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax_aux.yaxis.set_major_locator(ticker.MultipleLocator(20))
+    ax_aux.grid(True)
+    ax_aux.legend(loc='upper center', bbox_to_anchor=(0.5, -0.22), fontsize=9.5, ncol=3, framealpha=0.95)
+    ax_aux.set_title('B) Shock & Adaptation Dynamics (Pre-train vs. Post-aggregation) + Leakage Check', fontweight='bold')
+
+    fig.suptitle(
+        f'Full Server Evaluation Decomposition — LoRA-CLIP on ASTRA {dataset} (α={alpha_val}{epochs_str}, Zero Data Leakage)',
+        fontsize=14, fontweight='bold', y=0.995,
+    )
+    fig.tight_layout(h_pad=3.2)
+    p10 = out_dir / "10_astra_decomposed_abrupt.png"
+    fig.savefig(p10, bbox_inches='tight')
+    plt.close(fig)
+    print(f"[OK] Salvo: {p10}")
+
+    dips = [am[t - 1] for t in range(L, n + 1, L)]
+    pre = [am[t - 2] for t in range(L, n + 1, L)]
+    print("\nAbrupt Summary:")
+    print(f"  G-active mean: {am.mean():.2f}%")
+    print(f"  Abrupt 1st half: {am[:n // 2].mean():.2f}% | 2nd half: {am[n // 2:].mean():.2f}%")
+    print("  Abrupt drop at drift rounds (pre -> drift):", [f"{p:.1f}->{d:.1f}" for p, d in zip(pre, dips)])
+    if A_meta.get('aux') is not None:
+        aux_dips = [A_meta['aux'].mean(0)[t - 1] for t in range(L, n + 1, L)]
+        print("  Pre-train aux at drift rounds:", [f"{d:.1f}%" for d in aux_dips])
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="ASTRA diagnostics plot generator")
@@ -138,6 +232,12 @@ def main():
     G, G_meta = load_runs_rich(args.gradual_exp)
     A, A_meta = load_runs_rich(args.abrupt_exp)
     if len(G) == 0:
+        if len(A) > 0:
+            print(f"[INFO] Gradual não encontrado ({args.gradual_exp}), mas Abrupto encontrado ({args.abrupt_exp}).")
+            print("[INFO] Gerando diagnóstico decomposto isolado para o cenário Abrupto...")
+            target_out = Path(args.out_dir) if args.out_dir else RESULTS / args.abrupt_exp
+            _plot_decomposed_abrupt_only(A, A_meta, target_out, args.abrupt_exp)
+            return
         print(f"[ERRO] Nenhuma run encontrada em {args.gradual_exp}")
         return
 
@@ -155,6 +255,8 @@ def main():
         am, as_ = gm, gs
 
     metric_label = "Official 10k Active Concept (G-active)" if G_meta.get('has_official') else "Global Test Accuracy"
+
+    dataset, alpha_val, epochs_str = _parse_exp_metadata(args.gradual_exp, args.abrupt_exp)
 
     # ---------- 07: gradual + alpha + teto ----------
     fig, ax = plt.subplots(figsize=(11, 5.8))
@@ -185,7 +287,7 @@ def main():
     h2, l2 = ax2.get_legend_handles_labels()
     ax.legend(h1 + h2, l1 + l2, loc='lower left', ncol=2, framealpha=0.92)
     ax.set_title(
-        f'LoRA-CLIP under Periodic Gradual Drift (ASTRA CIFAR-10, L={L})\n'
+        f'LoRA-CLIP under Periodic Gradual Drift (ASTRA {dataset}, L={L})\n'
         f'Active-concept accuracy vs. Bayes ceiling (efficiency = {100.0 * (gm / ceiling).mean():.1f}%)',
         fontweight='bold',
     )
@@ -223,7 +325,7 @@ def main():
     ax.grid(True)
     ax.legend(loc='lower left', ncol=2, framealpha=0.92)
     ax.set_title(
-        f'LoRA-CLIP (ASTRA CIFAR-10, α=0.5, Zero Leakage): Abrupt vs. Gradual Drift (L={L})\n'
+        f'LoRA-CLIP (ASTRA {dataset}, α={alpha_val}{epochs_str}, Zero Leakage): Abrupt vs. Gradual Drift (L={L})\n'
         f'Official 10k Active Concept — Abrupt mean: {am.mean():.2f}%  |  Gradual mean: {gm.mean():.2f}%',
         fontweight='bold',
     )
@@ -279,7 +381,7 @@ def main():
         ax2.set_title('Concept Hysteresis Loop (G-orig vs. G-drift)', fontweight='bold')
 
     fig.suptitle(
-        'Gradual Concept Drift Hysteresis — LoRA-CLIP on ASTRA CIFAR-10 (α=0.5, Zero Leakage)',
+        f'Gradual Concept Drift Hysteresis — LoRA-CLIP on ASTRA {dataset} (α={alpha_val}{epochs_str}, Zero Leakage)',
         fontsize=14, fontweight='bold', y=1.02,
     )
     fig.tight_layout()
@@ -345,7 +447,7 @@ def main():
         ax_g.set_title('B) Periodic Gradual Drift — Decomposed Official & Client Server Metrics', fontweight='bold')
 
         fig.suptitle(
-            'Full Server Evaluation Decomposition — LoRA-CLIP on ASTRA CIFAR-10 (α=0.5, Zero Data Leakage)',
+            f'Full Server Evaluation Decomposition — LoRA-CLIP on ASTRA {dataset} (α={alpha_val}{epochs_str}, Zero Data Leakage)',
             fontsize=14, fontweight='bold', y=0.995,
         )
         fig.tight_layout(h_pad=3.2)

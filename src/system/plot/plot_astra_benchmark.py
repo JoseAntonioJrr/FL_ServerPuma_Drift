@@ -116,11 +116,22 @@ def find_exp_h5_files(results_dir: Path, exp_name: str):
 
     return runs_data
 
+def _parse_exp_metadata(path_or_name: str):
+    name = str(path_or_name).lower()
+    dataset = "CIFAR-100" if "cifar100" in name else "CIFAR-10"
+    alpha = "0.1" if "a0.1" in name else ("0.5" if "a0.5" in name else "")
+    alpha_str = f", α={alpha}" if alpha else ""
+    epochs = "1" if ("_e1_" in name or name.endswith("_e1")) else ("5" if ("_e5_" in name or name.endswith("_e5")) else "5" if "a0.5" in name else "")
+    epochs_str = f", {epochs} Local Epoch{'s' if epochs != '1' else ''}" if epochs else ""
+    return dataset, alpha_str, epochs_str
+
+
 def plot_single_run(run_id: int, acc_series: np.ndarray, output_path: Path):
     """Gera um gráfico individual de acurácia global para um determinado Run."""
     fig, ax = plt.subplots(figsize=(10, 6))
     rounds = np.arange(1, len(acc_series) + 1)
     drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else "Abrupt"
+    dataset, alpha_str, epochs_str = _parse_exp_metadata(output_path.parent.name)
 
     # Plot da curva de acurácia
     ax.plot(rounds, acc_series, color='#1f77b4', linewidth=2.5, label=f'Global Test Accuracy (Run {run_id})')
@@ -131,7 +142,7 @@ def plot_single_run(run_id: int, acc_series: np.ndarray, output_path: Path):
         ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
                    label=f'Concept Drift ({drift_type_str})' if i == 0 else "")
 
-    ax.set_title(f'ASTRA Benchmark Scenario ({drift_type_str}) - Simulation Run #{run_id}\n(LoRA-CLIP on CIFAR-10 Drift, 20 Clients, 5 Local Epochs)', fontweight='bold')
+    ax.set_title(f'ASTRA Benchmark Scenario ({drift_type_str}) - Simulation Run #{run_id}\n(LoRA-CLIP on {dataset} Drift{alpha_str}, 20 Clients{epochs_str})', fontweight='bold')
     ax.set_xlabel('Communication Round')
     ax.set_ylabel('Global Test Accuracy (%)')
     ax.set_xlim(1, len(acc_series))
@@ -150,6 +161,7 @@ def plot_aggregated_mean(runs_dict: dict, output_path: Path):
     """Gera o 6º gráfico mostrando a Média Geral e Desvio Padrão das simulações."""
     fig, ax = plt.subplots(figsize=(10, 6))
     drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else "Abrupt"
+    dataset, alpha_str, epochs_str = _parse_exp_metadata(output_path.parent.name)
 
     # Converte dicionário para matriz 2D (num_runs x num_rounds)
     max_rounds = max(len(v) for v in runs_dict.values())
@@ -181,7 +193,8 @@ def plot_aggregated_mean(runs_dict: dict, output_path: Path):
         ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
                    label='Concept Drift Event (Every 5 Rounds)' if i == 0 else "")
 
-    ax.set_title(f'Aggregated Benchmark Performance ({len(all_runs)} Independent Trials)\nLoRA-CLIP under Periodic {drift_type_str} Concept Drift (10 Shifts total)', fontweight='bold')
+    trial_str = f"{len(all_runs)} Independent Trial" if len(all_runs) == 1 else f"{len(all_runs)} Independent Trials"
+    ax.set_title(f'Aggregated Benchmark Performance ({trial_str})\nLoRA-CLIP under Periodic {drift_type_str} Concept Drift ({dataset}{alpha_str}{epochs_str}, 10 Shifts total)', fontweight='bold')
     ax.set_xlabel('Communication Round')
     ax.set_ylabel('Global Test Accuracy (%)')
     ax.set_xlim(1, max_rounds)

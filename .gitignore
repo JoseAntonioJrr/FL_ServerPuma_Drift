@@ -16,6 +16,7 @@ __pycache__/
 src/dataset/Cifar10/
 src/dataset/Cifar10_astra*/
 src/dataset/Cifar100/
+src/dataset/Cifar100_astra*/
 src/dataset/MNIST/
 src/dataset/OxfordPets/
 src/dataset/Flowers102/
