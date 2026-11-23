@@ -130,19 +130,22 @@ def plot_single_run(run_id: int, acc_series: np.ndarray, output_path: Path):
     """Gera um gráfico individual de acurácia global para um determinado Run."""
     fig, ax = plt.subplots(figsize=(10, 6))
     rounds = np.arange(1, len(acc_series) + 1)
-    drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else "Abrupt"
+    is_drift = not any(k in str(output_path).lower() for k in ("nodrift", "stationary", "no_drift"))
+    drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else ("Abrupt" if is_drift else "Stationary")
     dataset, alpha_str, epochs_str = _parse_exp_metadata(output_path.parent.name)
 
     # Plot da curva de acurácia
     ax.plot(rounds, acc_series, color='#1f77b4', linewidth=2.5, label=f'Global Test Accuracy (Run {run_id})')
 
-    # Marcadores das 10 ocorrências de Concept Drift (a cada 5 rounds)
-    drift_rounds = [r for r in range(5, len(acc_series) + 1, 5)]
-    for i, dr in enumerate(drift_rounds):
-        ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
-                   label=f'Concept Drift ({drift_type_str})' if i == 0 else "")
+    # Marcadores das ocorrências de Concept Drift (se houver drift)
+    if is_drift:
+        drift_rounds = [r for r in range(5, len(acc_series) + 1, 5)]
+        for i, dr in enumerate(drift_rounds):
+            ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
+                       label=f'Concept Drift ({drift_type_str})' if i == 0 else "")
 
-    ax.set_title(f'ASTRA Benchmark Scenario ({drift_type_str}) - Simulation Run #{run_id}\n(LoRA-CLIP on {dataset} Drift{alpha_str}, 20 Clients{epochs_str})', fontweight='bold')
+    drift_suffix = " Drift" if is_drift else ""
+    ax.set_title(f'ASTRA Benchmark Scenario ({drift_type_str}) - Simulation Run #{run_id}\n(LoRA-CLIP on {dataset}{drift_suffix}{alpha_str}, 20 Clients{epochs_str})', fontweight='bold')
     ax.set_xlabel('Communication Round')
     ax.set_ylabel('Global Test Accuracy (%)')
     ax.set_xlim(1, len(acc_series))
@@ -160,7 +163,8 @@ def plot_single_run(run_id: int, acc_series: np.ndarray, output_path: Path):
 def plot_aggregated_mean(runs_dict: dict, output_path: Path):
     """Gera o 6º gráfico mostrando a Média Geral e Desvio Padrão das simulações."""
     fig, ax = plt.subplots(figsize=(10, 6))
-    drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else "Abrupt"
+    is_drift = not any(k in str(output_path).lower() for k in ("nodrift", "stationary", "no_drift"))
+    drift_type_str = "Gradual" if "gradual" in str(output_path).lower() else ("Abrupt" if is_drift else "Stationary")
     dataset, alpha_str, epochs_str = _parse_exp_metadata(output_path.parent.name)
 
     # Converte dicionário para matriz 2D (num_runs x num_rounds)
@@ -187,14 +191,16 @@ def plot_aggregated_mean(runs_dict: dict, output_path: Path):
     # Curva média principal
     ax.plot(rounds, mean_acc, color='#1f77b4', linewidth=2.8, label=f'Mean Accuracy (N={len(all_runs)} Runs)')
 
-    # Marcadores dos 10 Concept Drifts
-    drift_rounds = [r for r in range(5, max_rounds + 1, 5)]
-    for i, dr in enumerate(drift_rounds):
-        ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
-                   label='Concept Drift Event (Every 5 Rounds)' if i == 0 else "")
+    # Marcadores dos Concept Drifts (se houver drift)
+    if is_drift:
+        drift_rounds = [r for r in range(5, max_rounds + 1, 5)]
+        for i, dr in enumerate(drift_rounds):
+            ax.axvline(x=dr, color='#d62728', linestyle='--', alpha=0.6, linewidth=1.2,
+                       label='Concept Drift Event (Every 5 Rounds)' if i == 0 else "")
 
     trial_str = f"{len(all_runs)} Independent Trial" if len(all_runs) == 1 else f"{len(all_runs)} Independent Trials"
-    ax.set_title(f'Aggregated Benchmark Performance ({trial_str})\nLoRA-CLIP under Periodic {drift_type_str} Concept Drift ({dataset}{alpha_str}{epochs_str}, 10 Shifts total)', fontweight='bold')
+    drift_desc = f"Periodic {drift_type_str} Concept Drift (10 Shifts total)" if is_drift else "Stationary Concept (No Drift Baseline)"
+    ax.set_title(f'Aggregated Benchmark Performance ({trial_str})\nLoRA-CLIP under {drift_desc} ({dataset}{alpha_str}{epochs_str})', fontweight='bold')
     ax.set_xlabel('Communication Round')
     ax.set_ylabel('Global Test Accuracy (%)')
     ax.set_xlim(1, max_rounds)
@@ -227,7 +233,12 @@ def main():
 
     print(f"\n--- Processando {len(runs_data)} simulações para o benchmark ASTRA ---")
 
-    drift_tag = "gradual" if "gradual" in args.exp_name else "abrupt"
+    if "gradual" in args.exp_name:
+        drift_tag = "gradual"
+    elif any(k in args.exp_name.lower() for k in ("nodrift", "stationary", "no_drift")):
+        drift_tag = "nodrift"
+    else:
+        drift_tag = "abrupt"
 
     # 1 a 5: Plot de cada run individual
     for rid in sorted(runs_data.keys()):
