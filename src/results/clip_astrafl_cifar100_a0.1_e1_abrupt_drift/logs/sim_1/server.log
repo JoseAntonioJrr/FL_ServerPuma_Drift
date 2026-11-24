@@ -1,0 +1,2360 @@
+Uninstalled 1 package in 0.50ms
+Installed 1 package in 2ms
+Device set to: cuda
+
+=== Iniciando Experimento 1/1 ===
+connect_tcp.started host='huggingface.co' port=443 local_address=None timeout=10 socket_options=None
+connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7b4305632bd0>
+start_tls.started ssl_context=<ssl.SSLContext object at 0x7b4305605370> server_hostname='huggingface.co' timeout=10
+start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7b430563b8d0>
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'260'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:40 GMT'), (b'Location', b'/api/resolve-cache/models/openai/clip-vit-base-patch32/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268/config.json?%2Fopenai%2Fclip-vit-base-patch32%2Fresolve%2Fmain%2Fconfig.json=&etag=%22a2a88b96561196777ca173b15309ea859f4d2ce0%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047930-770d3dc903f1c1a57d73cc75;1e194271-af5d-49d8-a056-cc3d6d6ace69'), (b'RateLimit', b'"resolvers";r=2999;t=188'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-Size', b'4186'), (b'X-Linked-ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'vWcChpONby5MFVRqk_pL3g_au7LcaCC8Nu31RntGijGul1vAVTqTow=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'4186'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 23 Jun 2026 08:35:04 GMT'), (b'ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3a4538-26c4eb030b9768987b46e598;3e693e98-c727-4982-8fa1-6f078fc82945'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'EzyJxGKk-SwKRqt2zvFCkKoeTi-2HGB_mZF4E7lI2sn236YYpYDHHQ=='), (b'Age', b'13251577'), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'260'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:41 GMT'), (b'Location', b'/api/resolve-cache/models/openai/clip-vit-base-patch32/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268/config.json?%2Fopenai%2Fclip-vit-base-patch32%2Fresolve%2Fmain%2Fconfig.json=&etag=%22a2a88b96561196777ca173b15309ea859f4d2ce0%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047931-4ba956f86440900253c323d1;0e6ae844-e2b0-4866-a3ef-a40bc104bd67'), (b'RateLimit', b'"resolvers";r=2998;t=187'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-Size', b'4186'), (b'X-Linked-ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'0tWhpS5GWHKvszaaVOesoI40o7WIn2R6vKQZ-mDEQ-y3Uqvr4wnNFQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'4186'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 23 Jun 2026 08:35:04 GMT'), (b'ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3a4538-26c4eb030b9768987b46e598;3e693e98-c727-4982-8fa1-6f078fc82945'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'V1Exw2cXuOfe6iGu1SCxqY79va64WlRQ5FyiJR0lzXyR1_8k0TNhWg=='), (b'Age', b'13251577'), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:41 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047931-71bb494b49f575180051dcc3;1948987e-ad20-4d18-a282-fdf52bf35d3f'), (b'RateLimit', b'"resolvers";r=2997;t=187'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'zjPkhjpOo4e310gqNRKr89vbZRJJAe-GwFCkwedBgr-H-6b1e7yIcg=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:41 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047931-3385c898359e7a033054ee0f;13c0d4d8-b072-4da4-a625-d49a29ad930e'), (b'RateLimit', b'"resolvers";r=2996;t=187'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'xMRp-YtnGPxh3tdaVZYz4LUX6yVVmjQXjy6d7qQwHRz0QSnVxD0_lQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 302, b'Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'1161'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:41 GMT'), (b'Location', b'https://us.aws.cdn.hf.co/xet-bridge-us/621ffdc136468d709f17ea62/b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62?user_id=public&xip=k52R0OuU6rY&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pytorch_model.bin%3B+filename%3D%22pytorch_model.bin%22%3B&response-content-type=application%2Foctet-stream&X-Xet-Cas-Uid=public&Expires=1795458881&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkYzEzNjQ2OGQ3MDlmMTdlYTYyL2I5MzA5ZGJhZGRlMDA2NzliNzFlNmNmZDBkMzg3Yjc5ZTBiMjlkMjIyMTMzMjQwOTg2ZWFmOWI0ZTNjZDllNjJcXD91c2VyX2lkPXB1YmxpYyZ4aXA9azUyUjBPdVU2clkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3B5dG9yY2hfbW9kZWwuYmluJTNCK2ZpbGVuYW1lJTNEJTIycHl0b3JjaF9tb2RlbC5iaW4lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGb2N0ZXQtc3RyZWFtJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTU0NTg4ODF9fX1dfQ__&Signature=MEYCIQCQ4Dd3K3%7EunswZyIRzY%7EBPmPSzzrKxDX3gVHzeff53%7EAIhAIGdpOjcnwhZ7EP719s5uFlvbtyVeulkrmvsOxa4HMnW&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047931-75eceaf76fd365cf37b3a936;db351423-caa5-4fbe-a257-aee22ee0e161'), (b'RateLimit', b'"resolvers";r=2995;t=187'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'X-Linked-Size', b'605247071'), (b'X-Linked-ETag', b'"a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f"'), (b'Cache-Control', b'no-store'), (b'X-Xet-Hash', b'b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62'), (b'Link', b'<https://huggingface.co/api/models/openai/clip-vit-base-patch32/xet-read-token/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62>; rel="xet-reconstruction-info"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'QvuL8BB8cMgKZy1lR5x9I1GvbMXDhpsa4WmjLrS7omWzykLHklx81Q=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:41 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047931-2ad0bd9c36da3360318e9b3b;8623c798-f653-4125-991c-dc262ca5acf0'), (b'RateLimit', b'"resolvers";r=2994;t=187'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'cPYwTGsgEPlJGVP1N01qvZA6j9KXCyNmsmfwxa9ddTcAz6AXi8Zbjw=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+Linha 82 =========================================
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 26792.49it/s]
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:42 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"1337-VgxgTbvI2j/YETU3TVOdZw6LP/k"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047932-06eed663329cd04a3cd9370b;ea0105a7-9711-4ff4-9061-00860c1d639c'), (b'RateLimit', b'"api";r=499;t=186'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'q1IVZRReeQO38AHkPhMjTyePCRT1oM1gHE7bwW7rGFXUR8UDiBWCkQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:42 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"10b0-SplBnLfxmeTuDvIaubBW5njOZQo"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047932-35d381bf7d08e6a1734dead8;ba434f5a-c789-4f23-a25b-a7c94545653c'), (b'RateLimit', b'"api";r=498;t=186'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Total-Count', b'15'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'kPYgcctRdVp-4odktAbv_ej8x2YDweQSAVJkgPIvDWhq3wn-XGmkug=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:42 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"862b-3Xr3R9o/N0y7YR5btP73vphQiLw"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047932-57aa4ec75999ac4b73901b78;e37c2e87-173d-4c78-83e9-a86574fffef0'), (b'RateLimit', b'"api";r=497;t=186'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'gBw1HvJjg9VdYriKSHJhGOWe5ZDAhBD0uCjHCAor28pihdFIkDMs8A=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+Camada: vision_model.base_model.model.embeddings.patch_embedding | Parâmetros: 2,359,296
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.0.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.0.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.1.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.1.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.2.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.2.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.3.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.3.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.4.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.4.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.5.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.5.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.6.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.6.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.7.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.7.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.8.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.8.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.9.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.9.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:42 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"1475-5ZIrwPTNjDrCa8lYTzub3TfY05c"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047932-725a236469fd43f724bb7c64;aac0a69e-651b-4113-b4e4-a2060bd240eb'), (b'RateLimit', b'"api";r=496;t=186'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Total-Count', b'16'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'9qmIaoG8Y3FxXbo-ZTX9yDghK8cPWhe5xWDLLG3rdZ4KBApiXHYFiA=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+Camada: vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.10.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.10.mlp.fc2 | Parâmetros: 2,360,064
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.base_layer | Parâmetros:  590,592
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.lora_A.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.lora_B.default | Parâmetros:    6,144
+Camada: vision_model.base_model.model.encoder.layers.11.mlp.fc1 | Parâmetros: 2,362,368
+Camada: vision_model.base_model.model.encoder.layers.11.mlp.fc2 | Parâmetros: 2,360,064
+Camada: classifier                     | Parâmetros:   76,900
+vision_model.base_model.model.embeddings.patch_embedding: torch.Size([1, 3, 224, 224]) -> torch.Size([1, 768, 7, 7]), FLOPs: 231,211,008
+vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.0.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.0.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.0.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.0.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.0.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.0.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.1.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.1.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.1.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.1.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.1.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.1.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.2.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.2.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.2.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.2.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.2.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.2.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.3.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.3.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.3.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.3.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.3.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.3.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.4.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.4.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.4.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.4.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.4.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.4.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.5.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.5.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.5.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.5.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.5.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.5.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.6.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.6.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.6.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.6.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.6.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.6.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.7.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.7.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.7.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.7.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.7.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.7.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.8.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.8.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.8.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.8.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.8.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.8.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.9.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.9.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.9.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.9.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.9.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.9.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.10.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.10.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.10.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.10.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.10.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.10.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+Calculado: 170 camadas
+Total α: 88,043,620 parâmetros
+Total β: 402,376,320 FLOPs
+Total encoder layers detectado: 12
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:42 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047932-6d4d4b817cd720e74640017a;25ca8ae4-ccdd-4b62-96c0-4bb9cc6dc4ae'), (b'RateLimit', b'"resolvers";r=2993;t=186'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'c237dc49a33fc61debc9276459120b7eac67e7ef'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'TzfM0oaO8q2htCEpl0kzBjKaTfzAvKUmYEZ3bdjQ5WELUw5AJXJ_VQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 302, b'Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'1040'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:43 GMT'), (b'Location', b'https://us.aws.cdn.hf.co/xet-bridge-us/621ffdc136468d709f17ea62/d874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47?xip=k52R0OuU6rY&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1795458883&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkYzEzNjQ2OGQ3MDlmMTdlYTYyL2Q4NzRlMWQ3NTc0OTBlMDc1MzJlNTUzMzY5MWVlNDQ2N2YwM2UxOTA5ZjJhMDgxMDVlMzEzYjkyZTJiYWVmNDdcXD94aXA9azUyUjBPdVU2clkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnNhZmV0ZW5zb3JzJTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwuc2FmZXRlbnNvcnMlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5NTQ1ODg4M319fV19&Signature=MEUCIQD6rMNwmpQhUqNHhNxPco50B7E9YHKsweKRx9-IucE7tAIgY9XxFrXbn1cwQ1MEubd%7E9zSVQAv-dQCyUoaxnz1Dao8_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047933-68fda2fc7fc66c0904b3d048;7cf90f9d-9552-45ba-b45c-4de2e0628bc4'), (b'RateLimit', b'"resolvers";r=2992;t=185'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'c237dc49a33fc61debc9276459120b7eac67e7ef'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'X-Linked-Size', b'605157884'), (b'X-Linked-ETag', b'"99d28a652e6ec46629ab7047a0ac82c69b1fe11e0ce672c43af65d3a9a3fc05d"'), (b'Cache-Control', b'no-store'), (b'X-Xet-Hash', b'd874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47'), (b'Link', b'<https://huggingface.co/api/models/openai/clip-vit-base-patch32/xet-read-token/c237dc49a33fc61debc9276459120b7eac67e7ef>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/d874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47>; rel="xet-reconstruction-info"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 cf939d138097957daca356f5a921c090.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'N0kUOMR_GWumi6B4lSAEMdPC2Lw_m3qSE3uDTOa1MOUIH7YB9tyIaQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+Global official test loader carregado (mode=both, drift=True)
+=== Federated Learning Server ===
+Host: localhost:9500
+Dataset: Cifar100_astra_a0.1_s42_label_swap_dcall
+Clients per round: 5
+Total rounds: 50
+=======================================
+Server listening on localhost:9500
+Waiting for 20 clients to connect (sampling 5 per round)...
+Client idx: 8
+Client 1 connected: ('127.0.0.1', 46434)
+Client idx: 16
+Client 2 connected: ('127.0.0.1', 46450)
+Client idx: 1
+Client 3 connected: ('127.0.0.1', 46462)
+Client idx: 15
+Client 4 connected: ('127.0.0.1', 46468)
+Client idx: 7
+Client 5 connected: ('127.0.0.1', 46470)
+Client idx: 17
+Client 6 connected: ('127.0.0.1', 46480)
+Client idx: 18
+Client 7 connected: ('127.0.0.1', 46492)
+Client idx: 19
+Client 8 connected: ('127.0.0.1', 46496)
+Client idx: 12
+Client 9 connected: ('127.0.0.1', 47844)
+Client idx: 0
+Client 10 connected: ('127.0.0.1', 47850)
+Client idx: 5
+Client 11 connected: ('127.0.0.1', 47854)
+Client idx: 3
+Client 12 connected: ('127.0.0.1', 47860)
+Client idx: 4
+Client 13 connected: ('127.0.0.1', 47864)
+Client idx: 11
+Client 14 connected: ('127.0.0.1', 47872)
+Client idx: 2
+Client 15 connected: ('127.0.0.1', 47874)
+Client idx: 9
+Client 16 connected: ('127.0.0.1', 47890)
+Client idx: 13
+Client 17 connected: ('127.0.0.1', 47892)
+Client idx: 10
+Client 18 connected: ('127.0.0.1', 47904)
+Client idx: 6
+Client 19 connected: ('127.0.0.1', 47910)
+Client idx: 14
+Client 20 connected: ('127.0.0.1', 47922)
+All 20 clients connected. Starting training...
+
+--- Round 1/50 ---
+Round 1: Clientes selecionados (5/20): [0, 3, 7, 8, 16]
+Round 1: Handling client 8
+Round 1: Handling client 16
+Round 1: Handling client 7
+Round 1: Handling client 0
+Round 1: Handling client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 1: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 1: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 1: Sent global model to client 3
+Round 1: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 1: Sent global model to client 8
+Client 3 dataset size: 2060
+Round 1: Client 3 tempos: treino=9.51s, comm_rede=0.04s, client_overhead=5.62s, server_proc=0.04s
+Client 7 dataset size: 2700
+Round 1: Client 7 tempos: treino=11.87s, comm_rede=0.03s, client_overhead=6.07s, server_proc=0.05s
+Client 16 dataset size: 2071
+Round 1: Client 16 tempos: treino=12.48s, comm_rede=0.02s, client_overhead=7.15s, server_proc=0.05s
+Client 8 dataset size: 2449
+Round 1: Client 8 tempos: treino=14.49s, comm_rede=0.03s, client_overhead=6.83s, server_proc=0.06s
+Client 0 dataset size: 2891
+Round 1: Client 0 tempos: treino=16.45s, comm_rede=0.03s, client_overhead=6.65s, server_proc=0.05s
+Limiares definidos: timeout_socket=480.00s | target_latency=22.43s (mean_time=19.51s)
+Round 1 duration: 23.17 seconds
+Client updates length: 5
+Round 1: Aggregating 5 updates
+Round 1: G-orig: 21.85% (loss=3.7177) | G-drift: 0.22% (loss=5.0501) | C-mix: 22.35% (loss=3.6944)
+Round 1: Aux Simple Avg Acc (from clients): 0.84%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 1: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 1: Notified 20 clients.
+
+--- Round 2/50 ---
+Round 2: Clientes selecionados (5/20): [1, 4, 9, 11, 14]
+Round 2: Handling client 1
+Round 2: Handling client 4
+Round 2: Handling client 11
+Round 2: Handling client 9
+Round 2: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 2: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 2: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 2: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 2: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 2: Sent global model to client 14
+Client 4 dataset size: 1728
+Round 2: Client 4 tempos: treino=7.02s, comm_rede=0.03s, client_overhead=4.91s, server_proc=0.03s
+Client 14 dataset size: 3774
+Round 2: Client 14 tempos: treino=14.09s, comm_rede=0.03s, client_overhead=7.87s, server_proc=0.05s
+Client 1 dataset size: 2445
+Round 2: Client 1 tempos: treino=15.61s, comm_rede=0.02s, client_overhead=7.67s, server_proc=0.03s
+Client 11 dataset size: 2485
+Round 2: Client 11 tempos: treino=15.81s, comm_rede=0.02s, client_overhead=7.71s, server_proc=0.04s
+Client 9 dataset size: 2509
+Round 2: Client 9 tempos: treino=15.96s, comm_rede=0.02s, client_overhead=7.69s, server_proc=0.04s
+Limiares definidos: timeout_socket=384.00s | target_latency=23.25s (mean_time=20.22s)
+Round 2 duration: 23.72 seconds
+Client updates length: 5
+Round 2: Aggregating 5 updates
+Round 2: G-orig: 39.77% (loss=2.6486) | G-drift: 0.04% (loss=5.4288) | C-mix: 40.65% (loss=2.6151)
+Round 2: Aux Simple Avg Acc (from clients): 13.62%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 2: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 2: Notified 20 clients.
+
+--- Round 3/50 ---
+Round 3: Clientes selecionados (5/20): [3, 5, 13, 16, 17]
+Round 3: Handling client 16
+Round 3: Handling client 17
+Round 3: Handling client 5
+Round 3: Handling client 3
+Round 3: Handling client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 3: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 3: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 3: Sent global model to client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 3: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 3: Sent global model to client 3
+Client 16 dataset size: 2071
+Round 3: Client 16 tempos: treino=6.73s, comm_rede=0.03s, client_overhead=3.77s, server_proc=0.05s
+Client 3 dataset size: 2060
+Round 3: Client 3 tempos: treino=16.87s, comm_rede=0.04s, client_overhead=10.01s, server_proc=0.08s
+Client 17 dataset size: 2623
+Round 3: Client 17 tempos: treino=21.25s, comm_rede=0.03s, client_overhead=9.48s, server_proc=0.05s
+Client 13 dataset size: 2746
+Round 3: Client 13 tempos: treino=22.00s, comm_rede=0.03s, client_overhead=9.34s, server_proc=0.05s
+Client 5 dataset size: 2958
+Round 3: Client 5 tempos: treino=23.52s, comm_rede=0.04s, client_overhead=8.91s, server_proc=0.07s
+Limiares definidos: timeout_socket=307.20s | target_latency=26.51s (mean_time=23.05s)
+Round 3 duration: 32.53 seconds
+Client updates length: 5
+Round 3: Aggregating 5 updates
+Round 3: G-orig: 56.66% (loss=1.9368) | G-drift: 0.07% (loss=5.6681) | C-mix: 57.48% (loss=1.9052)
+Round 3: Aux Simple Avg Acc (from clients): 37.70%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 3: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 3: Notified 20 clients.
+
+--- Round 4/50 ---
+Round 4: Clientes selecionados (5/20): [2, 8, 13, 15, 19]
+Round 4: Handling client 8
+Round 4: Handling client 15
+Round 4: Handling client 19
+Round 4: Handling client 2
+Round 4: Handling client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 4: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 4: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 4: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 4: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 4: Sent global model to client 13
+Client 2 dataset size: 1507
+Round 4: Client 2 tempos: treino=6.43s, comm_rede=0.03s, client_overhead=4.35s, server_proc=0.05s
+Client 8 dataset size: 2449
+Round 4: Client 8 tempos: treino=9.82s, comm_rede=0.03s, client_overhead=4.58s, server_proc=0.05s
+Client 15 dataset size: 2358
+Round 4: Client 15 tempos: treino=15.27s, comm_rede=0.02s, client_overhead=7.81s, server_proc=0.06s
+Client 19 dataset size: 2623
+Round 4: Client 19 tempos: treino=16.67s, comm_rede=0.02s, client_overhead=7.71s, server_proc=0.05s
+Client 13 dataset size: 2746
+Round 4: Client 13 tempos: treino=16.86s, comm_rede=0.03s, client_overhead=7.68s, server_proc=0.06s
+Round 4 duration: 24.63 seconds
+Client updates length: 5
+Round 4: Aggregating 5 updates
+Round 4: G-orig: 60.58% (loss=1.6300) | G-drift: 0.06% (loss=5.9973) | C-mix: 60.88% (loss=1.6111)
+Round 4: Aux Simple Avg Acc (from clients): 50.99%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 4: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 4: Notified 20 clients.
+
+--- Round 5/50 ---
+Round 5: Clientes selecionados (5/20): [1, 2, 4, 7, 12]
+Round 5: Handling client 1
+Round 5: Handling client 7
+Round 5: Handling client 12
+Round 5: Handling client 4
+Round 5: Handling client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 5: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 5: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 5: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 5: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 5: Sent global model to client 12
+Client 2 dataset size: 1507
+Round 5: Client 2 tempos: treino=8.76s, comm_rede=0.03s, client_overhead=5.36s, server_proc=0.05s
+Client 4 dataset size: 1728
+Round 5: Client 4 tempos: treino=9.90s, comm_rede=0.03s, client_overhead=5.32s, server_proc=0.04s
+Client 1 dataset size: 2445
+Round 5: Client 1 tempos: treino=10.86s, comm_rede=0.02s, client_overhead=5.91s, server_proc=0.04s
+Client 12 dataset size: 2235
+Round 5: Client 12 tempos: treino=12.41s, comm_rede=0.03s, client_overhead=5.20s, server_proc=0.05s
+Client 7 dataset size: 2700
+Round 5: Client 7 tempos: treino=11.97s, comm_rede=0.03s, client_overhead=5.96s, server_proc=0.04s
+Round 5 duration: 18.00 seconds
+Client updates length: 5
+Round 5: Aggregating 5 updates
+Round 5: G-orig: 45.18% (loss=2.2746) | G-drift: 12.82% (loss=3.7227) | C-mix: 12.78% (loss=3.7095)
+Round 5: Aux Simple Avg Acc (from clients): 0.02%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 5: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 5: Notified 20 clients.
+
+--- Round 6/50 ---
+Round 6: Clientes selecionados (5/20): [2, 10, 11, 13, 14]
+Round 6: Handling client 11
+Round 6: Handling client 2
+Round 6: Handling client 13
+Round 6: Handling client 10
+Round 6: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 6: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 6: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 6: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 6: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 6: Sent global model to client 13
+Client 2 dataset size: 1507
+Round 6: Client 2 tempos: treino=8.64s, comm_rede=0.03s, client_overhead=5.83s, server_proc=0.04s
+Client 11 dataset size: 2485
+Round 6: Client 11 tempos: treino=11.34s, comm_rede=0.03s, client_overhead=5.94s, server_proc=0.03s
+Client 13 dataset size: 2746
+Round 6: Client 13 tempos: treino=12.11s, comm_rede=0.03s, client_overhead=6.23s, server_proc=0.05s
+Client 10 dataset size: 2417
+Round 6: Client 10 tempos: treino=13.50s, comm_rede=0.03s, client_overhead=7.16s, server_proc=0.04s
+Client 14 dataset size: 3774
+Round 6: Client 14 tempos: treino=18.02s, comm_rede=0.03s, client_overhead=7.79s, server_proc=0.04s
+Round 6 duration: 25.89 seconds
+Client updates length: 5
+Round 6: Aggregating 5 updates
+Round 6: G-orig: 13.87% (loss=3.0383) | G-drift: 38.90% (loss=2.4256) | C-mix: 39.49% (loss=2.4022)
+Round 6: Aux Simple Avg Acc (from clients): 9.65%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 6: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 6: Notified 20 clients.
+
+--- Round 7/50 ---
+Round 7: Clientes selecionados (5/20): [4, 6, 9, 10, 17]
+Round 7: Handling client 17
+Round 7: Handling client 4
+Round 7: Handling client 9
+Round 7: Handling client 10
+Round 7: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 7: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 7: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 7: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 7: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 7: Sent global model to client 6
+Client 4 dataset size: 1728
+Round 7: Client 4 tempos: treino=9.74s, comm_rede=0.03s, client_overhead=6.54s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 7: Client 9 tempos: treino=11.46s, comm_rede=0.03s, client_overhead=5.86s, server_proc=0.04s
+Client 17 dataset size: 2623
+Round 7: Client 17 tempos: treino=11.65s, comm_rede=0.03s, client_overhead=6.03s, server_proc=0.03s
+Client 10 dataset size: 2417
+Round 7: Client 10 tempos: treino=13.45s, comm_rede=0.02s, client_overhead=7.20s, server_proc=0.04s
+Client 6 dataset size: 3714
+Round 7: Client 6 tempos: treino=18.05s, comm_rede=0.03s, client_overhead=8.22s, server_proc=0.05s
+Round 7 duration: 26.36 seconds
+Client updates length: 5
+Round 7: Aggregating 5 updates
+Round 7: G-orig: 3.59% (loss=3.7061) | G-drift: 51.90% (loss=1.9754) | C-mix: 52.53% (loss=1.9539)
+Round 7: Aux Simple Avg Acc (from clients): 34.99%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 7: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 7: Notified 20 clients.
+
+--- Round 8/50 ---
+Round 8: Clientes selecionados (5/20): [2, 3, 10, 11, 13]
+Round 8: Handling client 3
+Round 8: Handling client 11
+Round 8: Handling client 2
+Round 8: Handling client 13
+Round 8: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 8: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 8: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 8: Sent global model to client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 8: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 8: Sent global model to client 3
+Client 2 dataset size: 1507
+Round 8: Client 2 tempos: treino=6.16s, comm_rede=0.03s, client_overhead=4.06s, server_proc=0.03s
+Client 10 dataset size: 2417
+Round 8: Client 10 tempos: treino=9.80s, comm_rede=0.03s, client_overhead=4.77s, server_proc=0.04s
+Client 3 dataset size: 2060
+Round 8: Client 3 tempos: treino=13.06s, comm_rede=0.03s, client_overhead=7.26s, server_proc=0.05s
+Client 11 dataset size: 2485
+Round 8: Client 11 tempos: treino=15.29s, comm_rede=0.02s, client_overhead=7.05s, server_proc=0.04s
+Client 13 dataset size: 2746
+Round 8: Client 13 tempos: treino=16.42s, comm_rede=0.03s, client_overhead=7.02s, server_proc=0.04s
+Round 8 duration: 23.51 seconds
+Client updates length: 5
+Round 8: Aggregating 5 updates
+Round 8: G-orig: 1.76% (loss=4.2221) | G-drift: 57.05% (loss=1.6679) | C-mix: 57.42% (loss=1.6495)
+Round 8: Aux Simple Avg Acc (from clients): 51.71%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 8: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 8: Notified 20 clients.
+
+--- Round 9/50 ---
+Round 9: Clientes selecionados (5/20): [7, 8, 11, 15, 19]
+Round 9: Handling client 8
+Round 9: Handling client 15
+Round 9: Handling client 7
+Round 9: Handling client 19
+Round 9: Handling client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 9: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 9: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 9: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 9: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 9: Sent global model to client 19
+Client 8 dataset size: 2449
+Round 9: Client 8 tempos: treino=7.99s, comm_rede=0.03s, client_overhead=4.56s, server_proc=0.04s
+Client 15 dataset size: 2358
+Round 9: Client 15 tempos: treino=19.90s, comm_rede=0.03s, client_overhead=9.65s, server_proc=0.03s
+Client 11 dataset size: 2485
+Round 9: Client 11 tempos: treino=20.78s, comm_rede=0.04s, client_overhead=9.44s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 9: Client 19 tempos: treino=21.84s, comm_rede=0.03s, client_overhead=9.23s, server_proc=0.05s
+Client 7 dataset size: 2700
+Round 9: Client 7 tempos: treino=22.24s, comm_rede=0.02s, client_overhead=9.10s, server_proc=0.03s
+Round 9 duration: 31.39 seconds
+Client updates length: 5
+Round 9: Aggregating 5 updates
+Round 9: G-orig: 0.16% (loss=4.5579) | G-drift: 62.62% (loss=1.4061) | C-mix: 63.10% (loss=1.3907)
+Round 9: Aux Simple Avg Acc (from clients): 56.56%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 9: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 9: Notified 20 clients.
+
+--- Round 10/50 ---
+Round 10: Clientes selecionados (5/20): [5, 7, 16, 17, 19]
+Round 10: Handling client 16
+Round 10: Handling client 7
+Round 10: Handling client 19
+Round 10: Handling client 17
+Round 10: Handling client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 10: Sent global model to client 5
+Round 10: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 10: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 10: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 10: Sent global model to client 19
+Client 16 dataset size: 2071
+Round 10: Client 16 tempos: treino=6.58s, comm_rede=0.03s, client_overhead=3.86s, server_proc=0.05s
+Client 17 dataset size: 2623
+Round 10: Client 17 tempos: treino=22.34s, comm_rede=0.02s, client_overhead=10.21s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 10: Client 19 tempos: treino=22.39s, comm_rede=0.03s, client_overhead=10.19s, server_proc=0.05s
+Client 7 dataset size: 2700
+Round 10: Client 7 tempos: treino=22.76s, comm_rede=0.02s, client_overhead=10.09s, server_proc=0.05s
+Client 5 dataset size: 2958
+Round 10: Client 5 tempos: treino=24.29s, comm_rede=0.02s, client_overhead=9.86s, server_proc=0.04s
+Round 10 duration: 34.20 seconds
+Client updates length: 5
+Round 10: Aggregating 5 updates
+Round 10: G-orig: 26.69% (loss=2.5011) | G-drift: 40.66% (loss=2.0571) | C-mix: 27.05% (loss=2.4871)
+Round 10: Aux Simple Avg Acc (from clients): 0.23%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 10: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 10: Notified 20 clients.
+
+--- Round 11/50 ---
+Round 11: Clientes selecionados (5/20): [1, 8, 11, 15, 16]
+Round 11: Handling client 8
+Round 11: Handling client 16
+Round 11: Handling client 1
+Round 11: Handling client 15
+Round 11: Handling client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 11: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 11: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 11: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 11: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 11: Sent global model to client 15
+Client 16 dataset size: 2071
+Round 11: Client 16 tempos: treino=8.86s, comm_rede=0.03s, client_overhead=4.72s, server_proc=0.04s
+Client 8 dataset size: 2449
+Round 11: Client 8 tempos: treino=10.29s, comm_rede=0.03s, client_overhead=4.91s, server_proc=0.03s
+Client 15 dataset size: 2358
+Round 11: Client 15 tempos: treino=14.99s, comm_rede=0.03s, client_overhead=7.30s, server_proc=0.05s
+Client 1 dataset size: 2445
+Round 11: Client 1 tempos: treino=15.61s, comm_rede=0.03s, client_overhead=7.12s, server_proc=0.04s
+Client 11 dataset size: 2485
+Round 11: Client 11 tempos: treino=15.73s, comm_rede=0.03s, client_overhead=7.15s, server_proc=0.03s
+Round 11 duration: 22.95 seconds
+Client updates length: 5
+Round 11: Aggregating 5 updates
+Round 11: G-orig: 55.69% (loss=1.7680) | G-drift: 9.56% (loss=2.8393) | C-mix: 56.25% (loss=1.7491)
+Round 11: Aux Simple Avg Acc (from clients): 21.55%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 11: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 11: Notified 20 clients.
+
+--- Round 12/50 ---
+Round 12: Clientes selecionados (5/20): [6, 14, 15, 16, 19]
+Round 12: Handling client 16
+Round 12: Handling client 15
+Round 12: Handling client 19
+Round 12: Handling client 6
+Round 12: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 12: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 12: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 12: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 12: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 12: Sent global model to client 19
+Client 15 dataset size: 2358
+Round 12: Client 15 tempos: treino=8.42s, comm_rede=0.02s, client_overhead=5.72s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 12: Client 19 tempos: treino=9.37s, comm_rede=0.02s, client_overhead=5.94s, server_proc=0.05s
+Client 16 dataset size: 2071
+Round 12: Client 16 tempos: treino=8.88s, comm_rede=0.02s, client_overhead=7.02s, server_proc=0.04s
+Client 6 dataset size: 3714
+Round 12: Client 6 tempos: treino=15.09s, comm_rede=0.03s, client_overhead=8.49s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 12: Client 14 tempos: treino=15.39s, comm_rede=0.02s, client_overhead=8.49s, server_proc=0.04s
+Round 12 duration: 23.95 seconds
+Client updates length: 5
+Round 12: Aggregating 5 updates
+Round 12: G-orig: 58.40% (loss=1.5615) | G-drift: 1.69% (loss=4.0273) | C-mix: 58.91% (loss=1.5377)
+Round 12: Aux Simple Avg Acc (from clients): 62.59%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 12: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 12: Notified 20 clients.
+
+--- Round 13/50 ---
+Round 13: Clientes selecionados (5/20): [4, 9, 14, 15, 17]
+Round 13: Handling client 15
+Round 13: Handling client 17
+Round 13: Handling client 4
+Round 13: Handling client 9
+Round 13: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 13: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 13: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 13: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 13: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 13: Sent global model to client 9
+Client 4 dataset size: 1728
+Round 13: Client 4 tempos: treino=7.26s, comm_rede=0.04s, client_overhead=4.61s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 13: Client 14 tempos: treino=14.23s, comm_rede=0.04s, client_overhead=7.56s, server_proc=0.04s
+Client 15 dataset size: 2358
+Round 13: Client 15 tempos: treino=14.90s, comm_rede=0.02s, client_overhead=7.51s, server_proc=0.06s
+Client 9 dataset size: 2509
+Round 13: Client 9 tempos: treino=15.81s, comm_rede=0.03s, client_overhead=7.38s, server_proc=0.06s
+Client 17 dataset size: 2623
+Round 13: Client 17 tempos: treino=16.21s, comm_rede=0.03s, client_overhead=7.40s, server_proc=0.04s
+Round 13 duration: 23.68 seconds
+Client updates length: 5
+Round 13: Aggregating 5 updates
+Round 13: G-orig: 63.97% (loss=1.3544) | G-drift: 0.92% (loss=4.3474) | C-mix: 64.36% (loss=1.3312)
+Round 13: Aux Simple Avg Acc (from clients): 60.74%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 13: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 13: Notified 20 clients.
+
+--- Round 14/50 ---
+Round 14: Clientes selecionados (5/20): [2, 4, 6, 9, 19]
+Round 14: Handling client 19
+Round 14: Handling client 4
+Round 14: Handling client 2
+Round 14: Handling client 9
+Round 14: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 14: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 14: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 14: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 14: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 14: Sent global model to client 9
+Client 2 dataset size: 1507
+Round 14: Client 2 tempos: treino=6.54s, comm_rede=0.03s, client_overhead=4.94s, server_proc=0.04s
+Client 4 dataset size: 1728
+Round 14: Client 4 tempos: treino=7.20s, comm_rede=0.02s, client_overhead=5.31s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 14: Client 9 tempos: treino=8.89s, comm_rede=0.04s, client_overhead=5.91s, server_proc=0.06s
+Client 19 dataset size: 2623
+Round 14: Client 19 tempos: treino=9.65s, comm_rede=0.03s, client_overhead=5.97s, server_proc=0.04s
+Client 6 dataset size: 3714
+Round 14: Client 6 tempos: treino=13.31s, comm_rede=0.03s, client_overhead=7.76s, server_proc=0.05s
+Round 14 duration: 21.15 seconds
+Client updates length: 5
+Round 14: Aggregating 5 updates
+Round 14: G-orig: 64.87% (loss=1.3180) | G-drift: 0.33% (loss=4.7992) | C-mix: 65.31% (loss=1.3018)
+Round 14: Aux Simple Avg Acc (from clients): 61.41%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 14: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 14: Notified 20 clients.
+
+--- Round 15/50 ---
+Round 15: Clientes selecionados (5/20): [0, 9, 15, 16, 17]
+Round 15: Handling client 16
+Round 15: Handling client 15
+Round 15: Handling client 17
+Round 15: Handling client 0
+Round 15: Handling client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 15: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 15: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 15: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 15: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 15: Sent global model to client 15
+Client 16 dataset size: 2071
+Round 15: Client 16 tempos: treino=8.97s, comm_rede=0.03s, client_overhead=5.14s, server_proc=0.03s
+Client 0 dataset size: 2891
+Round 15: Client 0 tempos: treino=11.95s, comm_rede=0.03s, client_overhead=5.66s, server_proc=0.03s
+Client 15 dataset size: 2358
+Round 15: Client 15 tempos: treino=14.87s, comm_rede=0.03s, client_overhead=7.50s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 15: Client 9 tempos: treino=15.53s, comm_rede=0.03s, client_overhead=7.45s, server_proc=0.04s
+Client 17 dataset size: 2623
+Round 15: Client 17 tempos: treino=16.51s, comm_rede=0.03s, client_overhead=7.30s, server_proc=0.05s
+Round 15 duration: 23.88 seconds
+Client updates length: 5
+Round 15: Aggregating 5 updates
+Round 15: G-orig: 46.34% (loss=1.7962) | G-drift: 23.74% (loss=2.5160) | C-mix: 23.99% (loss=2.5015)
+Round 15: Aux Simple Avg Acc (from clients): 0.14%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 15: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 15: Notified 20 clients.
+
+--- Round 16/50 ---
+Round 16: Clientes selecionados (5/20): [0, 1, 7, 10, 11]
+Round 16: Handling client 1
+Round 16: Handling client 7
+Round 16: Handling client 0
+Round 16: Handling client 11
+Round 16: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 16: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 16: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 16: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 16: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 16: Sent global model to client 0
+Client 10 dataset size: 2417
+Round 16: Client 10 tempos: treino=8.04s, comm_rede=0.03s, client_overhead=5.53s, server_proc=0.04s
+Client 0 dataset size: 2891
+Round 16: Client 0 tempos: treino=9.71s, comm_rede=0.03s, client_overhead=5.93s, server_proc=0.05s
+Client 1 dataset size: 2445
+Round 16: Client 1 tempos: treino=10.84s, comm_rede=0.02s, client_overhead=7.55s, server_proc=0.04s
+Client 11 dataset size: 2485
+Round 16: Client 11 tempos: treino=11.10s, comm_rede=0.03s, client_overhead=7.54s, server_proc=0.05s
+Client 7 dataset size: 2700
+Round 16: Client 7 tempos: treino=12.72s, comm_rede=0.02s, client_overhead=7.23s, server_proc=0.03s
+Round 16 duration: 20.01 seconds
+Client updates length: 5
+Round 16: Aggregating 5 updates
+Round 16: G-orig: 14.30% (loss=2.8263) | G-drift: 52.09% (loss=1.7668) | C-mix: 52.57% (loss=1.7529)
+Round 16: Aux Simple Avg Acc (from clients): 20.35%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 16: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 16: Notified 20 clients.
+
+--- Round 17/50 ---
+Round 17: Clientes selecionados (5/20): [1, 6, 17, 18, 19]
+Round 17: Handling client 1
+Round 17: Handling client 17
+Round 17: Handling client 18
+Round 17: Handling client 19
+Round 17: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 17: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 17: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 17: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 17: Sent global model to client 18
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 17: Sent global model to client 17
+Client 18 dataset size: 1707
+Round 17: Client 18 tempos: treino=7.24s, comm_rede=0.03s, client_overhead=4.68s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 17: Client 6 tempos: treino=14.47s, comm_rede=0.02s, client_overhead=7.43s, server_proc=0.04s
+Client 1 dataset size: 2445
+Round 17: Client 1 tempos: treino=15.44s, comm_rede=0.03s, client_overhead=7.66s, server_proc=0.05s
+Client 19 dataset size: 2623
+Round 17: Client 19 tempos: treino=16.41s, comm_rede=0.02s, client_overhead=7.66s, server_proc=0.03s
+Client 17 dataset size: 2623
+Round 17: Client 17 tempos: treino=16.61s, comm_rede=0.02s, client_overhead=7.57s, server_proc=0.05s
+Round 17 duration: 24.26 seconds
+Client updates length: 5
+Round 17: Aggregating 5 updates
+Round 17: G-orig: 4.03% (loss=3.3396) | G-drift: 64.11% (loss=1.3805) | C-mix: 64.20% (loss=1.3701)
+Round 17: Aux Simple Avg Acc (from clients): 50.74%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 17: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 17: Notified 20 clients.
+
+--- Round 18/50 ---
+Round 18: Clientes selecionados (5/20): [0, 2, 4, 7, 14]
+Round 18: Handling client 7
+Round 18: Handling client 0
+Round 18: Handling client 4
+Round 18: Handling client 2
+Round 18: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 18: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 18: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 18: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 18: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 18: Sent global model to client 2
+Client 7 dataset size: 2700
+Round 18: Client 7 tempos: treino=7.74s, comm_rede=0.03s, client_overhead=5.39s, server_proc=0.05s
+Client 2 dataset size: 1507
+Round 18: Client 2 tempos: treino=8.09s, comm_rede=0.03s, client_overhead=6.78s, server_proc=0.05s
+Client 4 dataset size: 1728
+Round 18: Client 4 tempos: treino=9.20s, comm_rede=0.03s, client_overhead=7.28s, server_proc=0.05s
+Client 0 dataset size: 2891
+Round 18: Client 0 tempos: treino=14.31s, comm_rede=0.03s, client_overhead=7.53s, server_proc=0.03s
+Client 14 dataset size: 3774
+Round 18: Client 14 tempos: treino=16.95s, comm_rede=0.03s, client_overhead=8.69s, server_proc=0.03s
+Round 18 duration: 25.70 seconds
+Client updates length: 5
+Round 18: Aggregating 5 updates
+Round 18: G-orig: 1.47% (loss=4.0834) | G-drift: 66.51% (loss=1.2656) | C-mix: 66.49% (loss=1.2520)
+Round 18: Aux Simple Avg Acc (from clients): 61.64%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 18: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 18: Notified 20 clients.
+
+--- Round 19/50 ---
+Round 19: Clientes selecionados (5/20): [4, 7, 8, 9, 19]
+Round 19: Handling client 8
+Round 19: Handling client 7
+Round 19: Handling client 19
+Round 19: Handling client 4
+Round 19: Handling client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 19: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 19: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 19: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 19: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 19: Sent global model to client 19
+Client 4 dataset size: 1728
+Round 19: Client 4 tempos: treino=7.56s, comm_rede=0.03s, client_overhead=4.36s, server_proc=0.05s
+Client 8 dataset size: 2449
+Round 19: Client 8 tempos: treino=10.02s, comm_rede=0.03s, client_overhead=4.75s, server_proc=0.03s
+Client 9 dataset size: 2509
+Round 19: Client 9 tempos: treino=15.87s, comm_rede=0.02s, client_overhead=7.83s, server_proc=0.03s
+Client 19 dataset size: 2623
+Round 19: Client 19 tempos: treino=16.59s, comm_rede=0.03s, client_overhead=7.74s, server_proc=0.05s
+Client 7 dataset size: 2700
+Round 19: Client 7 tempos: treino=16.94s, comm_rede=0.04s, client_overhead=7.64s, server_proc=0.04s
+Round 19 duration: 24.66 seconds
+Client updates length: 5
+Round 19: Aggregating 5 updates
+Round 19: G-orig: 0.21% (loss=4.3407) | G-drift: 69.55% (loss=1.1481) | C-mix: 69.45% (loss=1.1414)
+Round 19: Aux Simple Avg Acc (from clients): 63.74%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 19: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 19: Notified 20 clients.
+
+--- Round 20/50 ---
+Round 20: Clientes selecionados (5/20): [5, 6, 10, 15, 17]
+Round 20: Handling client 15
+Round 20: Handling client 17
+Round 20: Handling client 5
+Round 20: Handling client 10
+Round 20: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 20: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 20: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 20: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 20: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 20: Sent global model to client 17
+Client 10 dataset size: 2417
+Round 20: Client 10 tempos: treino=7.87s, comm_rede=0.03s, client_overhead=5.88s, server_proc=0.03s
+Client 15 dataset size: 2358
+Round 20: Client 15 tempos: treino=10.77s, comm_rede=0.02s, client_overhead=7.56s, server_proc=0.04s
+Client 17 dataset size: 2623
+Round 20: Client 17 tempos: treino=11.72s, comm_rede=0.03s, client_overhead=7.72s, server_proc=0.06s
+Client 6 dataset size: 3714
+Round 20: Client 6 tempos: treino=12.12s, comm_rede=0.03s, client_overhead=7.64s, server_proc=0.05s
+Client 5 dataset size: 2958
+Round 20: Client 5 tempos: treino=13.00s, comm_rede=0.03s, client_overhead=7.87s, server_proc=0.05s
+Round 20 duration: 20.95 seconds
+Client updates length: 5
+Round 20: Aggregating 5 updates
+Round 20: G-orig: 36.66% (loss=2.2597) | G-drift: 32.19% (loss=2.2095) | C-mix: 37.32% (loss=2.2363)
+Round 20: Aux Simple Avg Acc (from clients): 0.32%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 20: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 20: Notified 20 clients.
+
+--- Round 21/50 ---
+Round 21: Clientes selecionados (5/20): [2, 5, 7, 14, 18]
+Round 21: Handling client 7
+Round 21: Handling client 18
+Round 21: Handling client 5
+Round 21: Handling client 2
+Round 21: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 21: Sent global model to client 18
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 21: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 21: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 21: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 21: Sent global model to client 5
+Client 2 dataset size: 1507
+Round 21: Client 2 tempos: treino=8.75s, comm_rede=0.03s, client_overhead=5.36s, server_proc=0.05s
+Client 18 dataset size: 1707
+Round 21: Client 18 tempos: treino=10.04s, comm_rede=0.02s, client_overhead=5.55s, server_proc=0.03s
+Client 7 dataset size: 2700
+Round 21: Client 7 tempos: treino=12.20s, comm_rede=0.02s, client_overhead=6.39s, server_proc=0.04s
+Client 5 dataset size: 2958
+Round 21: Client 5 tempos: treino=12.95s, comm_rede=0.03s, client_overhead=6.71s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 21: Client 14 tempos: treino=16.72s, comm_rede=0.03s, client_overhead=8.05s, server_proc=0.04s
+Round 21 duration: 24.84 seconds
+Client updates length: 5
+Round 21: Aggregating 5 updates
+Round 21: G-orig: 60.14% (loss=1.5325) | G-drift: 9.86% (loss=2.8792) | C-mix: 60.92% (loss=1.5027)
+Round 21: Aux Simple Avg Acc (from clients): 32.98%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 21: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 21: Notified 20 clients.
+
+--- Round 22/50 ---
+Round 22: Clientes selecionados (5/20): [8, 9, 14, 15, 19]
+Round 22: Handling client 8
+Round 22: Handling client 15
+Round 22: Handling client 19
+Round 22: Handling client 9
+Round 22: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 22: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 22: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 22: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 22: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 22: Sent global model to client 19
+Client 8 dataset size: 2449
+Round 22: Client 8 tempos: treino=8.12s, comm_rede=0.03s, client_overhead=5.83s, server_proc=0.04s
+Client 15 dataset size: 2358
+Round 22: Client 15 tempos: treino=10.46s, comm_rede=0.03s, client_overhead=7.44s, server_proc=0.04s
+Client 9 dataset size: 2509
+Round 22: Client 9 tempos: treino=11.46s, comm_rede=0.02s, client_overhead=7.38s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 22: Client 19 tempos: treino=11.95s, comm_rede=0.03s, client_overhead=7.40s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 22: Client 14 tempos: treino=12.46s, comm_rede=0.02s, client_overhead=7.48s, server_proc=0.04s
+Round 22 duration: 19.99 seconds
+Client updates length: 5
+Round 22: Aggregating 5 updates
+Round 22: G-orig: 67.00% (loss=1.2858) | G-drift: 2.79% (loss=3.8509) | C-mix: 67.43% (loss=1.2570)
+Round 22: Aux Simple Avg Acc (from clients): 55.50%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 22: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 22: Notified 20 clients.
+
+--- Round 23/50 ---
+Round 23: Clientes selecionados (5/20): [0, 3, 6, 12, 15]
+Round 23: Handling client 15
+Round 23: Handling client 12
+Round 23: Handling client 0
+Round 23: Handling client 3
+Round 23: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 23: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 23: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 23: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 23: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 23: Sent global model to client 3
+Client 3 dataset size: 2060
+Round 23: Client 3 tempos: treino=9.38s, comm_rede=0.04s, client_overhead=4.99s, server_proc=0.06s
+Client 15 dataset size: 2358
+Round 23: Client 15 tempos: treino=10.47s, comm_rede=0.03s, client_overhead=5.29s, server_proc=0.04s
+Client 12 dataset size: 2235
+Round 23: Client 12 tempos: treino=13.13s, comm_rede=0.03s, client_overhead=8.27s, server_proc=0.04s
+Client 0 dataset size: 2891
+Round 23: Client 0 tempos: treino=16.61s, comm_rede=0.04s, client_overhead=8.05s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 23: Client 6 tempos: treino=20.00s, comm_rede=0.03s, client_overhead=8.08s, server_proc=0.04s
+Round 23 duration: 28.15 seconds
+Client updates length: 5
+Round 23: Aggregating 5 updates
+Round 23: G-orig: 68.90% (loss=1.1535) | G-drift: 1.90% (loss=4.1384) | C-mix: 69.49% (loss=1.1289)
+Round 23: Aux Simple Avg Acc (from clients): 70.56%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 23: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 23: Notified 20 clients.
+
+--- Round 24/50 ---
+Round 24: Clientes selecionados (5/20): [7, 9, 13, 16, 18]
+Round 24: Handling client 16
+Round 24: Handling client 7
+Round 24: Handling client 18
+Round 24: Handling client 9
+Round 24: Handling client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 24: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 24: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 24: Sent global model to client 18
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 24: Sent global model to client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 24: Sent global model to client 16
+Client 18 dataset size: 1707
+Round 24: Client 18 tempos: treino=5.64s, comm_rede=0.03s, client_overhead=3.92s, server_proc=0.04s
+Client 16 dataset size: 2071
+Round 24: Client 16 tempos: treino=6.88s, comm_rede=0.04s, client_overhead=4.10s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 24: Client 9 tempos: treino=11.41s, comm_rede=0.03s, client_overhead=7.72s, server_proc=0.03s
+Client 7 dataset size: 2700
+Round 24: Client 7 tempos: treino=12.35s, comm_rede=0.03s, client_overhead=7.71s, server_proc=0.03s
+Client 13 dataset size: 2746
+Round 24: Client 13 tempos: treino=12.35s, comm_rede=0.03s, client_overhead=7.87s, server_proc=0.04s
+Round 24 duration: 20.29 seconds
+Client updates length: 5
+Round 24: Aggregating 5 updates
+Round 24: G-orig: 70.21% (loss=1.1624) | G-drift: 0.37% (loss=4.4903) | C-mix: 70.64% (loss=1.1428)
+Round 24: Aux Simple Avg Acc (from clients): 60.51%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 24: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 24: Notified 20 clients.
+
+--- Round 25/50 ---
+Round 25: Clientes selecionados (5/20): [2, 7, 9, 13, 14]
+Round 25: Handling client 7
+Round 25: Handling client 2
+Round 25: Handling client 9
+Round 25: Handling client 13
+Round 25: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 25: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 25: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 25: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 25: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 25: Sent global model to client 13
+Client 2 dataset size: 1507
+Round 25: Client 2 tempos: treino=6.17s, comm_rede=0.04s, client_overhead=4.14s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 25: Client 14 tempos: treino=13.79s, comm_rede=0.03s, client_overhead=7.56s, server_proc=0.04s
+Client 9 dataset size: 2509
+Round 25: Client 9 tempos: treino=15.76s, comm_rede=0.02s, client_overhead=7.99s, server_proc=0.04s
+Client 7 dataset size: 2700
+Round 25: Client 7 tempos: treino=16.81s, comm_rede=0.03s, client_overhead=7.86s, server_proc=0.03s
+Client 13 dataset size: 2746
+Round 25: Client 13 tempos: treino=17.39s, comm_rede=0.03s, client_overhead=7.75s, server_proc=0.05s
+Round 25 duration: 25.22 seconds
+Client updates length: 5
+Round 25: Aggregating 5 updates
+Round 25: G-orig: 42.90% (loss=1.7789) | G-drift: 31.85% (loss=1.9921) | C-mix: 32.03% (loss=1.9772)
+Round 25: Aux Simple Avg Acc (from clients): 0.20%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 25: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 25: Notified 20 clients.
+
+--- Round 26/50 ---
+Round 26: Clientes selecionados (5/20): [2, 3, 13, 14, 17]
+Round 26: Handling client 17
+Round 26: Handling client 3
+Round 26: Handling client 2
+Round 26: Handling client 13
+Round 26: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 26: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 26: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 26: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 26: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 26: Sent global model to client 13
+Client 2 dataset size: 1507
+Round 26: Client 2 tempos: treino=5.19s, comm_rede=0.03s, client_overhead=3.76s, server_proc=0.03s
+Client 3 dataset size: 2060
+Round 26: Client 3 tempos: treino=9.29s, comm_rede=0.03s, client_overhead=6.96s, server_proc=0.03s
+Client 14 dataset size: 3774
+Round 26: Client 14 tempos: treino=11.00s, comm_rede=0.03s, client_overhead=7.55s, server_proc=0.04s
+Client 17 dataset size: 2623
+Round 26: Client 17 tempos: treino=11.47s, comm_rede=0.03s, client_overhead=7.23s, server_proc=0.05s
+Client 13 dataset size: 2746
+Round 26: Client 13 tempos: treino=11.95s, comm_rede=0.03s, client_overhead=7.34s, server_proc=0.05s
+Round 26 duration: 19.39 seconds
+Client updates length: 5
+Round 26: Aggregating 5 updates
+Round 26: G-orig: 12.05% (loss=2.9976) | G-drift: 59.74% (loss=1.4569) | C-mix: 60.01% (loss=1.4380)
+Round 26: Aux Simple Avg Acc (from clients): 35.25%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 26: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 26: Notified 20 clients.
+
+--- Round 27/50 ---
+Round 27: Clientes selecionados (5/20): [3, 7, 13, 14, 16]
+Round 27: Handling client 16
+Round 27: Handling client 7
+Round 27: Handling client 3
+Round 27: Handling client 13
+Round 27: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 27: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 27: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 27: Sent global model to client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 27: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 27: Sent global model to client 3
+Client 16 dataset size: 2071
+Round 27: Client 16 tempos: treino=8.90s, comm_rede=0.02s, client_overhead=5.56s, server_proc=0.03s
+Client 3 dataset size: 2060
+Round 27: Client 3 tempos: treino=12.81s, comm_rede=0.03s, client_overhead=7.57s, server_proc=0.06s
+Client 14 dataset size: 3774
+Round 27: Client 14 tempos: treino=14.50s, comm_rede=0.03s, client_overhead=7.47s, server_proc=0.04s
+Client 7 dataset size: 2700
+Round 27: Client 7 tempos: treino=16.22s, comm_rede=0.04s, client_overhead=7.24s, server_proc=0.05s
+Client 13 dataset size: 2746
+Round 27: Client 13 tempos: treino=16.81s, comm_rede=0.03s, client_overhead=7.14s, server_proc=0.04s
+Round 27 duration: 24.02 seconds
+Client updates length: 5
+Round 27: Aggregating 5 updates
+Round 27: G-orig: 4.77% (loss=3.6056) | G-drift: 65.51% (loss=1.2968) | C-mix: 65.66% (loss=1.2739)
+Round 27: Aux Simple Avg Acc (from clients): 73.46%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 27: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 27: Notified 20 clients.
+
+--- Round 28/50 ---
+Round 28: Clientes selecionados (5/20): [1, 2, 3, 5, 11]
+Round 28: Handling client 1
+Round 28: Handling client 5
+Round 28: Handling client 3
+Round 28: Handling client 11
+Round 28: Handling client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 28: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 28: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 28: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 28: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 28: Sent global model to client 3
+Client 2 dataset size: 1507
+Round 28: Client 2 tempos: treino=4.31s, comm_rede=0.02s, client_overhead=2.88s, server_proc=0.04s
+Client 3 dataset size: 2060
+Round 28: Client 3 tempos: treino=12.18s, comm_rede=0.03s, client_overhead=8.93s, server_proc=0.05s
+Client 1 dataset size: 2445
+Round 28: Client 1 tempos: treino=14.37s, comm_rede=0.03s, client_overhead=8.88s, server_proc=0.04s
+Client 11 dataset size: 2485
+Round 28: Client 11 tempos: treino=14.68s, comm_rede=0.04s, client_overhead=8.82s, server_proc=0.04s
+Client 5 dataset size: 2958
+Round 28: Client 5 tempos: treino=17.07s, comm_rede=0.02s, client_overhead=8.41s, server_proc=0.03s
+Round 28 duration: 25.53 seconds
+Client updates length: 5
+Round 28: Aggregating 5 updates
+Round 28: G-orig: 2.72% (loss=4.0647) | G-drift: 69.04% (loss=1.1894) | C-mix: 69.22% (loss=1.1746)
+Round 28: Aux Simple Avg Acc (from clients): 64.07%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 28: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 28: Notified 20 clients.
+
+--- Round 29/50 ---
+Round 29: Clientes selecionados (5/20): [3, 4, 9, 14, 17]
+Round 29: Handling client 17
+Round 29: Handling client 3
+Round 29: Handling client 4
+Round 29: Handling client 9
+Round 29: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 29: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 29: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 29: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 29: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 29: Sent global model to client 9
+Client 4 dataset size: 1728
+Round 29: Client 4 tempos: treino=7.27s, comm_rede=0.02s, client_overhead=4.73s, server_proc=0.05s
+Client 3 dataset size: 2060
+Round 29: Client 3 tempos: treino=12.85s, comm_rede=0.03s, client_overhead=7.19s, server_proc=0.04s
+Client 14 dataset size: 3774
+Round 29: Client 14 tempos: treino=14.18s, comm_rede=0.02s, client_overhead=7.52s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 29: Client 9 tempos: treino=15.24s, comm_rede=0.03s, client_overhead=7.02s, server_proc=0.06s
+Client 17 dataset size: 2623
+Round 29: Client 17 tempos: treino=15.92s, comm_rede=0.03s, client_overhead=6.96s, server_proc=0.05s
+Round 29 duration: 22.95 seconds
+Client updates length: 5
+Round 29: Aggregating 5 updates
+Round 29: G-orig: 0.51% (loss=4.3181) | G-drift: 74.25% (loss=0.9923) | C-mix: 74.77% (loss=0.9745)
+Round 29: Aux Simple Avg Acc (from clients): 68.76%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 29: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 29: Notified 20 clients.
+
+--- Round 30/50 ---
+Round 30: Clientes selecionados (5/20): [0, 4, 8, 10, 16]
+Round 30: Handling client 8
+Round 30: Handling client 16
+Round 30: Handling client 0
+Round 30: Handling client 4
+Round 30: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 30: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 30: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 30: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 30: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 30: Sent global model to client 16
+Client 4 dataset size: 1728
+Round 30: Client 4 tempos: treino=11.75s, comm_rede=0.04s, client_overhead=9.53s, server_proc=0.04s
+Client 16 dataset size: 2071
+Round 30: Client 16 tempos: treino=14.20s, comm_rede=0.03s, client_overhead=9.37s, server_proc=0.06s
+Client 8 dataset size: 2449
+Round 30: Client 8 tempos: treino=16.27s, comm_rede=0.03s, client_overhead=9.25s, server_proc=0.04s
+Client 10 dataset size: 2417
+Round 30: Client 10 tempos: treino=16.66s, comm_rede=0.02s, client_overhead=9.06s, server_proc=0.05s
+Client 0 dataset size: 2891
+Round 30: Client 0 tempos: treino=19.55s, comm_rede=0.02s, client_overhead=8.09s, server_proc=0.05s
+Round 30 duration: 27.72 seconds
+Client updates length: 5
+Round 30: Aggregating 5 updates
+Round 30: G-orig: 45.36% (loss=1.8834) | G-drift: 28.96% (loss=2.1896) | C-mix: 45.83% (loss=1.8677)
+Round 30: Aux Simple Avg Acc (from clients): 0.93%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 30: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 30: Notified 20 clients.
+
+--- Round 31/50 ---
+Round 31: Clientes selecionados (5/20): [2, 5, 9, 11, 17]
+Round 31: Handling client 17
+Round 31: Handling client 5
+Round 31: Handling client 11
+Round 31: Handling client 2
+Round 31: Handling client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 31: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 31: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 31: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 31: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 31: Sent global model to client 9
+Client 2 dataset size: 1507
+Round 31: Client 2 tempos: treino=5.07s, comm_rede=0.03s, client_overhead=2.88s, server_proc=0.04s
+Client 11 dataset size: 2485
+Round 31: Client 11 tempos: treino=20.51s, comm_rede=0.04s, client_overhead=9.96s, server_proc=0.04s
+Client 9 dataset size: 2509
+Round 31: Client 9 tempos: treino=20.79s, comm_rede=0.03s, client_overhead=9.93s, server_proc=0.06s
+Client 17 dataset size: 2623
+Round 31: Client 17 tempos: treino=21.86s, comm_rede=0.03s, client_overhead=9.59s, server_proc=0.05s
+Client 5 dataset size: 2958
+Round 31: Client 5 tempos: treino=23.74s, comm_rede=0.03s, client_overhead=9.26s, server_proc=0.05s
+Round 31 duration: 33.08 seconds
+Client updates length: 5
+Round 31: Aggregating 5 updates
+Round 31: G-orig: 67.71% (loss=1.2864) | G-drift: 6.36% (loss=2.8079) | C-mix: 68.17% (loss=1.2756)
+Round 31: Aux Simple Avg Acc (from clients): 35.70%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 31: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 31: Notified 20 clients.
+
+--- Round 32/50 ---
+Round 32: Clientes selecionados (5/20): [3, 5, 8, 15, 16]
+Round 32: Handling client 8
+Round 32: Handling client 16
+Round 32: Handling client 15
+Round 32: Handling client 5
+Round 32: Handling client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 32: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 32: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 32: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 32: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 32: Sent global model to client 16
+Client 16 dataset size: 2071
+Round 32: Client 16 tempos: treino=6.84s, comm_rede=0.04s, client_overhead=4.61s, server_proc=0.05s
+Client 8 dataset size: 2449
+Round 32: Client 8 tempos: treino=8.12s, comm_rede=0.03s, client_overhead=4.97s, server_proc=0.05s
+Client 3 dataset size: 2060
+Round 32: Client 3 tempos: treino=9.33s, comm_rede=0.03s, client_overhead=6.95s, server_proc=0.04s
+Client 15 dataset size: 2358
+Round 32: Client 15 tempos: treino=10.58s, comm_rede=0.03s, client_overhead=7.00s, server_proc=0.03s
+Client 5 dataset size: 2958
+Round 32: Client 5 tempos: treino=12.94s, comm_rede=0.02s, client_overhead=7.11s, server_proc=0.05s
+Round 32 duration: 20.12 seconds
+Client updates length: 5
+Round 32: Aggregating 5 updates
+Round 32: G-orig: 68.98% (loss=1.2101) | G-drift: 4.10% (loss=3.6832) | C-mix: 69.37% (loss=1.1938)
+Round 32: Aux Simple Avg Acc (from clients): 74.85%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 32: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 32: Notified 20 clients.
+
+--- Round 33/50 ---
+Round 33: Clientes selecionados (5/20): [3, 10, 16, 17, 19]
+Round 33: Handling client 16
+Round 33: Handling client 17
+Round 33: Handling client 19
+Round 33: Handling client 3
+Round 33: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 33: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 33: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 33: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 33: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 33: Sent global model to client 19
+Client 16 dataset size: 2071
+Round 33: Client 16 tempos: treino=8.77s, comm_rede=0.04s, client_overhead=4.81s, server_proc=0.05s
+Client 10 dataset size: 2417
+Round 33: Client 10 tempos: treino=10.19s, comm_rede=0.03s, client_overhead=4.93s, server_proc=0.03s
+Client 3 dataset size: 2060
+Round 33: Client 3 tempos: treino=12.98s, comm_rede=0.03s, client_overhead=7.27s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 33: Client 19 tempos: treino=15.89s, comm_rede=0.02s, client_overhead=7.07s, server_proc=0.06s
+Client 17 dataset size: 2623
+Round 33: Client 17 tempos: treino=15.98s, comm_rede=0.02s, client_overhead=7.05s, server_proc=0.05s
+Round 33 duration: 23.10 seconds
+Client updates length: 5
+Round 33: Aggregating 5 updates
+Round 33: G-orig: 73.97% (loss=1.0169) | G-drift: 1.74% (loss=4.0531) | C-mix: 74.42% (loss=1.0017)
+Round 33: Aux Simple Avg Acc (from clients): 74.55%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 33: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 33: Notified 20 clients.
+
+--- Round 34/50 ---
+Round 34: Clientes selecionados (5/20): [1, 13, 14, 18, 19]
+Round 34: Handling client 1
+Round 34: Handling client 18
+Round 34: Handling client 19
+Round 34: Handling client 13
+Round 34: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 34: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 34: Sent global model to client 14
+Round 34: Sent global model to client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 34: Sent global model to client 18
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 34: Sent global model to client 19
+Client 18 dataset size: 1707
+Round 34: Client 18 tempos: treino=5.79s, comm_rede=0.03s, client_overhead=4.21s, server_proc=0.04s
+Client 1 dataset size: 2445
+Round 34: Client 1 tempos: treino=10.97s, comm_rede=0.03s, client_overhead=7.63s, server_proc=0.03s
+Client 14 dataset size: 3774
+Round 34: Client 14 tempos: treino=11.47s, comm_rede=0.03s, client_overhead=7.42s, server_proc=0.03s
+Client 19 dataset size: 2623
+Round 34: Client 19 tempos: treino=11.80s, comm_rede=0.03s, client_overhead=7.74s, server_proc=0.05s
+Client 13 dataset size: 2746
+Round 34: Client 13 tempos: treino=12.40s, comm_rede=0.02s, client_overhead=7.75s, server_proc=0.04s
+Round 34 duration: 20.22 seconds
+Client updates length: 5
+Round 34: Aggregating 5 updates
+Round 34: G-orig: 74.72% (loss=0.9676) | G-drift: 0.44% (loss=4.5826) | C-mix: 74.83% (loss=0.9564)
+Round 34: Aux Simple Avg Acc (from clients): 72.23%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 34: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 34: Notified 20 clients.
+
+--- Round 35/50 ---
+Round 35: Clientes selecionados (5/20): [6, 9, 11, 12, 14]
+Round 35: Handling client 12
+Round 35: Handling client 11
+Round 35: Handling client 9
+Round 35: Handling client 6
+Round 35: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 35: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 35: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 35: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 35: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 35: Sent global model to client 14
+Client 9 dataset size: 2509
+Round 35: Client 9 tempos: treino=11.07s, comm_rede=0.02s, client_overhead=5.86s, server_proc=0.05s
+Client 11 dataset size: 2485
+Round 35: Client 11 tempos: treino=11.28s, comm_rede=0.03s, client_overhead=5.82s, server_proc=0.05s
+Client 12 dataset size: 2235
+Round 35: Client 12 tempos: treino=13.09s, comm_rede=0.02s, client_overhead=8.85s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 35: Client 6 tempos: treino=20.57s, comm_rede=0.02s, client_overhead=8.57s, server_proc=0.04s
+Client 14 dataset size: 3774
+Round 35: Client 14 tempos: treino=20.76s, comm_rede=0.04s, client_overhead=8.54s, server_proc=0.06s
+Round 35 duration: 29.39 seconds
+Client updates length: 5
+Round 35: Aggregating 5 updates
+Round 35: G-orig: 35.24% (loss=1.9016) | G-drift: 41.93% (loss=1.8490) | C-mix: 42.13% (loss=1.8337)
+Round 35: Aux Simple Avg Acc (from clients): 0.53%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 35: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 35: Notified 20 clients.
+
+--- Round 36/50 ---
+Round 36: Clientes selecionados (5/20): [6, 7, 8, 10, 17]
+Round 36: Handling client 8
+Round 36: Handling client 7
+Round 36: Handling client 17
+Round 36: Handling client 10
+Round 36: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 36: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 36: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 36: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 36: Sent global model to client 8
+Round 36: Sent global model to client 17
+Client 17 dataset size: 2623
+Round 36: Client 17 tempos: treino=9.38s, comm_rede=0.03s, client_overhead=6.25s, server_proc=0.04s
+Client 7 dataset size: 2700
+Round 36: Client 7 tempos: treino=9.65s, comm_rede=0.03s, client_overhead=6.22s, server_proc=0.03s
+Client 10 dataset size: 2417
+Round 36: Client 10 tempos: treino=10.41s, comm_rede=0.03s, client_overhead=7.70s, server_proc=0.03s
+Client 8 dataset size: 2449
+Round 36: Client 8 tempos: treino=10.45s, comm_rede=0.02s, client_overhead=7.67s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 36: Client 6 tempos: treino=15.67s, comm_rede=0.03s, client_overhead=7.98s, server_proc=0.04s
+Round 36 duration: 23.72 seconds
+Client updates length: 5
+Round 36: Aggregating 5 updates
+Round 36: G-orig: 9.98% (loss=3.3052) | G-drift: 59.57% (loss=1.5006) | C-mix: 59.55% (loss=1.4899)
+Round 36: Aux Simple Avg Acc (from clients): 45.39%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 36: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 36: Notified 20 clients.
+
+--- Round 37/50 ---
+Round 37: Clientes selecionados (5/20): [3, 6, 8, 9, 13]
+Round 37: Handling client 8
+Round 37: Handling client 3
+Round 37: Handling client 9
+Round 37: Handling client 13
+Round 37: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 37: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 37: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 37: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 37: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 37: Sent global model to client 13
+Client 8 dataset size: 2449
+Round 37: Client 8 tempos: treino=10.60s, comm_rede=0.03s, client_overhead=6.41s, server_proc=0.03s
+Client 3 dataset size: 2060
+Round 37: Client 3 tempos: treino=12.81s, comm_rede=0.02s, client_overhead=7.33s, server_proc=0.03s
+Client 9 dataset size: 2509
+Round 37: Client 9 tempos: treino=15.16s, comm_rede=0.03s, client_overhead=7.29s, server_proc=0.04s
+Client 6 dataset size: 3714
+Round 37: Client 6 tempos: treino=14.87s, comm_rede=0.02s, client_overhead=7.67s, server_proc=0.04s
+Client 13 dataset size: 2746
+Round 37: Client 13 tempos: treino=16.57s, comm_rede=0.04s, client_overhead=7.09s, server_proc=0.05s
+Round 37 duration: 23.74 seconds
+Client updates length: 5
+Round 37: Aggregating 5 updates
+Round 37: G-orig: 6.31% (loss=3.7628) | G-drift: 65.39% (loss=1.2811) | C-mix: 65.30% (loss=1.2736)
+Round 37: Aux Simple Avg Acc (from clients): 64.46%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 37: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 37: Notified 20 clients.
+
+--- Round 38/50 ---
+Round 38: Clientes selecionados (5/20): [4, 5, 7, 11, 14]
+Round 38: Handling client 7
+Round 38: Handling client 5
+Round 38: Handling client 4
+Round 38: Handling client 11
+Round 38: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 38: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 38: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 38: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 38: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 38: Sent global model to client 4
+Client 4 dataset size: 1728
+Round 38: Client 4 tempos: treino=5.84s, comm_rede=0.03s, client_overhead=4.26s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 38: Client 14 tempos: treino=11.49s, comm_rede=0.02s, client_overhead=7.51s, server_proc=0.03s
+Client 11 dataset size: 2485
+Round 38: Client 11 tempos: treino=11.15s, comm_rede=0.03s, client_overhead=7.86s, server_proc=0.03s
+Client 7 dataset size: 2700
+Round 38: Client 7 tempos: treino=12.18s, comm_rede=0.03s, client_overhead=7.89s, server_proc=0.05s
+Client 5 dataset size: 2958
+Round 38: Client 5 tempos: treino=13.23s, comm_rede=0.02s, client_overhead=7.98s, server_proc=0.04s
+Round 38 duration: 21.27 seconds
+Client updates length: 5
+Round 38: Aggregating 5 updates
+Round 38: G-orig: 2.05% (loss=4.3445) | G-drift: 71.44% (loss=1.0954) | C-mix: 72.05% (loss=1.0730)
+Round 38: Aux Simple Avg Acc (from clients): 63.59%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 38: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 38: Notified 20 clients.
+
+--- Round 39/50 ---
+Round 39: Clientes selecionados (5/20): [8, 11, 12, 13, 17]
+Round 39: Handling client 8
+Round 39: Handling client 17
+Round 39: Handling client 12
+Round 39: Handling client 11
+Round 39: Handling client 13
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 39: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 39: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 39: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 39: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 39: Sent global model to client 13
+Client 12 dataset size: 2235
+Round 39: Client 12 tempos: treino=9.87s, comm_rede=0.02s, client_overhead=4.95s, server_proc=0.04s
+Client 8 dataset size: 2449
+Round 39: Client 8 tempos: treino=10.32s, comm_rede=0.02s, client_overhead=5.05s, server_proc=0.03s
+Client 11 dataset size: 2485
+Round 39: Client 11 tempos: treino=15.82s, comm_rede=0.02s, client_overhead=7.71s, server_proc=0.05s
+Client 17 dataset size: 2623
+Round 39: Client 17 tempos: treino=16.45s, comm_rede=0.03s, client_overhead=7.74s, server_proc=0.04s
+Client 13 dataset size: 2746
+Round 39: Client 13 tempos: treino=17.21s, comm_rede=0.02s, client_overhead=7.68s, server_proc=0.05s
+Round 39 duration: 24.97 seconds
+Client updates length: 5
+Round 39: Aggregating 5 updates
+Round 39: G-orig: 0.74% (loss=4.4419) | G-drift: 74.00% (loss=0.9825) | C-mix: 74.32% (loss=0.9690)
+Round 39: Aux Simple Avg Acc (from clients): 69.72%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 39: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 39: Notified 20 clients.
+
+--- Round 40/50 ---
+Round 40: Clientes selecionados (5/20): [10, 12, 14, 15, 16]
+Round 40: Handling client 16
+Round 40: Handling client 15
+Round 40: Handling client 12
+Round 40: Handling client 10
+Round 40: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 40: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 40: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 40: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 40: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 40: Sent global model to client 16
+Client 15 dataset size: 2358
+Round 40: Client 15 tempos: treino=6.52s, comm_rede=0.02s, client_overhead=4.82s, server_proc=0.04s
+Client 16 dataset size: 2071
+Round 40: Client 16 tempos: treino=11.65s, comm_rede=0.03s, client_overhead=8.29s, server_proc=0.05s
+Client 12 dataset size: 2235
+Round 40: Client 12 tempos: treino=12.42s, comm_rede=0.02s, client_overhead=8.67s, server_proc=0.03s
+Client 10 dataset size: 2417
+Round 40: Client 10 tempos: treino=13.43s, comm_rede=0.03s, client_overhead=8.62s, server_proc=0.05s
+Client 14 dataset size: 3774
+Round 40: Client 14 tempos: treino=18.82s, comm_rede=0.03s, client_overhead=8.61s, server_proc=0.04s
+Round 40 duration: 27.50 seconds
+Client updates length: 5
+Round 40: Aggregating 5 updates
+Round 40: G-orig: 51.21% (loss=1.6669) | G-drift: 21.02% (loss=2.6680) | C-mix: 51.83% (loss=1.6463)
+Round 40: Aux Simple Avg Acc (from clients): 0.88%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 40: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 40: Notified 20 clients.
+
+--- Round 41/50 ---
+Round 41: Clientes selecionados (5/20): [4, 5, 9, 15, 16]
+Round 41: Handling client 16
+Round 41: Handling client 15
+Round 41: Handling client 5
+Round 41: Handling client 4
+Round 41: Handling client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 41: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 41: Sent global model to client 16
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 41: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 41: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 41: Sent global model to client 4
+Client 4 dataset size: 1728
+Round 41: Client 4 tempos: treino=7.27s, comm_rede=0.03s, client_overhead=4.08s, server_proc=0.05s
+Client 16 dataset size: 2071
+Round 41: Client 16 tempos: treino=8.81s, comm_rede=0.02s, client_overhead=4.13s, server_proc=0.04s
+Client 15 dataset size: 2358
+Round 41: Client 15 tempos: treino=14.77s, comm_rede=0.02s, client_overhead=7.86s, server_proc=0.03s
+Client 9 dataset size: 2509
+Round 41: Client 9 tempos: treino=15.90s, comm_rede=0.03s, client_overhead=7.60s, server_proc=0.04s
+Client 5 dataset size: 2958
+Round 41: Client 5 tempos: treino=17.79s, comm_rede=0.03s, client_overhead=7.59s, server_proc=0.04s
+Round 41 duration: 25.45 seconds
+Client updates length: 5
+Round 41: Aggregating 5 updates
+Round 41: G-orig: 66.76% (loss=1.2804) | G-drift: 7.28% (loss=3.3812) | C-mix: 67.42% (loss=1.2535)
+Round 41: Aux Simple Avg Acc (from clients): 55.45%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 41: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 41: Notified 20 clients.
+
+--- Round 42/50 ---
+Round 42: Clientes selecionados (5/20): [2, 4, 12, 14, 15]
+Round 42: Handling client 15
+Round 42: Handling client 12
+Round 42: Handling client 4
+Round 42: Handling client 2
+Round 42: Handling client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 42: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 42: Sent global model to client 14
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 42: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 42: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 42: Sent global model to client 12
+Client 15 dataset size: 2358
+Round 42: Client 15 tempos: treino=6.45s, comm_rede=0.03s, client_overhead=4.71s, server_proc=0.04s
+Client 2 dataset size: 1507
+Round 42: Client 2 tempos: treino=8.17s, comm_rede=0.03s, client_overhead=6.64s, server_proc=0.05s
+Client 4 dataset size: 1728
+Round 42: Client 4 tempos: treino=9.29s, comm_rede=0.02s, client_overhead=6.92s, server_proc=0.05s
+Client 12 dataset size: 2235
+Round 42: Client 12 tempos: treino=11.70s, comm_rede=0.03s, client_overhead=7.04s, server_proc=0.06s
+Client 14 dataset size: 3774
+Round 42: Client 14 tempos: treino=16.50s, comm_rede=0.03s, client_overhead=8.37s, server_proc=0.04s
+Round 42 duration: 24.95 seconds
+Client updates length: 5
+Round 42: Aggregating 5 updates
+Round 42: G-orig: 65.64% (loss=1.3106) | G-drift: 4.09% (loss=4.2198) | C-mix: 66.32% (loss=1.2919)
+Round 42: Aux Simple Avg Acc (from clients): 68.01%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 42: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 42: Notified 20 clients.
+
+--- Round 43/50 ---
+Round 43: Clientes selecionados (5/20): [0, 1, 9, 10, 15]
+Round 43: Handling client 1
+Round 43: Handling client 15
+Round 43: Handling client 0
+Round 43: Handling client 9
+Round 43: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 43: Sent global model to client 1
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 43: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 43: Sent global model to client 15
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 43: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 43: Sent global model to client 9
+Client 10 dataset size: 2417
+Round 43: Client 10 tempos: treino=10.36s, comm_rede=0.03s, client_overhead=5.71s, server_proc=0.03s
+Client 0 dataset size: 2891
+Round 43: Client 0 tempos: treino=12.02s, comm_rede=0.04s, client_overhead=5.89s, server_proc=0.05s
+Client 15 dataset size: 2358
+Round 43: Client 15 tempos: treino=14.96s, comm_rede=0.03s, client_overhead=7.32s, server_proc=0.04s
+Client 1 dataset size: 2445
+Round 43: Client 1 tempos: treino=15.49s, comm_rede=0.02s, client_overhead=7.17s, server_proc=0.03s
+Client 9 dataset size: 2509
+Round 43: Client 9 tempos: treino=15.71s, comm_rede=0.03s, client_overhead=7.19s, server_proc=0.05s
+Round 43 duration: 22.97 seconds
+Client updates length: 5
+Round 43: Aggregating 5 updates
+Round 43: G-orig: 72.64% (loss=1.0685) | G-drift: 1.72% (loss=4.4212) | C-mix: 72.80% (loss=1.0569)
+Round 43: Aux Simple Avg Acc (from clients): 66.54%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 43: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 43: Notified 20 clients.
+
+--- Round 44/50 ---
+Round 44: Clientes selecionados (5/20): [3, 6, 7, 10, 19]
+Round 44: Handling client 7
+Round 44: Handling client 19
+Round 44: Handling client 3
+Round 44: Handling client 10
+Round 44: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 44: Sent global model to client 7
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 44: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 44: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 44: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 44: Sent global model to client 6
+Client 10 dataset size: 2417
+Round 44: Client 10 tempos: treino=8.06s, comm_rede=0.03s, client_overhead=5.89s, server_proc=0.03s
+Client 3 dataset size: 2060
+Round 44: Client 3 tempos: treino=9.28s, comm_rede=0.03s, client_overhead=6.90s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 44: Client 19 tempos: treino=11.73s, comm_rede=0.02s, client_overhead=7.13s, server_proc=0.04s
+Client 7 dataset size: 2700
+Round 44: Client 7 tempos: treino=11.93s, comm_rede=0.02s, client_overhead=7.14s, server_proc=0.03s
+Client 6 dataset size: 3714
+Round 44: Client 6 tempos: treino=11.92s, comm_rede=0.03s, client_overhead=7.37s, server_proc=0.05s
+Round 44 duration: 19.36 seconds
+Client updates length: 5
+Round 44: Aggregating 5 updates
+Round 44: G-orig: 75.10% (loss=0.9608) | G-drift: 0.15% (loss=4.7213) | C-mix: 75.52% (loss=0.9452)
+Round 44: Aux Simple Avg Acc (from clients): 73.76%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 44: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 44: Notified 20 clients.
+
+--- Round 45/50 ---
+Round 45: Clientes selecionados (5/20): [0, 2, 10, 17, 19]
+Round 45: Handling client 17
+Round 45: Handling client 19
+Round 45: Handling client 0
+Round 45: Handling client 2
+Round 45: Handling client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 45: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 45: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 45: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 45: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 45: Sent global model to client 10
+Client 2 dataset size: 1507
+Round 45: Client 2 tempos: treino=8.81s, comm_rede=0.03s, client_overhead=5.95s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 45: Client 19 tempos: treino=11.62s, comm_rede=0.02s, client_overhead=6.19s, server_proc=0.04s
+Client 17 dataset size: 2623
+Round 45: Client 17 tempos: treino=11.75s, comm_rede=0.02s, client_overhead=6.09s, server_proc=0.05s
+Client 10 dataset size: 2417
+Round 45: Client 10 tempos: treino=13.44s, comm_rede=0.03s, client_overhead=6.08s, server_proc=0.05s
+Client 0 dataset size: 2891
+Round 45: Client 0 tempos: treino=15.09s, comm_rede=0.02s, client_overhead=6.28s, server_proc=0.05s
+Round 45 duration: 21.44 seconds
+Client updates length: 5
+Round 45: Aggregating 5 updates
+Round 45: G-orig: 24.38% (loss=2.3426) | G-drift: 54.12% (loss=1.4538) | C-mix: 54.02% (loss=1.4482)
+Round 45: Aux Simple Avg Acc (from clients): 0.14%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 45: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 45: Notified 20 clients.
+
+--- Round 46/50 ---
+Round 46: Clientes selecionados (5/20): [3, 4, 6, 8, 17]
+Round 46: Handling client 8
+Round 46: Handling client 17
+Round 46: Handling client 3
+Round 46: Handling client 4
+Round 46: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 46: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 46: Sent global model to client 3
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 46: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 46: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 46: Sent global model to client 6
+Client 3 dataset size: 2060
+Round 46: Client 3 tempos: treino=7.28s, comm_rede=0.04s, client_overhead=5.13s, server_proc=0.04s
+Client 4 dataset size: 1728
+Round 46: Client 4 tempos: treino=7.36s, comm_rede=0.02s, client_overhead=5.87s, server_proc=0.05s
+Client 17 dataset size: 2623
+Round 46: Client 17 tempos: treino=9.18s, comm_rede=0.03s, client_overhead=5.76s, server_proc=0.03s
+Client 8 dataset size: 2449
+Round 46: Client 8 tempos: treino=10.39s, comm_rede=0.02s, client_overhead=6.47s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 46: Client 6 tempos: treino=14.27s, comm_rede=0.03s, client_overhead=7.69s, server_proc=0.05s
+Round 46 duration: 22.05 seconds
+Client updates length: 5
+Round 46: Aggregating 5 updates
+Round 46: G-orig: 6.72% (loss=3.6895) | G-drift: 64.90% (loss=1.3132) | C-mix: 65.04% (loss=1.3049)
+Round 46: Aux Simple Avg Acc (from clients): 61.95%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 46: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 46: Notified 20 clients.
+
+--- Round 47/50 ---
+Round 47: Clientes selecionados (5/20): [0, 5, 6, 10, 12]
+Round 47: Handling client 12
+Round 47: Handling client 0
+Round 47: Handling client 5
+Round 47: Handling client 10
+Round 47: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 47: Sent global model to client 10
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 47: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 47: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 47: Sent global model to client 0
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 47: Sent global model to client 6
+Client 5 dataset size: 2958
+Round 47: Client 5 tempos: treino=9.92s, comm_rede=0.03s, client_overhead=5.98s, server_proc=0.04s
+Client 12 dataset size: 2235
+Round 47: Client 12 tempos: treino=17.47s, comm_rede=0.02s, client_overhead=9.96s, server_proc=0.04s
+Client 10 dataset size: 2417
+Round 47: Client 10 tempos: treino=18.81s, comm_rede=0.03s, client_overhead=10.08s, server_proc=0.03s
+Client 0 dataset size: 2891
+Round 47: Client 0 tempos: treino=21.64s, comm_rede=0.02s, client_overhead=9.40s, server_proc=0.05s
+Client 6 dataset size: 3714
+Round 47: Client 6 tempos: treino=25.76s, comm_rede=0.03s, client_overhead=8.70s, server_proc=0.05s
+Round 47 duration: 34.55 seconds
+Client updates length: 5
+Round 47: Aggregating 5 updates
+Round 47: G-orig: 2.41% (loss=4.2229) | G-drift: 70.08% (loss=1.1799) | C-mix: 70.41% (loss=1.1674)
+Round 47: Aux Simple Avg Acc (from clients): 69.75%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 47: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 47: Notified 20 clients.
+
+--- Round 48/50 ---
+Round 48: Clientes selecionados (5/20): [2, 4, 8, 11, 19]
+Round 48: Handling client 8
+Round 48: Handling client 19
+Round 48: Handling client 4
+Round 48: Handling client 11
+Round 48: Handling client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 48: Sent global model to client 4
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 48: Sent global model to client 8
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 48: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 48: Sent global model to client 19
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 48: Sent global model to client 11
+Client 2 dataset size: 1507
+Round 48: Client 2 tempos: treino=6.33s, comm_rede=0.04s, client_overhead=5.06s, server_proc=0.04s
+Client 4 dataset size: 1728
+Round 48: Client 4 tempos: treino=7.67s, comm_rede=0.03s, client_overhead=4.96s, server_proc=0.03s
+Client 11 dataset size: 2485
+Round 48: Client 11 tempos: treino=9.12s, comm_rede=0.02s, client_overhead=5.78s, server_proc=0.06s
+Client 8 dataset size: 2449
+Round 48: Client 8 tempos: treino=10.19s, comm_rede=0.03s, client_overhead=5.12s, server_proc=0.04s
+Client 19 dataset size: 2623
+Round 48: Client 19 tempos: treino=9.40s, comm_rede=0.02s, client_overhead=6.02s, server_proc=0.05s
+Round 48 duration: 15.49 seconds
+Client updates length: 5
+Round 48: Aggregating 5 updates
+Round 48: G-orig: 0.72% (loss=4.5173) | G-drift: 77.19% (loss=0.9068) | C-mix: 77.33% (loss=0.8975)
+Round 48: Aux Simple Avg Acc (from clients): 61.93%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 48: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 48: Notified 20 clients.
+
+--- Round 49/50 ---
+Round 49: Clientes selecionados (5/20): [2, 6, 9, 11, 15]
+Round 49: Handling client 15
+Round 49: Handling client 11
+Round 49: Handling client 2
+Round 49: Handling client 9
+Round 49: Handling client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 49: Sent global model to client 9
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 49: Sent global model to client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 49: Sent global model to client 11
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 49: Sent global model to client 6
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 49: Sent global model to client 15
+Client 2 dataset size: 1507
+Round 49: Client 2 tempos: treino=6.34s, comm_rede=0.03s, client_overhead=4.11s, server_proc=0.04s
+Client 6 dataset size: 3714
+Round 49: Client 6 tempos: treino=13.56s, comm_rede=0.03s, client_overhead=7.63s, server_proc=0.05s
+Client 15 dataset size: 2358
+Round 49: Client 15 tempos: treino=15.13s, comm_rede=0.03s, client_overhead=7.29s, server_proc=0.06s
+Client 11 dataset size: 2485
+Round 49: Client 11 tempos: treino=15.87s, comm_rede=0.03s, client_overhead=7.20s, server_proc=0.05s
+Client 9 dataset size: 2509
+Round 49: Client 9 tempos: treino=15.88s, comm_rede=0.02s, client_overhead=7.26s, server_proc=0.04s
+Round 49 duration: 23.20 seconds
+Client updates length: 5
+Round 49: Aggregating 5 updates
+Round 49: G-orig: 0.87% (loss=4.8798) | G-drift: 74.31% (loss=0.9611) | C-mix: 74.56% (loss=0.9543)
+Round 49: Aux Simple Avg Acc (from clients): 77.79%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 49: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 49: Notified 20 clients.
+
+--- Round 50/50 ---
+Round 50: Clientes selecionados (5/20): [2, 5, 12, 17, 18]
+Round 50: Handling client 17
+Round 50: Handling client 18
+Round 50: Handling client 12
+Round 50: Handling client 5
+Round 50: Handling client 2
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 50: Sent global model to client 12
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 50: Sent global model to client 17
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 50: Sent global model to client 18
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 50: Sent global model to client 5
+Tamanho antes: 2.58 MB | Tamanho depois: 0.70 MB | Economia: 1.88 MB
+Round 50: Sent global model to client 2
+Client 2 dataset size: 1507
+Round 50: Client 2 tempos: treino=6.59s, comm_rede=0.03s, client_overhead=4.81s, server_proc=0.05s
+Client 18 dataset size: 1707
+Round 50: Client 18 tempos: treino=7.52s, comm_rede=0.03s, client_overhead=4.90s, server_proc=0.05s
+Client 12 dataset size: 2235
+Round 50: Client 12 tempos: treino=9.35s, comm_rede=0.02s, client_overhead=5.06s, server_proc=0.03s
+Client 17 dataset size: 2623
+Round 50: Client 17 tempos: treino=9.41s, comm_rede=0.03s, client_overhead=6.26s, server_proc=0.04s
+Client 5 dataset size: 2958
+Round 50: Client 5 tempos: treino=10.41s, comm_rede=0.02s, client_overhead=6.63s, server_proc=0.05s
+Round 50 duration: 17.11 seconds
+Client updates length: 5
+Round 50: Aggregating 5 updates
+Round 50: G-orig: 53.48% (loss=1.5603) | G-drift: 22.24% (loss=2.6428) | C-mix: 53.95% (loss=1.5458)
+Round 50: Aux Simple Avg Acc (from clients): 0.24%
+Size Trainable Adapters: 2.54 MB | Trainable Params: 666,724
+Round 50: γ distribution: min=1.000, max=1.000, avg=1.000
+Round 50: Notified 20 clients.
+
+Training completed after 50 rounds!
+All client connections closed.
+Creating converter from 5 to 3
+vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.11.self_attn.q_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.11.self_attn.k_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.11.self_attn.v_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.base_layer: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 768]), FLOPs: 1,179,648
+vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.lora_A.default: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 8]), FLOPs: 12,280
+vision_model.base_model.model.encoder.layers.11.self_attn.out_proj.lora_B.default: torch.Size([1, 50, 8]) -> torch.Size([1, 50, 768]), FLOPs: 11,520
+vision_model.base_model.model.encoder.layers.11.mlp.fc1: torch.Size([1, 50, 768]) -> torch.Size([1, 50, 3072]), FLOPs: 4,718,592
+vision_model.base_model.model.encoder.layers.11.mlp.fc2: torch.Size([1, 50, 3072]) -> torch.Size([1, 50, 768]), FLOPs: 4,718,592
+classifier: torch.Size([1, 768]) -> torch.Size([1, 100]), FLOPs: 153,600
+
+==================================================
+TOTAL FLOPs: 402,376,320 (0.40 GFLOPs)
+==================================================
+close.started
+close.complete

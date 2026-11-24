@@ -1,0 +1,494 @@
+Uninstalled 1 package in 1ms
+Installed 1 package in 3ms
+Seed determinística do cliente configurada: 60
+Device set to: cuda
+=== Federated Learning Client ===
+Host: localhost:9500
+Dataset: Cifar100_astra_a0.1_s42_label_swap_dcall
+Client: 18 | PaCA: 12
+Rounds: 50
+Batch size: 8 | LR: 0.01
+=================================
+connect_tcp.started host='huggingface.co' port=443 local_address=None timeout=10 socket_options=None
+connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e86b23bf4d0>
+start_tls.started ssl_context=<ssl.SSLContext object at 0x7e86b2414290> server_hostname='huggingface.co' timeout=10
+start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e86b241ded0>
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'260'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:43 GMT'), (b'Location', b'/api/resolve-cache/models/openai/clip-vit-base-patch32/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268/config.json?%2Fopenai%2Fclip-vit-base-patch32%2Fresolve%2Fmain%2Fconfig.json=&etag=%22a2a88b96561196777ca173b15309ea859f4d2ce0%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047933-1f32a08b60c64fbc2b67c283;52563a62-5a08-4b37-9d35-ce632e8627e3'), (b'RateLimit', b'"resolvers";r=2976;t=185'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-Size', b'4186'), (b'X-Linked-ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'1uIzLcsCTHGV3xdHQ0qMHE6nai3aFSSzqd4qAix5mP6iy5j1OYmcrw=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'4186'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 23 Jun 2026 08:35:04 GMT'), (b'ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3a4538-26c4eb030b9768987b46e598;3e693e98-c727-4982-8fa1-6f078fc82945'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'impQa_0lGiNBoxa6yOlTajHzlGrbj_qcXU5vhr1oX570e90lHecqAQ=='), (b'Age', b'13251580'), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 307, b'Temporary Redirect', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'260'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:44 GMT'), (b'Location', b'/api/resolve-cache/models/openai/clip-vit-base-patch32/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268/config.json?%2Fopenai%2Fclip-vit-base-patch32%2Fresolve%2Fmain%2Fconfig.json=&etag=%22a2a88b96561196777ca173b15309ea859f4d2ce0%22'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047934-1f302b9025549f0b37440fb7;427df31e-1976-4003-872d-3a18716c7c28'), (b'RateLimit', b'"resolvers";r=2966;t=184'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'X-Linked-Size', b'4186'), (b'X-Linked-ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'2Yn0gE8R_N_Hz1w9yfKVVJFi2Zw6cThK2yCao34uRa8JveGqzy2N8w=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'4186'), (b'Connection', b'keep-alive'), (b'Date', b'Tue, 23 Jun 2026 08:35:04 GMT'), (b'ETag', b'"a2a88b96561196777ca173b15309ea859f4d2ce0"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6a3a4538-26c4eb030b9768987b46e598;3e693e98-c727-4982-8fa1-6f078fc82945'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-Hub-Cache', b'HIT'), (b'Content-Disposition', b'inline; filename*=UTF-8\'\'config.json; filename="config.json";'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Vary', b'Origin'), (b'X-Cache', b'Hit from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'-4tfE101uj93nckRWGb-LA_eMrQ2DqDA7sDvVIRmYtcUjZPLEFE6gQ=='), (b'Age', b'13251580'), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:44 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047934-5f6716c91cda52a7536e5b13;0e406239-5b32-4958-a1ab-94fc89fe2130'), (b'RateLimit', b'"resolvers";r=2955;t=184'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'EbnVEnESVYcLUpFAhtpv9noB9GhzyVB4oiGRLxyvGzJjtQsTzGc_1w=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:44 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047934-3d158ca00b8721566da78488;125cbe02-e217-42c4-af1a-5ddaa2c48f38'), (b'RateLimit', b'"resolvers";r=2943;t=184'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'SeeS5tHNnD3nDqwpor6ZuoHr11rkcaFY7n1rlkhCjKqHkNnDRYSmNw=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 302, b'Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'1161'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:44 GMT'), (b'Location', b'https://us.aws.cdn.hf.co/xet-bridge-us/621ffdc136468d709f17ea62/b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62?response-content-type=application%2Foctet-stream&xip=k52R0OuU6rY&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pytorch_model.bin%3B+filename%3D%22pytorch_model.bin%22%3B&user_id=public&Expires=1795458884&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkYzEzNjQ2OGQ3MDlmMTdlYTYyL2I5MzA5ZGJhZGRlMDA2NzliNzFlNmNmZDBkMzg3Yjc5ZTBiMjlkMjIyMTMzMjQwOTg2ZWFmOWI0ZTNjZDllNjJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZvY3RldC1zdHJlYW0meGlwPWs1MlIwT3VVNnJZJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdweXRvcmNoX21vZGVsLmJpbiUzQitmaWxlbmFtZSUzRCUyMnB5dG9yY2hfbW9kZWwuYmluJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTU0NTg4ODR9fX1dfQ__&Signature=MEUCIQDA%7EODXrNyyrCFRmhxtxSNzNRxEEfRyxWhGKHsNpVENrQIgeAPR%7ErIPEQrMgz0WxYXdp41L%7E5bGWYbiOZdKP8PeAEY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047934-202a75c12877b7d962b94573;44a09460-415c-4d7c-a329-76ff5ba9df98'), (b'RateLimit', b'"resolvers";r=2934;t=184'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'X-Linked-Size', b'605247071'), (b'X-Linked-ETag', b'"a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f"'), (b'Cache-Control', b'no-store'), (b'X-Xet-Hash', b'b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62'), (b'Link', b'<https://huggingface.co/api/models/openai/clip-vit-base-patch32/xet-read-token/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/b9309dbadde00679b71e6cfd0d387b79e0b29d222133240986eaf9b4e3cd9e62>; rel="xet-reconstruction-info"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'z4CXGyBNgg952H_z-hSk1e57wXr5biVezawMvv-KHAZDxAoAL4HUIQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:44 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047934-46ee883553d2bbbc5cb4f465;b9864a13-50c6-47f6-b45f-881c80c6212e'), (b'RateLimit', b'"resolvers";r=2922;t=184'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'uFvwqDV8ZFEiHCWuYEjTgCbPg_bYsp6eQ4XPyQJVYcQwEjBxEp-erQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 60123.64it/s]
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:45 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"1337-VgxgTbvI2j/YETU3TVOdZw6LP/k"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047935-43aec51a4d19ec507e26860a;1a2063af-b8c5-4014-a853-7be8850edd75'), (b'RateLimit', b'"api";r=478;t=183'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'c65TiwrPiF84KksR9Mk_Kxv14WNj3v2ZMN9Zq7AzB8-IEqoe7gKMoQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+Local epochs sobrescrito via CLI: 1
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:45 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"10b0-SplBnLfxmeTuDvIaubBW5njOZQo"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047935-6eff79ae3f9d32500d80a9de;abcf74ec-309e-4034-96b8-9782d0798659'), (b'RateLimit', b'"api";r=473;t=183'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Total-Count', b'15'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'oKcxzBQpW8uXtTsFs_Vq_vDAfsgwJ3bVmiofCGIWWBckQ-WuffjzhQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:45 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"862b-3Xr3R9o/N0y7YR5btP73vphQiLw"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047935-4f399635792106447a31638c;6b65eb99-2274-4387-8f33-4c7467b7bd88'), (b'RateLimit', b'"api";r=463;t=183'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'5IzFIc_fPawzum8XgplgNP33qFrDeoe45Oo2zWTBU5IY7ZIO4lAD3g=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+Data loaded successfully (Phase: phase1) - Train batches: 214, Test batches: 71
+[CONCEPT DRIFT ATIVADO] Cliente 18 configurado para drift ABRUPT a partir do Round 10
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'GET']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'GET']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'GET']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:45 GMT'), (b'content-encoding', b'gzip'), (b'ETag', b'W/"1475-5ZIrwPTNjDrCa8lYTzub3TfY05c"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047935-27395a434a132f7443559177;3cb04714-4797-48e2-b69a-5bc22c3adeb7'), (b'RateLimit', b'"api";r=454;t=183'), (b'RateLimit-Policy', b'"fixed window";"api";q=500;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'vary', b'Accept-Encoding'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Total-Count', b'16'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'YH31DR6W8kpqqpjlnpGSzUliRip3IGD5_nz51lmjOles8FyoyeQbVQ=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'GET']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 404, b'Not Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'15'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:45 GMT'), (b'ETag', b'W/"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ"'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047935-65fa68f539e2fd4b4b115cfc;05c7172d-2872-4089-8028-eaee1ccbdfb2'), (b'RateLimit', b'"resolvers";r=2859;t=183'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'c237dc49a33fc61debc9276459120b7eac67e7ef'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'MISS'), (b'X-Error-Code', b'EntryNotFound'), (b'X-Error-Message', b'Entry not found'), (b'X-Cache', b'Error from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'9e8FZMarS87UBg7dGt1XGWUaUuGNaPLpLkVU294vBgOXf1CQ9Fb28g=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+send_request_headers.started request=<Request [b'HEAD']>
+send_request_headers.complete
+send_request_body.started request=<Request [b'HEAD']>
+send_request_body.complete
+receive_response_headers.started request=<Request [b'HEAD']>
+receive_response_headers.complete return_value=(b'HTTP/1.1', 302, b'Found', [(b'Content-Type', b'text/plain; charset=utf-8'), (b'Content-Length', b'1040'), (b'Connection', b'keep-alive'), (b'Date', b'Mon, 23 Nov 2026 17:34:46 GMT'), (b'Location', b'https://us.aws.cdn.hf.co/xet-bridge-us/621ffdc136468d709f17ea62/d874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47?xip=k52R0OuU6rY&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&user_id=public&Expires=1795458886&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkYzEzNjQ2OGQ3MDlmMTdlYTYyL2Q4NzRlMWQ3NTc0OTBlMDc1MzJlNTUzMzY5MWVlNDQ2N2YwM2UxOTA5ZjJhMDgxMDVlMzEzYjkyZTJiYWVmNDdcXD94aXA9azUyUjBPdVU2clkmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN21vZGVsLnNhZmV0ZW5zb3JzJTNCK2ZpbGVuYW1lJTNEJTIybW9kZWwuc2FmZXRlbnNvcnMlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5NTQ1ODg4Nn19fV19&Signature=MEUCIQDPtRuwMtmxMdOoVRpa16OuXYJ54-lALgUQmRI2E4v7vQIgSOMps7jW1WN5a6m3eM8Iw3zNlEbZSZUz%7EZEYs5KCKDQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256'), (b'X-Powered-By', b'huggingface-moon'), (b'X-Request-Id', b'Root=1-6b047936-7810e7dc0d704fbb4b96f8f8;618668e7-5653-4253-a4c0-a7ad239fab3c'), (b'RateLimit', b'"resolvers";r=2856;t=182'), (b'RateLimit-Policy', b'"fixed window";"resolvers";q=3000;w=300'), (b'cross-origin-opener-policy', b'same-origin'), (b'Referrer-Policy', b'strict-origin-when-cross-origin'), (b'Access-Control-Max-Age', b'86400'), (b'Access-Control-Allow-Origin', b'https://huggingface.co'), (b'Vary', b'Origin, Accept'), (b'Access-Control-Expose-Headers', b'X-Repo-Commit,X-HF-Warning,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash,RateLimit,RateLimit-Policy'), (b'X-Repo-Commit', b'c237dc49a33fc61debc9276459120b7eac67e7ef'), (b'Accept-Ranges', b'bytes'), (b'X-HF-Warning', b'unauthenticated; Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.'), (b'X-Hub-Cache', b'HIT'), (b'X-Linked-Size', b'605157884'), (b'X-Linked-ETag', b'"99d28a652e6ec46629ab7047a0ac82c69b1fe11e0ce672c43af65d3a9a3fc05d"'), (b'Cache-Control', b'no-store'), (b'X-Xet-Hash', b'd874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47'), (b'Link', b'<https://huggingface.co/api/models/openai/clip-vit-base-patch32/xet-read-token/c237dc49a33fc61debc9276459120b7eac67e7ef>; rel="xet-auth", <https://cas-server.xethub.hf.co/v1/reconstructions/d874e1d757490e07532e5533691ee4467f03e1909f2a08105e313b92e2baef47>; rel="xet-reconstruction-info"'), (b'X-Cache', b'Miss from cloudfront'), (b'Via', b'1.1 c9f4f3e03e02bdecbc773d053e3de6d2.cloudfront.net (CloudFront)'), (b'X-Amz-Cf-Pop', b'GIG52-P2'), (b'Alt-Svc', b'h3=":443"; ma=86400'), (b'X-Amz-Cf-Id', b'KMTAwlWDjQvEw6d8BqsYzUpsBy5YUKhLRNmJawPmAvRVeqIC0phv2g=='), (b'Strict-Transport-Security', b'max-age=31536000')])
+receive_response_body.started request=<Request [b'HEAD']>
+receive_response_body.complete
+response_closed.started
+response_closed.complete
+Connected to server localhost:9500
+
+--- Round 1/50 ---
+[RAM] Client 18 | Round 1 | INÍCIO_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+Client 18: Round 1 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 1 | IDLE_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+
+--- Round 2/50 ---
+[RAM] Client 18 | Round 2 | INÍCIO_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+Client 18: Round 2 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 2 | IDLE_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+
+--- Round 3/50 ---
+[RAM] Client 18 | Round 3 | INÍCIO_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+Client 18: Round 3 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 3 | IDLE_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+
+--- Round 4/50 ---
+[RAM] Client 18 | Round 4 | INÍCIO_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+Client 18: Round 4 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 4 | IDLE_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+
+--- Round 5/50 ---
+[RAM] Client 18 | Round 5 | INÍCIO_ROUND: RSS=1068.3 MB, VMS=66805.3 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 5): operando em PHASE2
+=================================================================
+[RAM] Client 18 | Round 5 | PÓS_DRIFT_PHASE2: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 5 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 5 | IDLE_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+
+--- Round 6/50 ---
+[RAM] Client 18 | Round 6 | INÍCIO_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+Client 18: Round 6 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 6 | IDLE_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+
+--- Round 7/50 ---
+[RAM] Client 18 | Round 7 | INÍCIO_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+Client 18: Round 7 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 7 | IDLE_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+
+--- Round 8/50 ---
+[RAM] Client 18 | Round 8 | INÍCIO_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+Client 18: Round 8 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 8 | IDLE_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+
+--- Round 9/50 ---
+[RAM] Client 18 | Round 9 | INÍCIO_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+Client 18: Round 9 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 9 | IDLE_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+
+--- Round 10/50 ---
+[RAM] Client 18 | Round 10 | INÍCIO_ROUND: RSS=1068.4 MB, VMS=66805.4 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 10): operando em PHASE1
+=================================================================
+[RAM] Client 18 | Round 10 | PÓS_DRIFT_PHASE1: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 10 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 10 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 11/50 ---
+[RAM] Client 18 | Round 11 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 11 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 11 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 12/50 ---
+[RAM] Client 18 | Round 12 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 12 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 12 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 13/50 ---
+[RAM] Client 18 | Round 13 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 13 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 13 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 14/50 ---
+[RAM] Client 18 | Round 14 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 14 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 14 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 15/50 ---
+[RAM] Client 18 | Round 15 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 15): operando em PHASE2
+=================================================================
+[RAM] Client 18 | Round 15 | PÓS_DRIFT_PHASE2: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 15 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 15 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 16/50 ---
+[RAM] Client 18 | Round 16 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Client 18: Round 16 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 16 | IDLE_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+
+--- Round 17/50 ---
+[RAM] Client 18 | Round 17 | INÍCIO_ROUND: RSS=1088.4 MB, VMS=66825.4 MB
+Received global model.
+Client 18: Global Model Test Accuracy: 50.88% | Test Loss: 1.9743
+[DIAG] Parâmetros treináveis neste round: 666,724
+Local Epoch 1/1 - CE Loss: 0.4427 | Sparse Loss: 0.0000
+Local training completed in 7.24s.
+Client 18: Post-Training Test Accuracy: 93.13% | Training Accuracy: 97.72%
+Client 18: Tempos - treino=7.24s, eval=4.68s, quant=0.00s, dequant=0.00s
+Client update sent.
+Ready for next round...
+[RAM] Client 18 | Round 17 | FIM_ROUND_PÓS_GC: RSS=1874.1 MB, VMS=68326.8 MB
+
+--- Round 18/50 ---
+[RAM] Client 18 | Round 18 | INÍCIO_ROUND: RSS=1874.1 MB, VMS=68326.8 MB
+Client 18: Round 18 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 18 | IDLE_ROUND: RSS=1874.1 MB, VMS=68326.8 MB
+
+--- Round 19/50 ---
+[RAM] Client 18 | Round 19 | INÍCIO_ROUND: RSS=1874.1 MB, VMS=68326.8 MB
+Client 18: Round 19 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 19 | IDLE_ROUND: RSS=1874.1 MB, VMS=68326.8 MB
+
+--- Round 20/50 ---
+[RAM] Client 18 | Round 20 | INÍCIO_ROUND: RSS=1874.1 MB, VMS=68326.8 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 20): operando em PHASE1
+=================================================================
+[RAM] Client 18 | Round 20 | PÓS_DRIFT_PHASE1: RSS=1898.1 MB, VMS=68350.9 MB
+Client 18: Round 20 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 20 | IDLE_ROUND: RSS=1898.1 MB, VMS=68350.9 MB
+
+--- Round 21/50 ---
+[RAM] Client 18 | Round 21 | INÍCIO_ROUND: RSS=1898.1 MB, VMS=68350.9 MB
+Received global model.
+Client 18: Global Model Test Accuracy: 32.75% | Test Loss: 2.3947
+Local Epoch 1/1 - CE Loss: 0.4429 | Sparse Loss: 0.0000
+Local training completed in 10.04s.
+Client 18: Post-Training Test Accuracy: 94.54% | Training Accuracy: 97.13%
+Client 18: Tempos - treino=10.04s, eval=5.55s, quant=0.00s, dequant=0.00s
+Client update sent.
+Ready for next round...
+[RAM] Client 18 | Round 21 | FIM_ROUND_PÓS_GC: RSS=1898.6 MB, VMS=68350.9 MB
+
+--- Round 22/50 ---
+[RAM] Client 18 | Round 22 | INÍCIO_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+Client 18: Round 22 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 22 | IDLE_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+
+--- Round 23/50 ---
+[RAM] Client 18 | Round 23 | INÍCIO_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+Client 18: Round 23 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 23 | IDLE_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+
+--- Round 24/50 ---
+[RAM] Client 18 | Round 24 | INÍCIO_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+Received global model.
+Client 18: Global Model Test Accuracy: 70.77% | Test Loss: 1.0371
+Local Epoch 1/1 - CE Loss: 0.3004 | Sparse Loss: 0.0000
+Local training completed in 5.64s.
+Client 18: Post-Training Test Accuracy: 94.89% | Training Accuracy: 98.18%
+Client 18: Tempos - treino=5.64s, eval=3.92s, quant=0.00s, dequant=0.00s
+Client update sent.
+Ready for next round...
+[RAM] Client 18 | Round 24 | FIM_ROUND_PÓS_GC: RSS=1898.6 MB, VMS=68350.9 MB
+
+--- Round 25/50 ---
+[RAM] Client 18 | Round 25 | INÍCIO_ROUND: RSS=1898.6 MB, VMS=68350.9 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 25): operando em PHASE2
+=================================================================
+[RAM] Client 18 | Round 25 | PÓS_DRIFT_PHASE2: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 25 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 25 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 26/50 ---
+[RAM] Client 18 | Round 26 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 26 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 26 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 27/50 ---
+[RAM] Client 18 | Round 27 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 27 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 27 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 28/50 ---
+[RAM] Client 18 | Round 28 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 28 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 28 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 29/50 ---
+[RAM] Client 18 | Round 29 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 29 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 29 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 30/50 ---
+[RAM] Client 18 | Round 30 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 30): operando em PHASE1
+=================================================================
+[RAM] Client 18 | Round 30 | PÓS_DRIFT_PHASE1: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 30 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 30 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 31/50 ---
+[RAM] Client 18 | Round 31 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 31 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 31 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 32/50 ---
+[RAM] Client 18 | Round 32 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 32 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 32 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 33/50 ---
+[RAM] Client 18 | Round 33 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 33 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 33 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 34/50 ---
+[RAM] Client 18 | Round 34 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Received global model.
+Client 18: Global Model Test Accuracy: 72.36% | Test Loss: 0.9865
+Local Epoch 1/1 - CE Loss: 0.2659 | Sparse Loss: 0.0000
+Local training completed in 5.79s.
+Client 18: Post-Training Test Accuracy: 91.73% | Training Accuracy: 97.25%
+Client 18: Tempos - treino=5.79s, eval=4.21s, quant=0.00s, dequant=0.00s
+Client update sent.
+Ready for next round...
+[RAM] Client 18 | Round 34 | FIM_ROUND_PÓS_GC: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 35/50 ---
+[RAM] Client 18 | Round 35 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 35): operando em PHASE2
+=================================================================
+[RAM] Client 18 | Round 35 | PÓS_DRIFT_PHASE2: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 35 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 35 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 36/50 ---
+[RAM] Client 18 | Round 36 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 36 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 36 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 37/50 ---
+[RAM] Client 18 | Round 37 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 37 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 37 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 38/50 ---
+[RAM] Client 18 | Round 38 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 38 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 38 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 39/50 ---
+[RAM] Client 18 | Round 39 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 39 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 39 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 40/50 ---
+[RAM] Client 18 | Round 40 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 40): operando em PHASE1
+=================================================================
+[RAM] Client 18 | Round 40 | PÓS_DRIFT_PHASE1: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 40 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 40 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 41/50 ---
+[RAM] Client 18 | Round 41 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 41 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 41 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 42/50 ---
+[RAM] Client 18 | Round 42 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 42 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 42 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 43/50 ---
+[RAM] Client 18 | Round 43 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 43 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 43 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 44/50 ---
+[RAM] Client 18 | Round 44 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 44 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 44 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 45/50 ---
+[RAM] Client 18 | Round 45 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 45): operando em PHASE2
+=================================================================
+[RAM] Client 18 | Round 45 | PÓS_DRIFT_PHASE2: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 45 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 45 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 46/50 ---
+[RAM] Client 18 | Round 46 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 46 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 46 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 47/50 ---
+[RAM] Client 18 | Round 47 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 47 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 47 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 48/50 ---
+[RAM] Client 18 | Round 48 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 48 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 48 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 49/50 ---
+[RAM] Client 18 | Round 49 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+Client 18: Round 49 - NÃO selecionado pelo servidor (idle nesta rodada).
+[RAM] Client 18 | Round 49 | IDLE_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+
+--- Round 50/50 ---
+[RAM] Client 18 | Round 50 | INÍCIO_ROUND: RSS=1899.5 MB, VMS=68351.7 MB
+=================================================================
+[CONCEPT DRIFT] Cliente 18 (Round 50): operando em PHASE1
+=================================================================
+[RAM] Client 18 | Round 50 | PÓS_DRIFT_PHASE1: RSS=1899.5 MB, VMS=68351.7 MB
+Received global model.
+Client 18: Global Model Test Accuracy: 0.35% | Test Loss: 4.8361
+Local Epoch 1/1 - CE Loss: 0.6016 | Sparse Loss: 0.0000
+Local training completed in 7.52s.
+Client 18: Post-Training Test Accuracy: 94.01% | Training Accuracy: 97.89%
+Client 18: Tempos - treino=7.52s, eval=4.90s, quant=0.00s, dequant=0.00s
+Client update sent.
+Ready for next round...
+[RAM] Client 18 | Round 50 | FIM_ROUND_PÓS_GC: RSS=1899.5 MB, VMS=68351.7 MB
+Salvando resultados em: /home/joao/pumadrift/FL_ServerPuma_Drift/src/results/clip_astrafl_cifar100_a0.1_e1_abrupt_drift/client_18_Cifar100_astra_a0.1_s42_label_swap_dcall_lora_rank8_paca12_FedAVG_run1_20261123_143433.h5
+Creating converter from 5 to 3
+
+Training completed!
+close.started
+close.complete
