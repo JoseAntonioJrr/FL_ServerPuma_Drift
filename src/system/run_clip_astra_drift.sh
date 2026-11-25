@@ -1,6 +1,7 @@
 #!/bin/bash
-# Benchmark LoRA-CLIP com Particionamento ASTRA-FL (zero data-leakage)
-# Suporta CIFAR-10 e CIFAR-100, Dirichlet alpha configurável e local_epochs configurável.
+# Benchmark ASTRA-FL sobre LoRA-CLIP + PUMA concept drift (zero data-leakage).
+# Usa --astra (proximal + KD com teacher congelado) no modelo CLIP, mantendo
+# o particionamento ASTRA-FL, Dirichlet alpha configurável e local_epochs configurável.
 #
 # Uso:
 #   ./run_clip_astra_drift.sh [SIMULATIONS] [ROUNDS]
@@ -21,13 +22,18 @@ GRAD_ACCUM="${GRAD_ACCUM:-4}"
 CLIENTS_PER_ROUND="${CLIENTS_PER_ROUND:-5}"
 MAX_CLIENTS="${MAX_CLIENTS:-20}"
 SEED="${SEED:-42}"
+ASTRA_MU="${ASTRA_MU:-0.01}"
+ASTRA_ALPHA="${ASTRA_ALPHA:-0.2}"
+ASTRA_TEMPERATURE="${ASTRA_TEMPERATURE:-3.0}"
+ASTRA_BOOT_ROUNDS="${ASTRA_BOOT_ROUNDS:-10}"
+ASTRA_INTERVAL="${ASTRA_INTERVAL:-2}"
 
 DS_TAG="$(echo "$DATASET" | tr '[:upper:]' '[:lower:]')"
-EXP_ABRUPT="${EXP_ABRUPT:-clip_astra_${DS_TAG}_a${ALPHA}_e${LOCAL_EPOCHS}_abrupt_drift}"
-EXP_GRADUAL="${EXP_GRADUAL:-clip_astra_${DS_TAG}_a${ALPHA}_e${LOCAL_EPOCHS}_gradual_drift}"
+EXP_ABRUPT="${EXP_ABRUPT:-clip_astrafl_${DS_TAG}_a${ALPHA}_e${LOCAL_EPOCHS}_abrupt_drift}"
+EXP_GRADUAL="${EXP_GRADUAL:-clip_astrafl_${DS_TAG}_a${ALPHA}_e${LOCAL_EPOCHS}_gradual_drift}"
 
 echo "================================================================="
-echo " BENCHMARK LoRA-CLIP COM DATASET ASTRA-FL (zero leakage)"
+echo " BENCHMARK ASTRA-FL + LoRA-CLIP + CONCEPT DRIFT (zero leakage)"
 echo " Dataset: $DATASET | alpha=$ALPHA | local_epochs=$LOCAL_EPOCHS"
 echo " Simulações: $SIMULATIONS | Rodadas: $ROUNDS | Clientes: $CLIENTS_PER_ROUND/$MAX_CLIENTS"
 echo " Data/Hora de Início: $(date)"
@@ -49,6 +55,13 @@ echo "================================================================="
     --drift-transform "$DRIFT_TRANSFORM" \
     -d "$DATASET" \
     --model clip \
+    --astra \
+    --astra-mu "$ASTRA_MU" \
+    --astra-alpha "$ASTRA_ALPHA" \
+    --astra-temperature "$ASTRA_TEMPERATURE" \
+    --astra-boot-rounds "$ASTRA_BOOT_ROUNDS" \
+    --astra-interval "$ASTRA_INTERVAL" \
+    --astra-local-epochs "$LOCAL_EPOCHS" \
     --clients "$CLIENTS_PER_ROUND" \
     --max-clients "$MAX_CLIENTS" \
     --batch-size "$BATCH_SIZE" \
@@ -85,6 +98,13 @@ echo "================================================================="
     --drift-transform "$DRIFT_TRANSFORM" \
     -d "$DATASET" \
     --model clip \
+    --astra \
+    --astra-mu "$ASTRA_MU" \
+    --astra-alpha "$ASTRA_ALPHA" \
+    --astra-temperature "$ASTRA_TEMPERATURE" \
+    --astra-boot-rounds "$ASTRA_BOOT_ROUNDS" \
+    --astra-interval "$ASTRA_INTERVAL" \
+    --astra-local-epochs "$LOCAL_EPOCHS" \
     --clients "$CLIENTS_PER_ROUND" \
     --max-clients "$MAX_CLIENTS" \
     --batch-size "$BATCH_SIZE" \

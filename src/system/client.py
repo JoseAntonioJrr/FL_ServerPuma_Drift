@@ -124,8 +124,8 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
         state_dict = dequantization(state_dict)
 
     astra_enabled = bool(astra_config and astra_config.get('enabled'))
-    if astra_enabled and model_type != 'cnn':
-        raise ValueError('ASTRA local training currently supports CNN only')
+    if astra_enabled and model_type not in ('cnn', 'clip', 'slm'):
+        raise ValueError('ASTRA local training currently supports CNN/CLIP/SLM only')
     
     personalized_acc = None  # Inicializa a variável que guardará a acurácia pós-ALA
     
@@ -136,7 +136,7 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
     if model_type in ['clip', 'slm']:
         # FedALA_LoRA só se aplica a CLIP (model_type != 'slm').
         # Evita deepcopy desnecessário do SLM inteiro (~4-6 GB).
-        needs_ala = (alaarg == 0 and round_num >= 2 and model_type != 'slm')
+        needs_ala = (alaarg == 0 and round_num >= 2 and model_type != 'slm' and not astra_enabled)
         
         if needs_ala:
             global_model = copy.deepcopy(model)
@@ -205,10 +205,22 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
         is_sora = run_config["model"]["lora"]["mode"] in ["with_sora_no_schedule", "with_sora_schedule"]
         sparse_lambda = run_config["model"].get("sora", {}).get("sparse_lambda", 0.0) if is_sora else 0.0
         
-        eff_local_epochs = local_epochs if local_epochs is not None else (run_config.get("training", {}).get("epochs", 1) if run_config else 1)
+        # Prioridade: --local-epochs (CLI) > curriculum ASTRA > config do modelo.
+        if local_epochs is not None:
+            eff_local_epochs = local_epochs
+        elif astra_enabled and astra_config is not None:
+            eff_local_epochs = astra_config.get('local_epochs',
+                                                run_config.get("training", {}).get("epochs", 1) if run_config else 1)
+        else:
+            eff_local_epochs = run_config.get("training", {}).get("epochs", 1) if run_config else 1
         accumulation_steps = grad_accum if grad_accum is not None else (run_config.get("training", {}).get("gradient_accumulation_steps", 4) if run_config else 4)
         for ep in range(eff_local_epochs):
-            metrics = train_epoch(model, train_loader, optimizer, sparse_optimizer, sparse_lambda, accumulation_steps=accumulation_steps)
+            metrics = train_epoch(model, train_loader, optimizer, sparse_optimizer, sparse_lambda, accumulation_steps=accumulation_steps,
+                                 astra_reference=reference_params if astra_enabled else None,
+                                 astra_teacher=teacher if astra_enabled else None,
+                                 astra_mu=astra_config.get('mu', 0.0) if astra_enabled and astra_config else 0.0,
+                                 astra_alpha=astra_config.get('alpha', 0.0) if astra_enabled and astra_config else 0.0,
+                                 astra_temperature=astra_config.get('temperature', 3.0) if astra_enabled and astra_config else 3.0)
             logger.info(f"Local Epoch {ep+1}/{eff_local_epochs} - CE Loss: {metrics['ce_loss']:.4f} | Sparse Loss: {metrics['sparse_loss']:.4f}")
     else:
         # --- DIAGNÓSTICO: Contagem de parâmetros treináveis ---

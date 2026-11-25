@@ -1790,8 +1790,8 @@ def parse_args():
 def main():
     args = parse_args()
     if args.astra:
-        if args.model != 'cnn':
-            raise ValueError('ASTRA is currently supported only for --model cnn (not CLIP/SLM)')
+        if args.model not in ('cnn', 'clip', 'slm'):
+            raise ValueError('ASTRA is currently supported only for --model cnn/clip/slm')
         astra_round_config(0, args.rounds, args.astra_boot_rounds,
                            args.astra_interval, args.astra_mu, args.astra_alpha,
                            args.astra_temperature, args.astra_local_epochs)
