@@ -6,10 +6,15 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# Notas locais de comunicação (README do projeto permanece versionado)
+/*.md
+!/README.md
+
 # =========================
 # Datasets e Dados Brutos
 # =========================
 src/dataset/Cifar10/
+src/dataset/Cifar10_astra*/
 src/dataset/Cifar100/
 src/dataset/MNIST/
 src/dataset/OxfordPets/

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import yaml
 from datasets import ClassLabel, load_dataset
 from peft import LoraConfig, AdaLoraConfig, get_peft_model
@@ -623,7 +624,8 @@ def build_scheduler(optimizer, config):
     )
 
 
-def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0.0, accumulation_steps=1):
+def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0.0, accumulation_steps=1,
+                astra_reference=None, astra_teacher=None, astra_mu=0.0, astra_alpha=0.0, astra_temperature=3.0):
     """
     Loop de Treino por Época com suporte a Gradient Accumulation.
     Calcula a perda CE (Cross-Entropy Loss) e a penalidade de esparsidade, executando o backpropagation 
@@ -674,6 +676,30 @@ def train_epoch(model, loader, optimizer, sparse_optimizer=None, sparse_lambda=0
         outputs = model(pixel_values=pixel_values, labels=labels)
         ce_loss = outputs["loss"]
         loss = ce_loss / accumulation_steps
+
+        # ASTRA proximal penalty (mu/2 * sum squared L2 vs received model)
+        if astra_reference is not None and astra_mu:
+            prox = torch.tensor(0.0, device=pixel_values.device, dtype=pixel_values.dtype)
+            for name, p in model.named_parameters():
+                if p.requires_grad and name in astra_reference:
+                    ref = astra_reference[name]
+                    if ref.shape == p.shape:
+                        prox = prox + (p - ref.to(device=p.device, dtype=p.dtype)).pow(2).sum()
+            loss = loss + (astra_mu / 2.0) * prox / accumulation_steps
+
+        # ASTRA knowledge distillation (teacher frozen, temperature-scaled KL)
+        if astra_teacher is not None and astra_alpha and astra_alpha > 0:
+            with torch.no_grad():
+                t_out = astra_teacher(pixel_values=pixel_values)
+                t_logits = t_out["logits"] if isinstance(t_out, dict) else t_out
+            s_logits = outputs["logits"]
+            T = astra_temperature
+            kd = F.kl_div(
+                F.log_softmax(s_logits.float() / T, dim=1),
+                F.softmax(t_logits.float() / T, dim=1),
+                reduction="batchmean",
+            )
+            loss = loss + (astra_alpha * T * T * kd) / accumulation_steps
 
         loss.backward()
 

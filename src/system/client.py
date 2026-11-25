@@ -43,6 +43,7 @@ if str(parent_dir) not in sys.path:
 # -----------------------------------------------------------------
 
 from utils.data_utils import read_client_data, TransformedDataset
+from utils.drift_schedule import DriftPhase, phase_for_round, resolve_drift_clients
 from prunning import prune_and_restructure
 from ALA import ALA
 from ALA_LoRA import ALA_LoRA
@@ -117,14 +118,14 @@ def map_sequential_to_simplemodel(state_dict):
 #             quantized_state_dict[k] = v
 #     return quantized_state_dict
 
-def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None, astra_config=None):
+def local_training(model, state_dict, prune, train_loader, test_loader, learning_rate=0.01, round_num=2, alaarg=1, ala=None, model_type='cnn', run_config=None, grad_accum=None, astra_config=None, local_epochs=None):
     # Verifica se os pesos precisam ser desquantizados (se não forem tensores)
     if state_dict and not isinstance(next(iter(state_dict.values())), torch.Tensor):
         state_dict = dequantization(state_dict)
 
     astra_enabled = bool(astra_config and astra_config.get('enabled'))
-    if astra_enabled and model_type != 'cnn':
-        raise ValueError('ASTRA local training currently supports CNN only')
+    if astra_enabled and model_type not in ('cnn', 'clip', 'slm'):
+        raise ValueError('ASTRA local training currently supports CNN/CLIP/SLM only')
     
     personalized_acc = None  # Inicializa a variável que guardará a acurácia pós-ALA
     
@@ -135,7 +136,7 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
     if model_type in ['clip', 'slm']:
         # FedALA_LoRA só se aplica a CLIP (model_type != 'slm').
         # Evita deepcopy desnecessário do SLM inteiro (~4-6 GB).
-        needs_ala = (alaarg == 0 and round_num >= 2 and model_type != 'slm')
+        needs_ala = (alaarg == 0 and round_num >= 2 and model_type != 'slm' and not astra_enabled)
         
         if needs_ala:
             global_model = copy.deepcopy(model)
@@ -204,11 +205,23 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
         is_sora = run_config["model"]["lora"]["mode"] in ["with_sora_no_schedule", "with_sora_schedule"]
         sparse_lambda = run_config["model"].get("sora", {}).get("sparse_lambda", 0.0) if is_sora else 0.0
         
-        local_epochs = run_config.get("training", {}).get("epochs", 1) if run_config else 1
+        # Prioridade: --local-epochs (CLI) > curriculum ASTRA > config do modelo.
+        if local_epochs is not None:
+            eff_local_epochs = local_epochs
+        elif astra_enabled and astra_config is not None:
+            eff_local_epochs = astra_config.get('local_epochs',
+                                                run_config.get("training", {}).get("epochs", 1) if run_config else 1)
+        else:
+            eff_local_epochs = run_config.get("training", {}).get("epochs", 1) if run_config else 1
         accumulation_steps = grad_accum if grad_accum is not None else (run_config.get("training", {}).get("gradient_accumulation_steps", 4) if run_config else 4)
-        for ep in range(local_epochs):
-            metrics = train_epoch(model, train_loader, optimizer, sparse_optimizer, sparse_lambda, accumulation_steps=accumulation_steps)
-            logger.info(f"Local Epoch {ep+1}/{local_epochs} - CE Loss: {metrics['ce_loss']:.4f} | Sparse Loss: {metrics['sparse_loss']:.4f}")
+        for ep in range(eff_local_epochs):
+            metrics = train_epoch(model, train_loader, optimizer, sparse_optimizer, sparse_lambda, accumulation_steps=accumulation_steps,
+                                 astra_reference=reference_params if astra_enabled else None,
+                                 astra_teacher=teacher if astra_enabled else None,
+                                 astra_mu=astra_config.get('mu', 0.0) if astra_enabled and astra_config else 0.0,
+                                 astra_alpha=astra_config.get('alpha', 0.0) if astra_enabled and astra_config else 0.0,
+                                 astra_temperature=astra_config.get('temperature', 3.0) if astra_enabled and astra_config else 3.0)
+            logger.info(f"Local Epoch {ep+1}/{eff_local_epochs} - CE Loss: {metrics['ce_loss']:.4f} | Sparse Loss: {metrics['sparse_loss']:.4f}")
     else:
         # --- DIAGNÓSTICO: Contagem de parâmetros treináveis ---
         trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -221,7 +234,7 @@ def local_training(model, state_dict, prune, train_loader, test_loader, learning
 
         model_dtype = next(model.parameters()).dtype
         
-        epochs = astra_config['local_epochs'] if astra_enabled else 1
+        epochs = astra_config['local_epochs'] if astra_enabled else (local_epochs if local_epochs is not None else 1)
         for _ in range(epochs):
             for x, y in train_loader:
                 if x.is_floating_point():
@@ -287,7 +300,16 @@ def get_clip_transform():
 
     return ClipTransform()
 
-def load_data(dataset, client_idx, device, is_train=True, batch_size=8, is_clip=False, is_slm=False, slm_config=None, phase=None):
+
+def get_astra_train_transform():
+    """Augmentation de treino do ASTRA-FL (RandomCrop 32 pad 4 + HorizontalFlip) sobre tensores em [-1, 1]."""
+    return T.Compose([
+        T.RandomCrop(32, padding=4, fill=-1.0),
+        T.RandomHorizontalFlip(),
+    ])
+
+
+def load_data(dataset, client_idx, device, is_train=True, batch_size=8, is_clip=False, is_slm=False, slm_config=None, phase=None, train_augment='none'):
     res = read_client_data(dataset, client_idx, is_train, phase=phase)
     if isinstance(res, tuple):
         X, y = res
@@ -343,14 +365,19 @@ def load_data(dataset, client_idx, device, is_train=True, batch_size=8, is_clip=
         return DataLoader(slm_data, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, pin_memory=pin_mem)
 
     # Transformação sob demanda por mini-batch (evita expansão de 6GB de RAM CPU para CLIP)
-    transform = get_clip_transform() if is_clip else None
+    if is_clip:
+        transform = get_clip_transform()
+    elif is_train and train_augment == 'astra' and not is_slm:
+        transform = get_astra_train_transform()
+    else:
+        transform = None
     dataset_obj = TransformedDataset(X, y, transform=transform)
     loader = DataLoader(dataset_obj, batch_size=batch_size, shuffle=True)
     gc.collect()
     return loader
 
 
-def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_size=8, is_clip=False, is_slm=False, slm_config=None, phase1_tensors=None, phase2_tensors=None):
+def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_size=8, is_clip=False, is_slm=False, slm_config=None, phase1_tensors=None, phase2_tensors=None, train_augment='none'):
     """Carrega dados interpolando proporcionalmente Phase 1 e Phase 2 (Gradual Drift)."""
     if phase1_tensors is not None and phase2_tensors is not None:
         X1, y1 = phase1_tensors
@@ -384,6 +411,8 @@ def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_s
         sub_X1, sub_y1 = torch.empty((0, *X1.shape[1:]), dtype=X1.dtype, device=X1.device), torch.empty((0,), dtype=y1.dtype, device=y1.device)
 
     if n2 > 0:
+        if n2 > len(X2):
+            logger.warning(f"[DRIFT GRADUAL] Cliente {client_idx}: phase2 tem {len(X2)} amostras (< n2={n2}); usando {len(X2)}")
         idx2 = torch.randperm(len(X2))[:n2]
         sub_X2, sub_y2 = X2[idx2], y2[idx2]
     else:
@@ -400,7 +429,12 @@ def load_blended_data(dataset, client_idx, device, alpha, is_train=True, batch_s
         del X1, y1, X2, y2
     gc.collect()
 
-    transform = get_clip_transform() if is_clip else None
+    if is_clip:
+        transform = get_clip_transform()
+    elif is_train and train_augment == 'astra' and not is_slm:
+        transform = get_astra_train_transform()
+    else:
+        transform = None
     dataset_obj = TransformedDataset(X, y, transform=transform)
     loader = DataLoader(dataset_obj, batch_size=batch_size, shuffle=True)
     gc.collect()
@@ -536,10 +570,25 @@ def parse_args():
     parser.add_argument('--drift-clients', type=str, default='0', help='IDs dos clientes que sofrem drift (ex: "0" ou "0,1")')
     parser.add_argument('--drift-freq', type=int, default=0, help='Frequência (em rodadas) de ocorrência de drift periódico (ex: 5 para drift a cada 5 rounds)')
 
+    # --- ASTRA / Reprodutibilidade ---
+    parser.add_argument('--train-augment', type=str, default='none', choices=['none', 'astra'], help='Data augmentation de treino (astra = RandomCrop32+HorizontalFlip)')
+    parser.add_argument('--seed', type=int, default=None, help='Seed determinística opcional do cliente')
+    parser.add_argument('--no-quant', action='store_true', help='Desativa quantização int8 no envio ao servidor')
+    parser.add_argument('--local-epochs', type=int, default=None, help='Sobrescreve o número de épocas locais por rodada (ex: 1 para LoRA-CLIP/CNN)')
+
     return parser.parse_args()
 
 def main():
     args = parse_args()
+
+    if args.seed is not None:
+        client_seed = args.seed + args.client_idx
+        random.seed(client_seed)
+        np.random.seed(client_seed)
+        torch.manual_seed(client_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(client_seed)
+        logger.info(f"Seed determinística do cliente configurada: {client_seed}")
     
     # Configuração inteligente de device: MPS > CUDA > CPU
     if args.device == "mps":
@@ -594,9 +643,9 @@ def main():
             match args.dataset:
                 case 'MNIST':
                     model = SimpleModel(in_features=1, num_classes=10, dim=1024)
-                case 'Cifar10' | 'Cifar10_drift':
+                case ds if ds in ('Cifar10', 'Cifar10_drift') or ds.startswith('Cifar10_astra'):
                     model = SimpleModel(in_features=args.in_features, num_classes=10, dim=args.dim)
-                case 'Cifar100' | 'Cifar100_drift':
+                case ds if ds in ('Cifar100', 'Cifar100_drift') or ds.startswith('Cifar100_astra'):
                     model = SimpleModel(in_features=args.in_features, num_classes=args.num_classes, dim=args.dim)
                 case _:
                     logger.error(f"Dataset inválido: {args.dataset}")
@@ -648,6 +697,9 @@ def main():
                     run_config["training"] = {}
                 if hasattr(args, "grad_accum") and args.grad_accum is not None:
                     run_config["training"]["gradient_accumulation_steps"] = args.grad_accum
+                if getattr(args, "local_epochs", None) is not None:
+                    run_config["training"]["epochs"] = args.local_epochs
+                    logger.info(f"Local epochs sobrescrito via CLI: {args.local_epochs}")
             
     model = model.to(device)
     loss = nn.CrossEntropyLoss()
@@ -670,14 +722,16 @@ def main():
         is_slm_flag = (args.model == 'slm')
 
         raw_drift_clients = getattr(args, 'drift_clients', '0') or '0'
-        if raw_drift_clients.strip().lower() == 'all':
-            is_drifted_client = getattr(args, 'drift', False)
+        drift_enabled = bool(getattr(args, 'drift', False))
+        if drift_enabled:
+            drift_client_set = resolve_drift_clients(raw_drift_clients, [args.client_idx])
+            is_drifted_client = args.client_idx in drift_client_set
         else:
-            drift_client_set = set(int(x.strip()) for x in raw_drift_clients.split(",") if x.strip().isdigit())
-            is_drifted_client = getattr(args, 'drift', False) and (args.client_idx in drift_client_set)
-        initial_phase = "phase1" if getattr(args, 'drift', False) else None
+            is_drifted_client = False
+        initial_phase = "phase1" if drift_enabled else None
+        current_data_state = DriftPhase(initial_phase, 0.0)
 
-        train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase)
+        train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase, train_augment=args.train_augment)
         test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=initial_phase)
         logger.info(f"Data loaded successfully (Phase: {initial_phase or 'default'}) - Train batches: {len(train_loader)}, Test batches: {len(test_loader)}")
         if is_drifted_client:
@@ -731,91 +785,59 @@ def main():
                 rss_start = log_memory_usage(current_round, "INÍCIO_ROUND", args.client_idx)
 
                 # --- Detecção e Aplicação de Concept Drift ---
-                if is_drifted_client:
-                    drift_freq = getattr(args, 'drift_freq', 0)
-                    if drift_freq > 0:
-                        if args.drift_type == 'gradual':
-                            L = drift_freq
-                            p = (current_round - 1) // L
-                            cycle_step = (current_round - 1) % L
-                            r = cycle_step / (L - 1) if L > 1 else 0.0
-                            alpha_interp = r if (p % 2 == 0) else (1.0 - r)
-                            logger.info("=" * 65)
-                            logger.info(f"[CONCEPT DRIFT PERIÓDICO GRADUAL] Cliente {args.client_idx} (Round {current_round}): alpha={alpha_interp:.2f}")
-                            logger.info("=" * 65)
-                            del train_loader, test_loader
+                desired_state = phase_for_round(current_round, args, is_drifted_client=is_drifted_client)
+                if is_drifted_client and desired_state != current_data_state:
+                    del train_loader, test_loader
+                    gc.collect()
+                    if device.type == 'cuda':
+                        torch.cuda.empty_cache()
+                    if desired_state.phase == "blend":
+                        logger.info("=" * 65)
+                        logger.info(f"[CONCEPT DRIFT: GRADUAL] Cliente {args.client_idx} (Round {current_round}): alpha={desired_state.alpha:.2f} (Phase 2)")
+                        logger.info("=" * 65)
+                        if phase1_train_cache is None:
+                            phase1_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase1")
+                            phase2_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase2")
+                            phase1_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase1")
+                            phase2_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase2")
+                        train_loader = load_blended_data(
+                            args.dataset, args.client_idx, device, alpha=desired_state.alpha,
+                            is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag,
+                            is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None,
+                            phase1_tensors=phase1_train_cache, phase2_tensors=phase2_train_cache,
+                            train_augment=args.train_augment,
+                        )
+                        test_loader = load_blended_data(
+                            args.dataset, args.client_idx, device, alpha=desired_state.alpha,
+                            is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag,
+                            is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None,
+                            phase1_tensors=phase1_test_cache, phase2_tensors=phase2_test_cache,
+                        )
+                        log_memory_usage(current_round, f"PÓS_DRIFT_GRADUAL_α={desired_state.alpha:.2f}", args.client_idx)
+                    else:
+                        if phase1_train_cache is not None:
+                            del phase1_train_cache, phase2_train_cache, phase1_test_cache, phase2_test_cache
+                            phase1_train_cache = phase2_train_cache = phase1_test_cache = phase2_test_cache = None
                             gc.collect()
                             if device.type == 'cuda':
                                 torch.cuda.empty_cache()
-                            if phase1_train_cache is None:
-                                phase1_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase1")
-                                phase2_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase2")
-                                phase1_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase1")
-                                phase2_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase2")
-                            train_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_train_cache, phase2_tensors=phase2_train_cache)
-                            test_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_test_cache, phase2_tensors=phase2_test_cache)
-                            ala.update_train_data(train_loader)
-                            log_memory_usage(current_round, f"PÓS_DRIFT_PERIÓDICO_GRADUAL_α={alpha_interp:.2f}", args.client_idx)
-                        elif current_round % drift_freq == 0:
-                            target_phase = "phase2" if ((current_round // drift_freq) % 2 == 1) else "phase1"
-                            logger.info("=" * 65)
-                            logger.info(f"[CONCEPT DRIFT PERIÓDICO ABRUPTO] Cliente {args.client_idx} alternando para {target_phase.upper()} no Round {current_round}")
-                            logger.info("=" * 65)
-                            del train_loader, test_loader
-                            gc.collect()
-                            if device.type == 'cuda':
-                                torch.cuda.empty_cache()
-                            train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=target_phase)
-                            test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase=target_phase)
-                            ala.update_train_data(train_loader)
-                            log_memory_usage(current_round, f"PÓS_DRIFT_PERIÓDICO_{target_phase.upper()}", args.client_idx)
-                    elif args.drift_type == 'abrupt':
-                        if current_round == args.drift_round:
-                            logger.info("=" * 65)
-                            logger.info(f"[CONCEPT DRIFT: ABRUPTO] Cliente {args.client_idx} trocando para Phase 2 no Round {current_round}")
-                            logger.info("=" * 65)
-                            del train_loader, test_loader
-                            gc.collect()
-                            if device.type == 'cuda':
-                                torch.cuda.empty_cache()
-                            train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            ala.update_train_data(train_loader)
-                            log_memory_usage(current_round, "PÓS_DRIFT_ABRUPTO", args.client_idx)
-                    elif args.drift_type == 'gradual':
-                        if args.drift_round <= current_round < (args.drift_round + args.drift_length):
-                            alpha_interp = (current_round - args.drift_round + 1) / (args.drift_length + 1)
-                            logger.info("=" * 65)
-                            logger.info(f"[CONCEPT DRIFT: GRADUAL] Cliente {args.client_idx} (Round {current_round}): alpha={alpha_interp:.2f} (Phase 2)")
-                            logger.info("=" * 65)
-                            del train_loader, test_loader
-                            gc.collect()
-                            if device.type == 'cuda':
-                                torch.cuda.empty_cache()
-                            if phase1_train_cache is None:
-                                phase1_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase1")
-                                phase2_train_cache = read_client_data(args.dataset, args.client_idx, is_train=True, phase="phase2")
-                                phase1_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase1")
-                                phase2_test_cache = read_client_data(args.dataset, args.client_idx, is_train=False, phase="phase2")
-                            train_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_train_cache, phase2_tensors=phase2_train_cache)
-                            test_loader = load_blended_data(args.dataset, args.client_idx, device, alpha=alpha_interp, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase1_tensors=phase1_test_cache, phase2_tensors=phase2_test_cache)
-                            ala.update_train_data(train_loader)
-                            log_memory_usage(current_round, f"PÓS_DRIFT_GRADUAL_α={alpha_interp:.2f}", args.client_idx)
-                        elif current_round == (args.drift_round + args.drift_length):
-                            logger.info("=" * 65)
-                            logger.info(f"[CONCEPT DRIFT: GRADUAL] Transição concluída no Cliente {args.client_idx}. Operando 100% em Phase 2")
-                            logger.info("=" * 65)
-                            del train_loader, test_loader
-                            if phase1_train_cache is not None:
-                                del phase1_train_cache, phase2_train_cache, phase1_test_cache, phase2_test_cache
-                                phase1_train_cache = phase2_train_cache = phase1_test_cache = phase2_test_cache = None
-                            gc.collect()
-                            if device.type == 'cuda':
-                                torch.cuda.empty_cache()
-                            train_loader = load_data(args.dataset, args.client_idx, device, is_train=True, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            test_loader = load_data(args.dataset, args.client_idx, device, is_train=False, batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag, slm_config=run_config if is_slm_flag else None, phase="phase2")
-                            ala.update_train_data(train_loader)
-                            log_memory_usage(current_round, "PÓS_DRIFT_GRADUAL_FINAL", args.client_idx)
+                        logger.info("=" * 65)
+                        logger.info(f"[CONCEPT DRIFT] Cliente {args.client_idx} (Round {current_round}): operando em {str(desired_state.phase).upper()}")
+                        logger.info("=" * 65)
+                        train_loader = load_data(
+                            args.dataset, args.client_idx, device, is_train=True,
+                            batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag,
+                            slm_config=run_config if is_slm_flag else None, phase=desired_state.phase,
+                            train_augment=args.train_augment,
+                        )
+                        test_loader = load_data(
+                            args.dataset, args.client_idx, device, is_train=False,
+                            batch_size=args.batch_size, is_clip=is_clip_flag, is_slm=is_slm_flag,
+                            slm_config=run_config if is_slm_flag else None, phase=desired_state.phase,
+                        )
+                        log_memory_usage(current_round, f"PÓS_DRIFT_{str(desired_state.phase).upper()}", args.client_idx)
+                    ala.update_train_data(train_loader)
+                    current_data_state = desired_state
                 if args.model in ['clip', 'slm']:
                     server_paca, _ = recv_data(s)
                     if server_paca is None or server_paca == "end":
@@ -912,6 +934,7 @@ def main():
                     run_config=run_config if args.model in ['clip', 'slm'] else None,
                     grad_accum=getattr(args, 'grad_accum', 4),
                     astra_config=astra_config,
+                    local_epochs=getattr(args, 'local_epochs', None),
                 )
                 client_training_time = time.time() - train_start
                 if personalized_acc is not None:
@@ -944,7 +967,7 @@ def main():
                 else:
                     if args.delta_coding:
                         previous_sent_state = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in updated_state.items()}
-                    else:
+                    elif not getattr(args, 'no_quant', False):
                         updated_state = quantization(updated_state)
                 client_quant_time = time.time() - quant_start
                 client_eval_time = client_pre_eval_time + client_post_eval_time
@@ -1121,7 +1144,6 @@ def main():
             
             # Calcular distância média TX→Aggregator para métricas OTA
             # (disponível para todos os clientes, pois todos lêem o JSON)
-            import numpy as np
             from v2v_fl.over_the_air.ota_channel import distances_from_positions
             _, enc_distances = distances_from_positions(positions, aggregator_id)
             enc_mean_distance = float(np.mean(enc_distances)) if len(enc_distances) > 0 else 0.0
@@ -1189,7 +1211,6 @@ def main():
                 if is_aggregator:
                     logger.info(f"Client {args.client_idx}: Todos os pesos recebidos! Iniciando agregação OTA...")
 
-                    import numpy as np
                     from v2v_fl.over_the_air.ota_channel import (
                         distances_from_positions,
                         build_channel_matrices,

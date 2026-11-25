@@ -42,17 +42,53 @@ class TransformedDataset(Dataset):
         return x_i, self.y[idx]
 
 
+def _dataset_root():
+    """Raiz dos datasets (padrão: ../dataset relativo a src/system). Sobrescrevível via PUMA_DATASET_ROOT."""
+    return os.environ.get('PUMA_DATASET_ROOT', os.path.join('..', 'dataset'))
+
+
+_STRICT_CACHE = {}
+
+
+def _strict_phase_enabled(dataset):
+    """Modo estrito: fase ausente gera erro em vez de cair silenciosamente em {idx}.npz.
+
+    Ativado por PUMA_STRICT_PHASE=1 ou por ``"strict_phase": true`` no config.json do dataset
+    (gravado pelo gerador ASTRA). Para datasets legados o comportamento antigo é mantido.
+    """
+    env = os.environ.get('PUMA_STRICT_PHASE')
+    if env is not None:
+        return env.strip().lower() in ('1', 'true', 'yes')
+    root = _dataset_root()
+    cache_key = (root, dataset)
+    if cache_key not in _STRICT_CACHE:
+        strict = False
+        cfg_path = os.path.join(root, dataset, 'config.json')
+        try:
+            import json
+            with open(cfg_path, 'r') as f:
+                strict = bool(json.load(f).get('strict_phase', False))
+        except (OSError, ValueError):
+            strict = False
+        _STRICT_CACHE[cache_key] = strict
+    return _STRICT_CACHE[cache_key]
+
+
+def _resolve_file(data_dir, dataset, idx, phase):
+    if phase:
+        phase_file = os.path.join(data_dir, f"{idx}_{phase}.npz")
+        if os.path.exists(phase_file):
+            return phase_file
+        if _strict_phase_enabled(dataset):
+            raise FileNotFoundError(
+                f"[STRICT PHASE] Arquivo de fase ausente: {phase_file} (sem fallback para {idx}.npz)")
+    return os.path.join(data_dir, f"{idx}.npz")
+
+
 def read_data(dataset, idx, is_train=True, phase=None):
     if is_train:
-        train_data_dir = os.path.join('..', 'dataset', dataset, 'train/')
-        if phase:
-            phase_file = os.path.join(train_data_dir, f"{idx}_{phase}.npz")
-            if os.path.exists(phase_file):
-                train_file = phase_file
-            else:
-                train_file = os.path.join(train_data_dir, f"{idx}.npz")
-        else:
-            train_file = os.path.join(train_data_dir, f"{idx}.npz")
+        train_data_dir = os.path.join(_dataset_root(), dataset, 'train/')
+        train_file = _resolve_file(train_data_dir, dataset, idx, phase)
 
         with open(train_file, 'rb') as f:
             train_data = np.load(f, allow_pickle=True)['data'].item()
@@ -60,20 +96,33 @@ def read_data(dataset, idx, is_train=True, phase=None):
         return train_data
 
     else:
-        test_data_dir = os.path.join('..', 'dataset', dataset, 'test/')
-        if phase:
-            phase_file = os.path.join(test_data_dir, f"{idx}_{phase}.npz")
-            if os.path.exists(phase_file):
-                test_file = phase_file
-            else:
-                test_file = os.path.join(test_data_dir, f"{idx}.npz")
-        else:
-            test_file = os.path.join(test_data_dir, f"{idx}.npz")
+        test_data_dir = os.path.join(_dataset_root(), dataset, 'test/')
+        test_file = _resolve_file(test_data_dir, dataset, idx, phase)
 
         with open(test_file, 'rb') as f:
             test_data = np.load(f, allow_pickle=True)['data'].item()
 
         return test_data
+
+
+def has_global_test(dataset):
+    """True se o dataset possui conjunto de teste global (test/global_phase1.npz)."""
+    return os.path.exists(os.path.join(_dataset_root(), dataset, 'test', 'global_phase1.npz'))
+
+
+def read_global_test(dataset, phase="phase1"):
+    """Lê o teste global (teste oficial completo) gravado pelo gerador ASTRA.
+
+    phase1 = conceito original; phase2 = teste oficial com a transformação de drift aplicada.
+    Retorna (X float32, y int64) como ``read_client_data``.
+    """
+    path = os.path.join(_dataset_root(), dataset, 'test', f"global_{phase}.npz")
+    with open(path, 'rb') as f:
+        data = np.load(f, allow_pickle=True)['data'].item()
+    X = torch.as_tensor(data['x'], dtype=torch.float32)
+    y = torch.as_tensor(data['y'], dtype=torch.int64)
+    del data
+    return X, y
 
 
 def read_client_data(dataset, idx, is_train=True, phase=None):
